@@ -180,8 +180,7 @@ class CombatClass:
         # Initialize the list
 
         for priority in priorities:
-            for i in range(MAX_SKILLS):
-                skill = original_skills[i]
+            for skill in original_skills:
                 if skill.custom_skill_data.Nature != priority.value:
                     continue
 
@@ -210,8 +209,7 @@ class CombatClass:
         ]
 
         for skill_type in skill_types:
-            for i in range(MAX_SKILLS):
-                skill = original_skills[i]
+            for skill in original_skills:
 
                 if skill.skill_id in ordered_skills_by_skill_id:
                     continue
@@ -219,12 +217,15 @@ class CombatClass:
                 if skill.custom_skill_data.SkillType != skill_type.value:
                     continue
 
+                if Skill.Data.GetCombo(skill.skill_id) > 0:
+                    #combo are handled in a loop after
+                    continue
+
                 ordered_skills_by_skill_id[skill.skill_id] = skill
 
-        combos = [3, 2, 1]  # Dual attack, off-hand attack, lead attack
+        combos = [1, 2, 3]  # lead attack, off-hand attack, Dual attack
         for combo in combos:
-            for i in range(MAX_SKILLS):
-                skill = original_skills[i]
+            for skill in original_skills:
 
                 if skill.skill_id in ordered_skills_by_skill_id:
                     continue
@@ -233,8 +234,7 @@ class CombatClass:
                     ordered_skills_by_skill_id[skill.skill_id] = skill
 
         # Fill in remaining unprioritized skills
-        for i in range(MAX_SKILLS):
-            skill = original_skills[i]
+        for skill in original_skills:
 
             if skill.skill_id in ordered_skills_by_skill_id:
                 continue
