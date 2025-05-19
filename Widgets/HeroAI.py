@@ -1,3 +1,4 @@
+from HeroAI.custom_combat_behavior.custom_behavior_loader import CustomBehaviorLoader
 from Py4GWCoreLib import *
 
 from HeroAI.types import *
@@ -16,25 +17,29 @@ from HeroAI.cache_data import *
 MODULE_NAME = "HeroAI"
 
 cached_data = CacheData()
+CustomBehaviorLoader()
 
-def HandleOutOfCombat(cached_data:CacheData):
+def HandleOutOfCombat(cached_data: CacheData):
     if not cached_data.data.is_combat_enabled:  # halt operation if combat is disabled
         return False
     if cached_data.data.in_aggro:
         return False
 
-    return cached_data.combat_handler.HandleCombat(ooc= True)
+    if CustomBehaviorLoader().custom_combat_behavior is not None :
+        return CustomBehaviorLoader().custom_combat_behavior.handle_out_of_combat(cached_data)
+    else:
+        return cached_data.combat_handler.HandleCombat(ooc=True)
 
-
-
-def HandleCombat(cached_data:CacheData):
+def HandleCombat(cached_data: CacheData):
     if not cached_data.data.is_combat_enabled:  # halt operation if combat is disabled
         return False
     if not cached_data.data.in_aggro:
         return False
 
-    return cached_data.combat_handler.HandleCombat(ooc= False)
-
+    if CustomBehaviorLoader().custom_combat_behavior is not None:
+        return CustomBehaviorLoader().custom_combat_behavior.handle_combat(cached_data)
+    else:
+        return cached_data.combat_handler.HandleCombat(ooc=False)
 
 thread_manager = MultiThreading(log_actions=True)
 cached_data.in_looting_routine = False
@@ -284,14 +289,16 @@ def DrawEmbeddedWindow(cached_data:CacheData):
     
 
 def UpdateStatus(cached_data:CacheData):
-    
+
+    CustomBehaviorLoader().update()
+
     RegisterCandidate(cached_data) 
     UpdateCandidates(cached_data)           
     ProcessCandidateCommands(cached_data)   
     RegisterPlayer(cached_data)   
     RegisterHeroes(cached_data)
     UpdatePlayers(cached_data)      
-    UpdateGameOptions(cached_data)   
+    UpdateGameOptions(cached_data)
     
     cached_data.UpdateGameOptions()
 

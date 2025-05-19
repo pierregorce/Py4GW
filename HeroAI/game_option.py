@@ -1,12 +1,12 @@
-from Py4GWCoreLib import *
+from Py4GWCoreLib import Py4GW, traceback
 
-from .constants import (
+from HeroAI.constants import (
     GAME_OPTION_MODULE_NAME,
     MAX_NUM_PLAYERS,
     NUMBER_OF_SKILLS
 )
 
-from .cache_data import CacheData
+from HeroAI.cache_data import CacheData
 
 
 

@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
 from typing import List, Tuple
 
-from .constants import *
-from .globals import *
-from .targeting import *
-from .combat import *
-from .custom_skill import CustomSkillClass
+from HeroAI.constants import *
+from HeroAI.globals import *
+from HeroAI.targeting import *
+from HeroAI.combat import *
 
 @dataclass
 class GameData:
@@ -227,7 +226,7 @@ class CacheData:
                 self.game_throttle_timer.Reset()
                 self.data.reset()
                 self.data.update()
-                
+
                 if self.stay_alert_timer.HasElapsed(STAY_ALERT_TIME):
                     self.data.in_aggro = self.InAggro(AgentArray.GetEnemyArray(), Range.Earshot.value)
                 else:
@@ -238,7 +237,7 @@ class CacheData:
                     
                 if not self.stay_alert_timer.HasElapsed(STAY_ALERT_TIME):
                     self.data.in_aggro = True
-                
+
         except Exception as e:
             ConsoleLog(f"Update Cahe Data Error:", e)
                        

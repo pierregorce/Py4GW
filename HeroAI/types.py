@@ -1,10 +1,8 @@
 from ctypes import Structure, c_int, c_float, c_bool
 from enum import Enum, IntEnum
-from .constants import (
-    MAX_NUM_PLAYERS,
-    NUMBER_OF_SKILLS,
-    MAX_NUMBER_OF_BUFFS
-)
+MAX_NUM_PLAYERS = 12
+NUMBER_OF_SKILLS = 8
+MAX_NUMBER_OF_BUFFS = 240
 
 
 class PlayerBuff(Structure):

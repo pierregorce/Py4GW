@@ -1,11 +1,10 @@
-from Py4GWCoreLib import *
 from Py4GWCoreLib import Agent, Party
 
-from .constants import (
+from HeroAI.constants import (
     MAX_NUM_PLAYERS,
 )
 
-from .cache_data import CacheData
+from HeroAI.cache_data import CacheData
 
 
 def RegisterPlayer(cached_data:CacheData):

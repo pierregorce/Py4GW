@@ -1,5 +1,6 @@
 """This file contains the constants and globals used by the HeroAI module."""
-from Py4GWCoreLib import *
+# from Py4GWCoreLib import *
+from Py4GWCoreLib import Range, Skill
 
 TRUE = 1
 FALSE = 0

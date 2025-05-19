@@ -4,7 +4,7 @@ from multiprocessing import shared_memory, Lock
 from ctypes import sizeof
 import time
 
-from .constants import (
+from HeroAI.constants import (
     SMM_MODULE_NAME,
     MAX_NUM_PLAYERS,
     NUMBER_OF_SKILLS,
@@ -14,7 +14,7 @@ from .constants import (
     MAX_NUMBER_OF_BUFFS,
 )
 
-from .types import (
+from HeroAI.types import (
     GameStruct,
 )
 

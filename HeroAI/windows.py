@@ -1,13 +1,15 @@
 from operator import index
 from Py4GWCoreLib import *
-from .constants import *
-from .types import *
-from .globals import *
-from .utils import *
-from .candidates import SendPartyCommand
-from .targeting import *
+from HeroAI.constants import *
+from HeroAI.types import *
+from HeroAI.globals import *
+from HeroAI.utils import *
+from HeroAI.candidates import SendPartyCommand
+from HeroAI.targeting import *
 from HeroAI import game_option
-from .cache_data import CacheData
+from HeroAI.cache_data import CacheData
+import pprint
+import json
 
 
 def DrawBuffWindow(cached_data:CacheData):
@@ -43,12 +45,20 @@ def DrawPrioritizedSkills(cached_data:CacheData):
     global skill_slot
     from .constants import NUMBER_OF_SKILLS
  
-    PyImGui.text(f"skill pointer: : {cached_data.combat_handler.skill_pointer}")
+    PyImGui.text("Oasix8")
+    # PyImGui.text(f"Oasix2 {json.dumps(cached_data.combat_handler.skills[0], indent=4)}")
+    # pprint.pprint(vars(cached_data.combat_handler.skills[0].custom_skill_data.TargetAllegiance))
+    # pprint.pprint(vars(cached_data.combat_handler.skills[0].custom_skill_data.TargetAllegiance))
+    # cached_data.HeroAI_vars.all_player_struct[0].
+    # cached_data.HeroAI_vars
+    # how to get data from other playe
+
     in_casting_routine = cached_data.combat_handler.InCastingRoutine()
     PyImGui.text_colored(f"InCastingRoutine: {in_casting_routine}",TrueFalseColor(not in_casting_routine))
     PyImGui.text(f"aftercast_timer: {cached_data.combat_handler.aftercast_timer.GetElapsedTime()}")
 
     if PyImGui.begin_tab_bar("OrderedSkills"):
+
         skills = cached_data.combat_handler.GetSkills()
         for i in range(len(skills)):
             slot = i
@@ -159,6 +169,8 @@ def DrawPrioritizedSkills(cached_data:CacheData):
                 
                 PyImGui.end_tab_item()
         PyImGui.end_tab_bar()
+
+            # cached_data.HeroAI_vars.all_player_struct[0]
 
 
 HeroFlags: list[bool] = [False, False, False, False, False, False, False, False, False]

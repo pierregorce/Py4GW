@@ -1,18 +1,17 @@
-from Py4GWCoreLib import *
-
-from .constants import (
+from Py4GWCoreLib import ImGui, PyImGui, Timer
+from HeroAI.constants import (
     MODULE_NAME,
     MAX_NUM_PLAYERS,
     NUMBER_OF_SKILLS,
 )
 
-from .types import (
+from HeroAI.types import (
     PlayerStruct,
     CandidateStruct,
     GameOptionStruct,
 )
 
-from .shared_memory_manager import SharedMemoryManager
+from HeroAI.shared_memory_manager import SharedMemoryManager
 
 class HeroAI_varsClass:
     global MAX_NUM_PLAYERS, NUMBER_OF_SKILLS

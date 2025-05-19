@@ -1,5 +1,5 @@
 from Py4GWCoreLib import *
-from .constants import (
+from HeroAI.constants import (
     Range,
     BLOOD_IS_POWER,
     BLOOD_RITUAL,

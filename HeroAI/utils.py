@@ -1,7 +1,7 @@
 from Py4GWCoreLib import *
-from .constants import MAX_NUM_PLAYERS
-from .targeting import *
-from .cache_data import CacheData
+from HeroAI.constants import MAX_NUM_PLAYERS
+from HeroAI.targeting import *
+from HeroAI.cache_data import CacheData
 
 import math
 

@@ -1,11 +1,11 @@
 from Py4GWCoreLib import *
 
-from .constants import (
+from HeroAI.constants import (
     CANDIDATES_MODULE_NAME,
     MAX_NUM_PLAYERS,
 )
 
-from .types import (
+from HeroAI.types import (
     CandidateStruct,
 )
 

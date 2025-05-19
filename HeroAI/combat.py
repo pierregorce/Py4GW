@@ -873,7 +873,8 @@ class CombatClass:
             self.in_casting_routine = False
             return False, v_target
         # Check if the skill is recharging
-        if self.skills[slot].skillbar_data.recharge != 0:
+
+        if not Routines.Checks.Skills.IsSkillIDReady(self.skills[slot].skill_id):
             self.in_casting_routine = False
             return False, v_target
         
