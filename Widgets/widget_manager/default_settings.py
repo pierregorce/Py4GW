@@ -224,7 +224,14 @@ global_widget_defaults = {
         "subcategory": "Helpers",
         "icon": "ICON_FLAG_CHECKERED",
         "quickdock": "True"
-    }
+    },
+    "CustomBehaviors": {
+        "enabled": "True",
+        "category": "Bots",
+        "subcategory": "Helpers",
+        "icon": "ICON_PEOPLE_CARRY",
+        "quickdock": "True"
+    },
 }
 
 account_widget_defaults = {
@@ -452,5 +459,13 @@ account_widget_defaults = {
         "subcategory": "Helpers",
         "icon": "ICON_FLAG_CHECKERED",
         "quickdock": "True"
-    }
+    },
+    "CustomBehaviors": {
+        "enabled": "True",
+        "category": "Bots",
+        "subcategory": "Helpers",
+        "icon": "ICON_PEOPLE_CARRY",
+        "quickdock": "True"
+    },
+
 }
