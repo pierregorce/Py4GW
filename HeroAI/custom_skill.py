@@ -8096,6 +8096,7 @@ class CustomSkillClass:
         skill.TargetAllegiance = Skilltarget.Ally.value
         skill.Nature = SkillNature.Healing.value
         skill.Conditions.LessLife = 0.75
+        skill.Conditions.IsHoldingItem = True
         self.skill_data[skill.SkillID] = skill
 
         skill = self.CustomSkill()
@@ -9951,6 +9952,7 @@ class CustomSkillClass:
         skill.Conditions.LessLife = 0.85
         skill.Conditions.IsPartyWide = True
         skill.Conditions.PartyWideArea = Range.SafeCompass.value
+        skill.Conditions.IsOutOfCombat = False
         self.skill_data[skill.SkillID] = skill
 
         skill = self.CustomSkill()

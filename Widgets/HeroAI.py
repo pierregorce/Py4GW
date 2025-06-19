@@ -359,7 +359,7 @@ def UpdateStatus(cached_data:CacheData):
     RegisterPlayer(cached_data)   
     RegisterHeroes(cached_data)
     UpdatePlayers(cached_data)      
-    UpdateGameOptions(cached_data)   
+    UpdateGameOptions(cached_data)
     
     cached_data.UpdateGameOptions()
 

@@ -296,7 +296,7 @@ class Routines:
                 """
                 # Get base energy cost for the skill
                 cost = GLOBAL_CACHE.Skill.Data.GetEnergyCost(skill_id)
-                
+
                 # Get all active effects on the agent
                 player_effects = GLOBAL_CACHE.Effects.GetEffects(agent_id)
 

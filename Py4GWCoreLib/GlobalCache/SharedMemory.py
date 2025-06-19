@@ -81,8 +81,8 @@ class HeroAIOptionStruct(Structure):
         ("FlagPosX", c_float),
         ("FlagPosY", c_float),
         ("FlagFacingAngle", c_float),
-    ] 
-    
+    ]
+
 class AllAccounts(Structure):
     _pack_ = 1
     _fields_ = [
@@ -831,4 +831,3 @@ class Py4GWSharedMemoryManager:
             if message.Active:
                 messages.append((index, message))  # Add index and message
         return messages
-
