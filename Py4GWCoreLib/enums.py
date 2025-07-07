@@ -2887,6 +2887,7 @@ class SpiritModelID(IntEnum):
     WANDERLUST = 4228
 
     # OTHER
+    FURY = 5722
     VAMPIRISM = 5723
     WINDS = 2884
 
