@@ -2,7 +2,6 @@ from abc import abstractmethod
 from collections import deque
 from typing import List, Generator, Any, override
 
-from HeroAI.cache_data import CacheData
 from Py4GWCoreLib import GLOBAL_CACHE, Routines, Range
 from Widgets.CustomBehaviors.primitives.skillbars.custom_behavior_base import CustomBehaviorBase
 from Widgets.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -13,9 +12,8 @@ from Widgets.CustomBehaviors.primitives.constants import DEBUG
 
 class CustomBehaviorBaseUtility(CustomBehaviorBase):
 
-    def __init__(self, cached_data: CacheData):
-        super().__init__(cached_data)
-        self.__cache_data = cached_data
+    def __init__(self):
+        super().__init__()
         self.__previously_attempted_skills: deque[CustomSkill] = deque(maxlen=40)
         self.__final_skills_list: list[CustomSkillUtilityBase] | None = None
 
@@ -99,16 +97,16 @@ class CustomBehaviorBaseUtility(CustomBehaviorBase):
         return self.__final_skills_list
 
     @override
-    def _handle_in_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
-        return self._handle(cached_data)
+    def _handle_in_aggro(self) -> Generator[Any | None, Any | None, None]:
+        return self._handle()
 
     @override
-    def _handle_far_from_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
-        return self._handle(cached_data)
+    def _handle_far_from_aggro(self) -> Generator[Any | None, Any | None, None]:
+        return self._handle()
 
     @override
-    def _handle_close_to_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
-        return self._handle(cached_data)
+    def _handle_close_to_aggro(self) -> Generator[Any | None, Any | None, None]:
+        return self._handle()
 
     def get_all_scores(self) -> list[tuple[CustomSkillUtilityBase, float | None]]:
         # Evaluate all utilities
@@ -125,7 +123,7 @@ class CustomBehaviorBaseUtility(CustomBehaviorBase):
         utility_scores.sort(key=lambda x: x[1] if x[1] is not None else 0, reverse=True)
         return utility_scores
 
-    def _handle(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
+    def _handle(self) -> Generator[Any | None, Any | None, None]:
         
         while True:
             
@@ -138,8 +136,7 @@ class CustomBehaviorBaseUtility(CustomBehaviorBase):
                 continue
 
             # Try to execute the highest scoring utility
-            result = yield from highest_scoring[0].execute(cached_data, self.get_final_state())
-            # if result == BehaviorResult.ACTION_PERFORMED:
+            yield from highest_scoring[0].execute(self.get_final_state())
             self.__previously_attempted_skills.append(highest_scoring[0].custom_skill)
 
             yield

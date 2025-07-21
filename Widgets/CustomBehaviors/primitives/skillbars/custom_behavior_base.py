@@ -22,11 +22,10 @@ class CustomBehaviorBase:
     # priority behavior if few mana
     # do-not-overlap mode => with shared-memory-lock / or shared-memory-queue
 
-    def __init__(self, cached_data: CacheData):
-        self._generator_handle_in_aggro = self._handle_in_aggro(cached_data)
-        self._generator_handle_close_to_aggro = self._handle_close_to_aggro(cached_data)
-        self._generator_handle_far_from_aggro = self._handle_far_from_aggro(cached_data)
-        self.__cache_data = cached_data
+    def __init__(self):
+        self._generator_handle_in_aggro = self._handle_in_aggro()
+        self._generator_handle_close_to_aggro = self._handle_close_to_aggro()
+        self._generator_handle_far_from_aggro = self._handle_far_from_aggro()
         self.__is_enabled:bool = False
 
     def enable(self):
@@ -38,7 +37,7 @@ class CustomBehaviorBase:
     # override & computed
 
     def get_state(self) -> BehaviorState:
-        return self._fetch_state(self.__cache_data)
+        return self._fetch_state()
 
     def get_final_state(self) -> BehaviorState:
         party_forced_state:BehaviorState|None = CustomBehaviorParty().get_party_forced_state()
@@ -95,8 +94,9 @@ class CustomBehaviorBase:
             return skills_by_skill_id
 
         from Widgets import HeroAI
-        self.__cache_data.combat_handler.PrioritizeSkills()
-        generic_skills:List["HeroAI.CombatClass.SkillData"] = self.__cache_data.combat_handler.skills
+        cache_data = CacheData()
+        cache_data.combat_handler.PrioritizeSkills()
+        generic_skills:List["HeroAI.CombatClass.SkillData"] = cache_data.combat_handler.skills
 
         custom_skills:dict[int, "CustomSkill"] = __get_custom_behavior_build()
         not_customized_skills: List["CustomSkill"] = []
@@ -122,7 +122,7 @@ class CustomBehaviorBase:
 
     #orchestration
 
-    def act(self, cached_data: CacheData):
+    def act(self):
 
         if not self.get_final_is_enabled(): return
         if not Routines.Checks.Map.MapValid(): return
@@ -165,7 +165,7 @@ class CustomBehaviorBase:
 
     #abstract/overridable
 
-    def _fetch_state(self, cached_data: CacheData) -> BehaviorState:
+    def _fetch_state(self) -> BehaviorState:
 
         if self.get_final_is_enabled() == False:
             return BehaviorState.IDLE
@@ -188,13 +188,13 @@ class CustomBehaviorBase:
         return BehaviorState.FAR_FROM_AGGRO
 
     @abstractmethod
-    def _handle_in_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
+    def _handle_in_aggro(self) -> Generator[Any | None, Any | None, None]:
         pass
 
     @abstractmethod
-    def _handle_far_from_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
+    def _handle_far_from_aggro(self) -> Generator[Any | None, Any | None, None]:
         pass
 
     @abstractmethod
-    def _handle_close_to_aggro(self, cached_data: CacheData) -> Generator[Any | None, Any | None, None]:
+    def _handle_close_to_aggro(self) -> Generator[Any | None, Any | None, None]:
         pass

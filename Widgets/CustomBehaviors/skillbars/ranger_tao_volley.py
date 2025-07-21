@@ -1,6 +1,5 @@
 from typing import List, Any, Generator, Callable, override
 import time
-from HeroAI.cache_data import CacheData
 from Widgets.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Widgets.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Widgets.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -25,8 +24,8 @@ from Widgets.CustomBehaviors.skills.ranger.together_as_one import TogetherAsOneU
 
 class RangerTaoVolley_UtilitySkillBar(CustomBehaviorBaseUtility):
 
-    def __init__(self, cached_data: CacheData):
-        super().__init__(cached_data)
+    def __init__(self):
+        super().__init__()
         in_game_build = list(CustomBehaviorBase.get_in_game_build().values())
         self.auto_attack: CustomSkillUtilityBase = AutoAttackUtility(current_build=in_game_build)
 

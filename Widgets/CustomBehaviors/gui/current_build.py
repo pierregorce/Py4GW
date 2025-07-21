@@ -103,14 +103,16 @@ def render():
             
             skill : CustomSkillUtilityBase = score[0]
             PyImGui.text_scaled(f"{label_generic_utility(skill)}{score_text}", Color(0, 255, 0, 255).to_tuple_normalized(), 1.2)
-            PyImGui.text(f"{skill.custom_skill.skill_name}")
+            PyImGui.text(f"{skill.custom_skill.skill_name} - Slot:{skill.custom_skill.skill_slot}")
 
             if WITH_DETAIL:
                 PyImGui.bullet_text("required ressource")
                 PyImGui.same_line(0, -1)
+                
                 PyImGui.text_colored(f"{skill.mana_required_to_cast}",  Utils.RGBToNormal(27, 126, 246, 255))
                 PyImGui.bullet_text(f"allowed in : {[x.name for x in skill.allowed_states]}")
                 PyImGui.bullet_text(f"pre_check : {skill.are_common_pre_checks_valid(instance.get_final_state())}")
+                skill.customized_debug_ui(instance.get_final_state())
 
             PyImGui.table_next_row()
 

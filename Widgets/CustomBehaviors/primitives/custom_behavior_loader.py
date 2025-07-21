@@ -128,8 +128,7 @@ class CustomBehaviorLoader:
 
         for subclass in subclasses:
             if DEBUG: print(f"Checking subclass: {subclass.__name__} (defined in {subclass.__module__})")
-            from HeroAI.cache_data import CacheData
-            instance: CustomBehaviorBase = subclass(CacheData())
+            instance: CustomBehaviorBase = subclass()
 
             build_size = len(instance.skills_required_in_behavior)
             print(f"build_size: {build_size}")
@@ -195,7 +194,9 @@ class CustomBehaviorLoader:
         return None
 
     def ensure_custom_behavior_match_in_game_build(self):
-        if self._has_loaded and self.custom_combat_behavior is not None:
+        if Routines.Checks.Map.MapValid() and self._has_loaded and self.custom_combat_behavior is not None :
+            if not GLOBAL_CACHE.Map.IsOutpost():
+                return
 
             if type(self.custom_combat_behavior).mro()[1].__name__ == CustomBehaviorBaseUtility.__name__:
                 
@@ -203,7 +204,7 @@ class CustomBehaviorLoader:
                 skill_allowed_in_behavior:list[CustomSkillUtilityBase] = self.custom_combat_behavior.skills_allowed_in_behavior
                 skill_ids_allowed_in_behavior:list[int] = [item.custom_skill.skill_id for item in skill_allowed_in_behavior]
 
-                utility_build = []
+                utility_build:list[CustomSkillUtilityBase] = []
                 
                 for skill in utility_build_full:
                     if skill in self.custom_combat_behavior.additional_autonomous_skills:
@@ -214,7 +215,17 @@ class CustomBehaviorLoader:
                 skill_ids_in_custom_behavior:list[int] = [item.custom_skill.skill_id for item in utility_build]
                 is_completed:bool = self.custom_combat_behavior.complete_build_with_generic_skills
 
-                if not is_completed:
+                # check if slots match in game build
+
+                for skill in utility_build:
+                    skill_id = GLOBAL_CACHE.SkillBar.GetSkillIDBySlot(skill.custom_skill.skill_slot)
+                    if skill_id != skill.custom_skill.skill_id:
+                        if DEBUG: print(f"Slot {skill.custom_skill.skill_slot} doesn't match skill {skill.custom_skill.skill_id}, stop customing")
+                        self._has_loaded = False
+                        self.custom_combat_behavior = None
+                        return
+
+                if not is_completed:                    
 
                     for skill_id in skill_ids_in_custom_behavior:
                         if skill_id not in in_game_build.keys():
@@ -229,9 +240,11 @@ class CustomBehaviorLoader:
                             self._has_loaded = False
                             self.custom_combat_behavior = None
                             return
+                            
                 
 
                 if is_completed:
+
                     for skill_id in in_game_build.keys():
                         if skill_id not in skill_ids_in_custom_behavior:
                             if DEBUG: print(f"{skill_id} doesn't exist, stop customing")
