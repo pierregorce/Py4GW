@@ -121,7 +121,16 @@ class BuffConfigurationPerPlayerEmail(CustomBuffTarget):
         return lambda agent_id: self.__should_apply_effect(agent_id)
 
     def get_agent_id_ordering_predicate(self) -> Callable[[int], int]:
-        return lambda agent_id: self.__email_order.index(self.__get_email_for_agent(agent_id) or "")
+
+        def wrapped(agent_id: int) -> int:
+            try:
+                email: str | None = self.__get_email_for_agent(agent_id)
+                if email is None: return 999
+                return self.__email_order.index(email)
+            except ValueError:
+                return 999
+
+        return wrapped
 
     def __should_apply_effect(self, agent_id: int) -> bool:
         # Fast path: use stored agent_id mapping
