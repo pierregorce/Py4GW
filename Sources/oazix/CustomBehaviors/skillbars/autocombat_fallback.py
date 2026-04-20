@@ -2,8 +2,8 @@ from math import e
 from typing import override
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
-from Sources.oazix.CustomBehaviors.primitives.skillbars import utility_skill_finder
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
+from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder import UtilitySkillFinder
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
@@ -66,7 +66,7 @@ class AutoCombatFallback_UtilitySkillBar(CustomBehaviorBaseUtility):
         Returns:
             Dictionary mapping skill_id to instantiated utility skill objects
         """
-        return utility_skill_finder.discover_all_utility_skills(
+        return UtilitySkillFinder().discover_all_utility_skills(
             event_bus=self.event_bus,
             in_game_build=in_game_build,
             custom_overrides=self._custom_overrides

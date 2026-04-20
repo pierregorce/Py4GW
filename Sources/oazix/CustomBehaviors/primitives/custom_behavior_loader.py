@@ -4,6 +4,7 @@ import pkgutil
 from typing import Generator, Any, List
 
 from Sources.oazix.CustomBehaviors.primitives import constants
+from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus
@@ -105,8 +106,10 @@ class CustomBehaviorLoader:
         return subclasses
 
     def __find_and_order_custom_behaviors(self) -> List[MatchResult]:
+        # Use PathLocator to get the skillbars package name
+        skillbars_package = PathLocator.get_skillbars_package_name()
 
-        subclasses: list[type] = self.__find_subclasses_in_folder(CustomBehaviorBaseUtility, "Sources.oazix.CustomBehaviors.skillbars")
+        subclasses: list[type] = self.__find_subclasses_in_folder(CustomBehaviorBaseUtility, skillbars_package)
         matches: List[MatchResult] = []
 
         for subclass in subclasses:

@@ -28,6 +28,7 @@ class NecromancerSoulTaker_UtilitySkillBar(CustomBehaviorBaseUtility):
         # scythe attacks
         self.twin_moon_sweep_utility: CustomSkillUtilityBase = ScytheRequiringEnchantmentUtility(event_bus=self.event_bus, current_build=in_game_build, skill=CustomSkill("Twin_Moon_Sweep"), score_definition=ScorePerAgentQuantityDefinition(lambda enemy_qte: 81 if enemy_qte >= 3 else 53 if enemy_qte <= 2 else 21))
         self.eremites_attack_utility: CustomSkillUtilityBase = ScytheRequiringEnchantmentUtility(event_bus=self.event_bus, current_build=in_game_build, skill=CustomSkill("Eremites_Attack"), score_definition=ScorePerAgentQuantityDefinition(lambda enemy_qte: 80 if enemy_qte >= 3 else 52 if enemy_qte <= 2 else 20))
+        
         # dervish enchantments
         self.sand_shards_utility: CustomSkillUtilityBase = DervichEnchantmentUtility(event_bus=self.event_bus, skill=CustomSkill("Sand_Shards"), current_build=in_game_build, score_definition=ScoreStaticDefinition(88), renew_before_expiration_in_milliseconds=99999)
         self.mirage_cloak_utility: CustomSkillUtilityBase = DervichEnchantmentUtility(event_bus=self.event_bus, skill=CustomSkill("Mirage_Cloak"), current_build=in_game_build, score_definition=ScoreStaticDefinition(88), renew_before_expiration_in_milliseconds=99999)
@@ -66,6 +67,7 @@ class NecromancerSoulTaker_UtilitySkillBar(CustomBehaviorBaseUtility):
         return [
             HexPriority(CustomSkill("Deep_Freeze"), DisabilityPriority.HIGH),
             HexPriority(CustomSkill("Mind_Freeze"), DisabilityPriority.HIGH),
+            HexPriority(CustomSkill("Crippling_Anguish"), DisabilityPriority.NORMAL),
         ]
     
     @override

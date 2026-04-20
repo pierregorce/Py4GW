@@ -15,11 +15,11 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
-from Sources.oazix.CustomBehaviors.primitives.skillbars import utility_skill_finder
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_skillbar_management import CustomBehaviorSkillbarManagement
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.skillbars.disabilities.condition_priority import ConditionPriority
 from Sources.oazix.CustomBehaviors.primitives.skillbars.disabilities.hex_prioritiy import HexPriority
+from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder import UtilitySkillFinder
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_execution_strategy import UtilitySkillExecutionStrategy
@@ -265,7 +265,7 @@ class CustomBehaviorBaseUtility():
         
         in_game_build_by_skill_id: dict[int, CustomSkill] = self.skillbar_management.get_in_game_build()
         custom_skills_in_behavior_by_skill_id: dict[int, CustomSkillUtilityBase] = {x.custom_skill.skill_id: x for x in self.custom_skills_in_behavior}
-        generic_utility_skills_by_skill_id: dict[int, CustomSkillUtilityBase] = utility_skill_finder.discover_all_utility_skills(
+        generic_utility_skills_by_skill_id: dict[int, CustomSkillUtilityBase] = UtilitySkillFinder().discover_all_utility_skills(
             event_bus=self.event_bus,
             in_game_build=list(in_game_build_by_skill_id.values())
         )
