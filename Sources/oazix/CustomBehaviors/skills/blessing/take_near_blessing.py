@@ -5,7 +5,7 @@ from typing import Any, Generator, override
 
 import PyImGui
 
-from Py4GWCoreLib import GLOBAL_CACHE, Routines, Range, Agent, Player
+from Py4GWCoreLib import Routines, Range, Agent, Player
 from Py4GWCoreLib.Pathing import AutoPathing
 from Py4GWCoreLib.Py4GWcorelib import Keystroke, Utils
 from Py4GWCoreLib.enums import Key
@@ -14,17 +14,14 @@ from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
-from Sources.oazix.CustomBehaviors.primitives.helpers import blessing_helper, custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers, request_blessing_npc_helper
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import ShareLockType
 from Sources.oazix.CustomBehaviors.primitives.scores.comon_score import CommonScore
-from Sources.oazix.CustomBehaviors.primitives.scores.score_definition import ScoreDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
-import time
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_execution_strategy import UtilitySkillExecutionStrategy
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
@@ -70,7 +67,7 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
         #    - we can't check if blessing is already obtained (some of them are random)
         #    - we can add a closed list for agent_id we already interracted with.
 
-        blessing_npc: tuple[blessing_helper.BlessingNpcV2, int] | None = blessing_helper.find_first_blessing_npc(Range.Earshot.value)
+        blessing_npc: tuple[request_blessing_npc_helper.RequestBlessingNpcHelper, int] | None = request_blessing_npc_helper.find_first_blessing_npc(Range.Earshot.value)
         if blessing_npc is None:
             return None
         agent_id: int = blessing_npc[1]
@@ -91,7 +88,7 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
         # B) run_dialog_sequences with waits
         # C) add agent_ids_already_interracted & release lock
 
-        blessing_npc: tuple[blessing_helper.BlessingNpcV2, int] | None = blessing_helper.find_first_blessing_npc(Range.Earshot.value)
+        blessing_npc: tuple[request_blessing_npc_helper.RequestBlessingNpcHelper, int] | None = request_blessing_npc_helper.find_first_blessing_npc(Range.Earshot.value)
 
         if blessing_npc is None:
             yield
@@ -122,14 +119,14 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
             CustomBehaviorParty().get_shared_lock_manager().release_lock(lock_key)
 
     def run_dialog_sequence(self, agent_id: int) -> Generator[None, None, bool]:
-        npc_dialog_visible = yield from blessing_helper.wait_npc_dialog_visible(timeout_ms=3_500)
+        npc_dialog_visible = yield from request_blessing_npc_helper.wait_npc_dialog_visible(timeout_ms=3_500)
         if not npc_dialog_visible:
             if constants.DEBUG:
                 print("npc_dialog_visible FALSE")
             Keystroke.PressAndRelease(Key.Escape.value)
             return False
 
-        result = yield from blessing_helper.run_dialog_sequences(timeout_ms=3_500)
+        result = yield from request_blessing_npc_helper.run_dialog_sequences(timeout_ms=3_500)
         if not result:
             if constants.DEBUG:
                 print("run_dialog_sequences FALSE.")
