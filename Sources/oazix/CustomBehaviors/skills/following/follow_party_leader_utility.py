@@ -6,8 +6,7 @@ from typing import Any, Generator, override
 
 import PyImGui
 
-from HeroAI.types import PlayerStruct
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Routines, Range, Player
+from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range, Player
 from Py4GWCoreLib.Py4GWcorelib import ActionQueueManager, ThrottledTimer, Utils
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult

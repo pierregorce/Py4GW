@@ -602,13 +602,6 @@ def render():
         
         if PyImGui.tree_node_ex("[TEAM] Management :", 0):
 
-            from Sources.oazix.CustomBehaviors.primitives.hero_ai_wrapping.hero_ai_wrapping import HeroAiWrapping
-            hero_ai = HeroAiWrapping()
-            heroai_ui_visible = hero_ai.is_heroai_ui_visible()
-            new_state = PyImGui.checkbox("Show HeroUI Panels", heroai_ui_visible)
-            if new_state != heroai_ui_visible:
-                hero_ai.change_heroai_ui_visibility(is_visible=new_state)
-
             PyImGui.text(f"Default PartyLeader is {GLOBAL_CACHE.Party.GetPartyLeaderID()}")
             PyImGui.text(f"Overriden PartyLeader is {custom_behavior_helpers.CustomBehaviorHelperParty.get_party_leader_id()}")
             if PyImGui.small_button("Reset PartyLeader"):

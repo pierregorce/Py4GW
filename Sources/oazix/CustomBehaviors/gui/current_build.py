@@ -104,8 +104,8 @@ def render():
                         # PyImGui.table_headers_row()
                         for score in scores_by_typology:
                             def label_generic_utility(utility: CustomSkillUtilityBase) -> str:
-                                if utility.__class__.__name__ == "AutoCombatUtility":
-                                    return f" AutoCombat"
+                                if utility.__class__.__name__ == "StubUtility":
+                                    return f" Stub"
                                 return ""
                             score_text = f"{score[1]:06.4f}" if score[1] is not None else "Ø"
                             texture_file = get_skill_texture_with_fallback(score[0].custom_skill.get_texture())

@@ -1,4 +1,3 @@
-import pathlib
 from HeroAI.custom_skill import CustomSkillClass
 from Py4GWCoreLib import GLOBAL_CACHE
 from Sources.oazix.CustomBehaviors.PathLocator import PathLocator

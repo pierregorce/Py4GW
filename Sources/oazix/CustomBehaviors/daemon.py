@@ -2,7 +2,6 @@ from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.auto_follow_agent import AutoFollowAgent
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.auto_follow_path import AutoFollowPath
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
-from Sources.oazix.CustomBehaviors.primitives.hero_ai_wrapping.hero_ai_wrapping import HeroAiWrapping
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 
 loader_throttler = ThrottledTimer(100)
@@ -28,7 +27,6 @@ def daemon():
                 loader.refresh_custom_behavior_candidate()
                 return
 
-    HeroAiWrapping().act()
     # main loops
     if player_behavior is not None:
         player_behavior.act()

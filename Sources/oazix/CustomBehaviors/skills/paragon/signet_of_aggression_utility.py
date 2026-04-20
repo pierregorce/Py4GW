@@ -2,11 +2,8 @@ from re import S
 from typing import Any, Callable, Generator, override
 import random
 
-from HeroAI.types import SkillType
-from HeroAI.utils import GetEffectAndBuffIds
-from HeroAI.custom_skill_src.skill_types import *
-from Py4GWCoreLib import GLOBAL_CACHE, Routines, Agent, Player
-from Py4GWCoreLib.enums import Profession, Range
+from Py4GWCoreLib import Player
+from Py4GWCoreLib.enums_src.GameData_enums import SkillType
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
@@ -40,7 +37,7 @@ class SignetOfAggressionUtility(CustomSkillUtilityBase):
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
-        has_buff =  self._HasShoutBuff(agent_id=Player.GetAgentID())
+        has_buff =  custom_behavior_helpers.Resources.is_ally_under_specific_effect_types(Player.GetAgentID(), [SkillType.Shout, SkillType.Chant])
         if has_buff: return self.score_definition.get_score()
         return None
 
@@ -49,19 +46,3 @@ class SignetOfAggressionUtility(CustomSkillUtilityBase):
         # todo only get power if needed
         result:BehaviorResult = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result
-
-    def _HasShoutBuff(self, agent_id: int):
-
-        buff_list = GetEffectAndBuffIds(agent_id)
-
-        for buff in buff_list:
-            skill_type, _ = GLOBAL_CACHE.Skill.GetType(buff)
-
-            if skill_type == SkillType.Shout.value:
-                return True
-
-            if skill_type == SkillType.Chant.value:
-                return True
-
-        return False
-

@@ -322,6 +322,31 @@ class Resources:
                             return True
 
         return False
+    
+    @staticmethod
+    def is_ally_under_specific_effect_types(agent_id: int, skill_types: list[SkillType]) -> bool:
+
+        skill_ids = []
+
+        if agent_id == Player.GetAgentID() :
+            # if target is the player, check if the player has the effect
+            skill_ids = [effect.skill_id for effect in GLOBAL_CACHE.Effects.GetBuffs(agent_id) + GLOBAL_CACHE.Effects.GetEffects(agent_id)]
+        else:
+            # else check if the party target has the effect
+            accounts:list[AccountStruct] = GLOBAL_CACHE.ShMem.GetAllAccountData()
+            for account in accounts:
+                if account.AgentData.AgentID == agent_id:
+                    skill_ids = [buff.SkillId for buff in account.AgentData.Buffs.Buffs]
+                    break
+        
+        for skill_id in skill_ids:
+            effect_type, _ = GLOBAL_CACHE.Skill.GetType(skill_id)
+            skill_type_values = [skill_type.value for skill_type in skill_types]
+            if effect_type in skill_type_values:
+                return True
+            
+        return False
+
 
 class Actions:
 

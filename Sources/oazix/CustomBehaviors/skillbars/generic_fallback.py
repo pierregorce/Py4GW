@@ -7,7 +7,7 @@ from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder imp
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
-class AutoCombatFallback_UtilitySkillBar(CustomBehaviorBaseUtility):
+class GenericFallback_UtilitySkillBar(CustomBehaviorBaseUtility):
     """
         Generic fallback skillbar that automatically discovers and uses all custom utility skills.
 

@@ -13,7 +13,7 @@ from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition imp
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
-from Sources.oazix.CustomBehaviors.skills.generic.auto_combat_utility import AutoCombatUtility
+from Sources.oazix.CustomBehaviors.skills.generic.stub_utility import StubUtility
 from Sources.oazix.CustomBehaviors.skills.plugins.targeting_modifiers.buff_configurator import BuffConfigurator
 
 class ArcaneMimicryUtility(CustomSkillUtilityBase):
@@ -79,7 +79,7 @@ class ArcaneMimicryUtility(CustomSkillUtilityBase):
                 if self.skill_to_copy_default_instance is not None:
                     self.skill_to_copy_instance = self.skill_to_copy_default_instance() # must be a callable so the utility skill is able to detect the correct skillbar slot (done at instanciation time)
                 else:
-                    self.skill_to_copy_instance = AutoCombatUtility(self.event_bus, CustomSkill(skill_name), self.in_game_build)
+                    self.skill_to_copy_instance = StubUtility(self.event_bus, CustomSkill(skill_name), self.in_game_build)
             return self.skill_to_copy_instance.evaluate(current_state, previously_attempted_skills)
         
         if GLOBAL_CACHE.SkillBar.GetSkillData(self.custom_skill.skill_slot).event == 0: # arcane mimicry is not in copy mode (available or recharging)

@@ -11,7 +11,6 @@ from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomS
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 from Sources.oazix.CustomBehaviors.skills.common.ebon_battle_standard_of_wisdom_utility import EbonBattleStandardOfWisdom
 from Sources.oazix.CustomBehaviors.skills.common.ebon_vanguard_assassin_support_utility import EbonVanguardAssassinSupportUtility
-from Sources.oazix.CustomBehaviors.skills.generic.auto_combat_utility import AutoCombatUtility
 from Sources.oazix.CustomBehaviors.skills.generic.keep_self_effect_up_utility import KeepSelfEffectUpUtility
 from Sources.oazix.CustomBehaviors.skills.generic.preparation_utility import PreparationUtility
 from Sources.oazix.CustomBehaviors.skills.generic.raw_aoe_attack_utility import RawAoeAttackUtility
@@ -71,12 +70,7 @@ class MesmerKeystone_UtilitySkillBar(CustomBehaviorBaseUtility):
             score_definition=ScorePerAgentQuantityDefinition(lambda enemy_qte: 76 if enemy_qte >= 2 else 41 if enemy_qte <= 2 else 0),
             condition=lambda agent_id: Agent.IsAttacking(agent_id),
         )
-        self.blessed_signet_utility: CustomSkillUtilityBase = AutoCombatUtility(
-            event_bus=self.event_bus,
-            skill=CustomSkill("Blessed_Signet"),
-            current_build=in_game_build,
-            score_definition=ScoreStaticDefinition(73),
-        )
+        
         self.castigation_signet_utility: CustomSkillUtilityBase = CastigationSignetUtility(
             event_bus=self.event_bus,
             current_build=in_game_build,
@@ -132,7 +126,6 @@ class MesmerKeystone_UtilitySkillBar(CustomBehaviorBaseUtility):
             self.unnatural_signet_utility,
             self.signet_of_disruption_utility,
             self.bane_signet_utility,
-            self.blessed_signet_utility,
             self.castigation_signet_utility,
             self.mending_utility,
             self.strength_of_honor_utility,

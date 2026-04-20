@@ -1,13 +1,9 @@
 from abc import abstractmethod
 from collections import deque
 import inspect
-from re import S
 from typing import Generator, Any
 import time
 
-from numpy import generic
-
-from HeroAI import custom_skill
 from Py4GWCoreLib import GLOBAL_CACHE, Routines, Map, Agent, Player
 from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer, Timer
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
@@ -34,11 +30,11 @@ from Sources.oazix.CustomBehaviors.skills.deamon.stuck_detection import StuckDet
 from Sources.oazix.CustomBehaviors.skills.following.follow_flag_utility import FollowFlagUtility
 from Sources.oazix.CustomBehaviors.skills.following.follow_party_leader_utility import FollowPartyLeaderUtility
 from Sources.oazix.CustomBehaviors.skills.following.spread_during_combat_utility import SpreadDuringCombatUtility
-from Sources.oazix.CustomBehaviors.skills.generic.auto_combat_utility import AutoCombatUtility
 from Sources.oazix.CustomBehaviors.primitives.scores.comon_score import CommonScore
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.helpers.eval_profiler import EvalProfiler
 from Sources.oazix.CustomBehaviors.primitives.helpers.utility_skill_metrics import UtilitySkillMetrics
+from Sources.oazix.CustomBehaviors.skills.generic.stub_utility import StubUtility
 from Sources.oazix.CustomBehaviors.skills.inventory.merchant_refill_if_needed_utility import MerchantRefillIfNeededUtility
 from Sources.oazix.CustomBehaviors.skills.looting.loot_utility import LootUtility
 from Sources.oazix.CustomBehaviors.skills.looting.open_near_chest_utility import OpenNearChestUtility
@@ -283,7 +279,7 @@ class CustomBehaviorBaseUtility():
                     discovered_utility : CustomSkillUtilityBase = generic_utility_skills_by_skill_id[skill.skill_id]
                     final_list.append(discovered_utility)
                 else:
-                    final_list.append(AutoCombatUtility(event_bus=self.event_bus, skill=skill, current_build=list(in_game_build_by_skill_id.values())))
+                    final_list.append(StubUtility(event_bus=self.event_bus, skill=skill, current_build=list(in_game_build_by_skill_id.values())))
 
         for skill in self.additional_autonomous_skills:
             final_list.append(skill)
@@ -392,14 +388,6 @@ class CustomBehaviorBaseUtility():
             if constants.DEBUG: print("Custom behavior doesn't match in game build, you are not allowed to perform behavior.act().")
             return
 
-        # if self.get_final_is_enabled():
-        #     account_email = Player.GetAccountEmail()
-        #     hero_ai_options = GLOBAL_CACHE.ShMem.GetHeroAIOptions(account_email)
-        #     if hero_ai_options is not None:
-        #         hero_ai_options.Combat = False
-        #         hero_ai_options.Following = False
-        #         hero_ai_options.Looting = False
-
         # it is interesting to compute score less often, as the execution :
         # - if we are executing with EXECUTE_THROUGH_THE_END, most of the time it take more than 300/400 ms with the aftercast.
         # - if we are executing with STOP_EXECUTION_ONCE_SCORE_NOT_HIGHEST, we don't need huge responsiveness
@@ -495,14 +483,12 @@ class CustomBehaviorBaseUtility():
         _profiler.begin_cycle()
 
         # Track whether a purpose-built combat skill scored, so we can skip
-        # autocombat fallbacks (base score 9.91) that can never win
         combat_skill_scored = False
         previously_attempted = list(self.__previously_attempted_skills)
 
         for utility in utilities:
             with _profiler.measure_skill(utility.custom_skill.skill_name):
-                # Lazy skip: autocombat can never outscore a purpose-built combat skill
-                if isinstance(utility, AutoCombatUtility) and combat_skill_scored:
+                if isinstance(utility, StubUtility) and combat_skill_scored:
                     utility_scores.append((utility, None))
                     continue
 

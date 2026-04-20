@@ -1,7 +1,7 @@
 import inspect
 import importlib
 import pkgutil
-from typing import Generator, Any, List
+from typing import List
 
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
@@ -9,7 +9,7 @@ from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
-from Sources.oazix.CustomBehaviors.skillbars.autocombat_fallback import AutoCombatFallback_UtilitySkillBar
+from Sources.oazix.CustomBehaviors.skillbars.generic_fallback import GenericFallback_UtilitySkillBar
 
 class MatchResult:
     def __init__(self, build_size: int, matching_count: int, instance: CustomBehaviorBaseUtility, is_matched_with_current_build: bool, custom_skills_count: int, custom_skills_matching_count: int):
@@ -58,12 +58,6 @@ class CustomBehaviorLoader:
         def __load_all_modules_in_folder(full_package_name: str):
             """
             Dynamically loads all modules in the given package.
-
-            Args:
-                full_package_name: The dot-separated name of the package (e.g., 'HeroAI.custom_combat_behavior').
-
-            Returns:
-                A list of `ModuleType` objects representing the loaded modules.
             """
             loaded_modules = []
 
@@ -164,7 +158,7 @@ class CustomBehaviorLoader:
             self.custom_combat_behavior.enable()
         else:
             if constants.DEBUG: print(f"no custom behavior found, fallback to generic skillbar.")
-            self.custom_combat_behavior = AutoCombatFallback_UtilitySkillBar(EventBus())
+            self.custom_combat_behavior = GenericFallback_UtilitySkillBar(EventBus())
             self.custom_combat_behavior.enable()
 
         self._has_loaded = True
