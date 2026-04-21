@@ -1,20 +1,14 @@
 from collections.abc import Callable, Generator
-import time
-from typing import Any, List
-from Py4GWCoreLib import Map, Agent, ItemArray, Bags, Routines, Player
+from typing import Any
+from Py4GWCoreLib import Map, Agent, Routines, Player
 from Py4GWCoreLib.AgentArray import AgentArray
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.enums_src.GameData_enums import Range
 from Py4GWCoreLib.enums_src.Multiboxing_enums import SharedCommandType
 from Py4GWCoreLib.py4gwcorelib_src.FSM import FSM
-from Py4GWCoreLib.py4gwcorelib_src.Lootconfig_src import LootConfig
 from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 
-from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
-from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.skillbars import custom_behavior_base_utility
-from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
 
 class BottingHelpers:
