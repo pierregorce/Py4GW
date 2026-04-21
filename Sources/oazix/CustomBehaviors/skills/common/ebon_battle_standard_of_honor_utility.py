@@ -49,7 +49,7 @@ class EbonBattleStandardOfHonorUtility(CustomSkillUtilityBase):
         yield
 
     def _get_agent_array(self) -> list[int]:
-        buff_predicate = self.get_plugin_targeting_modifiers_filtering_predicate()
+        buff_predicate = self.get_plugin_targeting_modifiers_filtering_predicate_any()
         allies = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
             within_range=Range.Spellcast.value,
             condition=lambda agent_id: agent_id != Player.GetAgentID() and buff_predicate(agent_id)

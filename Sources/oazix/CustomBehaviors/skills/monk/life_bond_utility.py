@@ -44,7 +44,7 @@ class LifeBondUtility(CustomSkillUtilityBase):
 
         targets = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
                 within_range=Range.Spellcast.value,
-                condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id),
+                condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
                 sort_key=(TargetingOrder.DISTANCE_ASC,),
                 range_to_count_enemies=None,
                 range_to_count_allies=None)

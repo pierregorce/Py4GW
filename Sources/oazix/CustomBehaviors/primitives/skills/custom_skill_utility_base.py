@@ -103,11 +103,17 @@ class CustomSkillUtilityBase:
     def _get_plugin_targeting_modifiers(self) -> list[UtilitySkillTargetingModifier]:
         return [plugin for plugin in self._utility_skill_plugins if isinstance(plugin, UtilitySkillTargetingModifier)]
     
-    def get_plugin_targeting_modifiers_filtering_predicate(self) -> Callable[[int], bool]:
+    def get_plugin_targeting_modifiers_filtering_predicate_any(self) -> Callable[[int], bool]:
         modifiers = self._get_plugin_targeting_modifiers()
         if len(modifiers) == 0: return lambda agent_id: True
         # 'any' is good to cumulate filtering predicates on same skill.
         return lambda agent_id: any(modifier.get_agent_id_filtering_predicate()(agent_id) for modifier in modifiers)
+    
+    def get_plugin_targeting_modifiers_filtering_predicate_all(self) -> Callable[[int], bool]:
+        modifiers = self._get_plugin_targeting_modifiers()
+        if len(modifiers) == 0: return lambda agent_id: True
+        # 'all' is good to cumulate filtering predicates on same skill.
+        return lambda agent_id: all(modifier.get_agent_id_filtering_predicate()(agent_id) for modifier in modifiers)
 
     def get_plugin_targeting_modifiers_ordering_predicate(self) -> Callable[[int], int]:
         modifiers = self._get_plugin_targeting_modifiers()

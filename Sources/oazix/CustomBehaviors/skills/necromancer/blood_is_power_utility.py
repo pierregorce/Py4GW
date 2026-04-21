@@ -49,7 +49,7 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
                 condition=lambda agent_id:
                     agent_id != Player.GetAgentID() and
                     custom_behavior_helpers.Resources.get_energy_percent_in_party(agent_id) < self.required_target_mana_lower_than_percent and
-                    self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id),
+                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
                 sort_key=(TargetingOrder.ENERGY_ASC, TargetingOrder.DISTANCE_ASC),
                 range_to_count_enemies=None,
                 range_to_count_allies=None)

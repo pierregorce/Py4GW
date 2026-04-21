@@ -40,7 +40,7 @@ class XinraesWeaponUtility(CustomSkillUtilityBase):
     def _get_candidates(self) -> list[SortableAgentData]:
         return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: (self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id) and not Agent.IsWeaponSpelled(agent_id)),
+            condition=lambda agent_id: (self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and not Agent.IsWeaponSpelled(agent_id)),
             sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC,)
         )
 

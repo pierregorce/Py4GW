@@ -40,7 +40,7 @@ class EbonEscapeUtility(CustomSkillUtilityBase):
             condition=lambda agent_id: 
                 agent_id != Player.GetAgentID() and 
                 Agent.GetHealth(agent_id) < 0.8 and
-                self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id),
+                self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
             sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
         return targets
 

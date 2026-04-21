@@ -56,7 +56,7 @@ class DarkAuraUtility(CustomSkillUtilityBase):
         def condition(agent_id: int) -> bool:
             if Player.GetAgentID() == agent_id:
                 return False
-            if not self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id):
+            if not self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id):
                 return False
             if not has_not_dark_aura(agent_id):
                 return False

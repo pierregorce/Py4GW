@@ -49,7 +49,7 @@ class BloodRitualUtility(CustomSkillUtilityBase):
                 within_range=Range.Spellcast.value,
                 condition=lambda agent_id:
                     agent_id != Player.GetAgentID() and
-                    self.get_plugin_targeting_modifiers_filtering_predicate()(agent_id) and
+                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and
                     custom_behavior_helpers.Resources.get_energy_percent_in_party(agent_id) < self.required_target_mana_lower_than_percent,
                 sort_key=(TargetingOrder.ENERGY_ASC, TargetingOrder.DISTANCE_ASC),
                 range_to_count_enemies=None,
