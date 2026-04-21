@@ -8,6 +8,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import Beh
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
+from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -21,7 +22,9 @@ class ProtectiveSpiritUtility(CustomSkillUtilityBase):
         current_build: list[CustomSkill],
         score_definition: ScorePerHealthGravityDefinition = ScorePerHealthGravityDefinition(5),
         mana_required_to_cast: int = 0,
-        allowed_states: list[BehaviorState] = [BehaviorState.IN_AGGRO, BehaviorState.CLOSE_TO_AGGRO]
+        allowed_states: list[BehaviorState] = [BehaviorState.IN_AGGRO, BehaviorState.CLOSE_TO_AGGRO],
+        unprotected_score_definition: ScoreStaticDefinition | None = None
+
         ) -> None:
 
         super().__init__(
@@ -33,6 +36,7 @@ class ProtectiveSpiritUtility(CustomSkillUtilityBase):
             allowed_states=allowed_states)
 
         self.score_definition: ScorePerHealthGravityDefinition = score_definition
+        self.unprotected_score_definition: ScoreStaticDefinition | None = unprotected_score_definition
 
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_ALL))
 
@@ -52,11 +56,19 @@ class ProtectiveSpiritUtility(CustomSkillUtilityBase):
         targets = self._get_targets()
         if len(targets) == 0: return None
 
-        if targets[0].hp < 0.40:
+        target = targets[0]
+
+        # Unbonded targets get elevated score — Prot Spirit is their only damage cap
+        if self.unprotected_score_definition is not None:
+            if not custom_behavior_helpers.Resources.is_ally_under_protective_effect(target.agent_id):
+                if target.hp < 0.80:
+                    return self.unprotected_score_definition.get_score()
+
+        if target.hp < 0.40:
             return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED_EMERGENCY)
-        if targets[0].hp < 0.80:
+        if target.hp < 0.80:
             return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED)
-        
+
         return None
 
     @override

@@ -50,10 +50,10 @@ class SeedOfLifeUtility(CustomSkillUtilityBase):
         targets = self._get_targets()
         if len(targets) == 0: return None
 
-        if targets[0].hp < 0.85:
-            return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED)
         if targets[0].hp < 0.40:
             return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED_EMERGENCY)
+        if targets[0].hp < 0.85:
+            return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED)
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:

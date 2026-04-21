@@ -305,18 +305,17 @@ class Resources:
     
     @staticmethod
     def is_ally_under_specific_effect(agent_id: int, skill_id: int) -> bool:
-        if agent_id == Player.GetAgentID() :
-            # if target is the player, check if the player has the effect
-            has_buff: bool = Routines.Checks.Effects.HasBuff(Player.GetAgentID(), skill_id)
-            return has_buff
+        if agent_id == Player.GetAgentID():
+            # For self: use EffectExists (is the bond ON me) instead of HasBuff
+            # which includes maintained-on-others and causes a false positive.
+            # For others: delegate to the buff config predicate as normal.
+            has_effect:bool = Routines.Checks.Effects.HasEffect(agent_id, skill_id)
+            return has_effect
         else:
             # else check if the party target has the effect
-            # we should also deep dive inside player.pet
-
             accounts:list[AccountStruct] = GLOBAL_CACHE.ShMem.GetAllAccountData()
             for account in accounts:
                 if account.AgentData.AgentID == agent_id:
-
                     for buff in account.AgentData.Buffs.Buffs:
                         if buff.SkillId == skill_id:
                             return True
@@ -346,7 +345,20 @@ class Resources:
                 return True
             
         return False
+    
+    @staticmethod
+    def is_ally_under_protective_effect(agent_id: int) -> bool:
+        Shelter = CustomSkill("Shelter")
+        Protective_Bond = CustomSkill("Protective_Bond")
+        Protective_Spirit = CustomSkill("Protective_Spirit")
+        Spirit_Bond = CustomSkill("Spirit_Bond")
+        # very bad perf
+        protective_skills = [Shelter, Protective_Bond, Protective_Spirit, Spirit_Bond]
 
+        for skill in protective_skills:
+            if Resources.is_ally_under_specific_effect(agent_id, skill.skill_id):
+                return True
+        return False
 
 class Actions:
 
