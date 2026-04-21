@@ -7,9 +7,7 @@ from Py4GWCoreLib.Py4GWcorelib import Utils
 from Py4GWCoreLib.Map import Map
 from Py4GWCoreLib.Agent import Agent
 from Py4GWCoreLib.Player import Player
-from Py4GWCoreLib.enums import SharedCommandType
 from Py4GWCoreLib.enums_src.GameData_enums import ProfessionShort, ProfessionShort_Names
-from Sources.Nikon_Scripts import Enemies
 from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_panel import FlagPanel
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_custom_grid_placement import FlagCustomGridPlacement
@@ -17,7 +15,6 @@ from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_backward_grid_placement i
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_stacked_placement import FlagStackedPlacement
 from Sources.oazix.CustomBehaviors.gui.following_panel.following_panel import FollowingPanel
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
-from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers, custom_behavior_helpers_party
