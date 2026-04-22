@@ -7,7 +7,7 @@ from Py4GWCoreLib import GLOBAL_CACHE, ImGui, Agent, Player
 from Py4GWCoreLib.Routines import Routines
 from Py4GWCoreLib.enums import Profession, Range
 from Py4GWCoreLib.py4gwcorelib_src.Utils import Utils
-from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.profession_configuration import ProfessionConfiguration

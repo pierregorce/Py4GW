@@ -4,7 +4,7 @@ import pkgutil
 from typing import List
 
 from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus

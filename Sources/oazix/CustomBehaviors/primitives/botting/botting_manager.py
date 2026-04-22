@@ -155,7 +155,7 @@ class BottingManager:
 
     def _load_from_persistence(self) -> None:
         """Load skill enabled states from the INI file."""
-        from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
+        from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
         botting = PersistenceLocator().botting
 
         # Load pacifist skills
@@ -178,7 +178,7 @@ class BottingManager:
 
     def save(self) -> None:
         """Save all skill enabled states to the INI file (global)."""
-        from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
+        from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
         botting = PersistenceLocator().botting
 
         # Save pacifist skills
@@ -195,7 +195,7 @@ class BottingManager:
 
     def delete_configuration(self) -> None:
         """Delete all saved configuration from the INI file and reset to defaults."""
-        from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
+        from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
         botting = PersistenceLocator().botting
 
         # Delete all sections

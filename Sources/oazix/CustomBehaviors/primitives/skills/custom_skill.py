@@ -1,6 +1,6 @@
 from HeroAI.custom_skill import CustomSkillClass
 from Py4GWCoreLib import GLOBAL_CACHE
-from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_nature import CustomSkillNature
 

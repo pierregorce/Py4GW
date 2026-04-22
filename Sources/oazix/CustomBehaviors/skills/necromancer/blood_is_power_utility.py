@@ -1,9 +1,8 @@
-from typing import Any, Generator, override
+from typing import Any, Generator, cast, override
 
 import PyImGui
 
 from Py4GWCoreLib import Range, Player
-from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
@@ -13,6 +12,7 @@ from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition imp
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
+from Sources.oazix.CustomBehaviors.skills.plugins.options.raw_number_option import RawNumberOption
 from Sources.oazix.CustomBehaviors.skills.plugins.targeting_modifiers.buff_configurator import BuffConfigurator
 
 class BloodIsPowerUtility(CustomSkillUtilityBase):
@@ -38,17 +38,20 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
 
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_CASTERS))
-        self.sacrifice_life_limit_percent: float = float(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "sacrifice_life_limit_percent", str(sacrifice_life_limit_percent)))
-        self.sacrifice_life_limit_absolute: int = int(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "sacrifice_life_limit_absolute", str(sacrifice_life_limit_absolute)))
-        self.required_target_mana_lower_than_percent: float = float(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "required_target_mana_lower_than_percent", str(required_target_mana_lower_than_percent)))
+        self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "sacrifice_life_limit_percent", sacrifice_life_limit_percent))
+        self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "sacrifice_life_limit_absolute", sacrifice_life_limit_absolute))
+        self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "required_target_mana_lower_than_percent", required_target_mana_lower_than_percent))
 
     def _get_target(self) -> int | None:
+
+        required_target_mana_lower_than_percent_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("required_target_mana_lower_than_percent"))
+        required_target_mana_lower_than_percent = required_target_mana_lower_than_percent_option.option_value
  
         target: int | None = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
                 within_range=Range.Spellcast.value,
                 condition=lambda agent_id:
                     agent_id != Player.GetAgentID() and
-                    custom_behavior_helpers.Resources.get_energy_percent_in_party(agent_id) < self.required_target_mana_lower_than_percent and
+                    custom_behavior_helpers.Resources.get_energy_percent_in_party(agent_id) < required_target_mana_lower_than_percent and
                     self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
                 sort_key=(TargetingOrder.ENERGY_ASC, TargetingOrder.DISTANCE_ASC),
                 range_to_count_enemies=None,
@@ -59,7 +62,13 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
-        if not custom_behavior_helpers.Resources.player_can_sacrifice_health(33, self.sacrifice_life_limit_percent, self.sacrifice_life_limit_absolute):
+        sacrifice_life_limit_percent_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("sacrifice_life_limit_percent"))
+        sacrifice_life_limit_percent = sacrifice_life_limit_percent_option.option_value
+
+        sacrifice_life_limit_absolute_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("sacrifice_life_limit_absolute"))
+        sacrifice_life_limit_absolute = sacrifice_life_limit_absolute_option.option_value
+
+        if not custom_behavior_helpers.Resources.player_can_sacrifice_health(33, sacrifice_life_limit_percent, cast(int, sacrifice_life_limit_absolute)):
             return None
 
         if self._get_target() is None: return None
@@ -72,37 +81,3 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
         if target is None: return BehaviorResult.ACTION_SKIPPED
         result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target)
         return result
-    
-    @override
-    def customized_debug_ui(self, current_state: BehaviorState) -> None:
-        self.sacrifice_life_limit_percent = PyImGui.input_float("sacrifice_life_limit_percent##sacrifice_life_limit_percent", self.sacrifice_life_limit_percent)
-        self.sacrifice_life_limit_absolute = PyImGui.input_int("sacrifice_life_limit_absolute##sacrifice_life_limit_absolute", self.sacrifice_life_limit_absolute)
-        self.required_target_mana_lower_than_percent = PyImGui.input_float("required_target_mana_lower_than_percent##required_target_mana_lower_than_percent", self.required_target_mana_lower_than_percent)
-
-    @override
-    def has_persistence(self) -> bool:
-        return True
-    
-    @override
-    def persist_configuration_for_account(self):
-        super().persist_configuration_for_account()
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent", f"{self.required_target_mana_lower_than_percent:.2f}")
-        print("configuration saved for account")
-
-    @override
-    def persist_configuration_as_global(self):
-        super().persist_configuration_as_global()
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent", f"{self.required_target_mana_lower_than_percent:.2f}")
-        print("configuration saved as global")
-
-    @override
-    def delete_persisted_configuration(self):
-        super().delete_persisted_configuration()
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent")
-        print("configuration deleted")

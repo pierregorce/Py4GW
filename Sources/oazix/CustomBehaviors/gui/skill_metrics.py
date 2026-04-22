@@ -3,7 +3,7 @@ import os
 
 from Py4GWCoreLib import PyImGui, GLOBAL_CACHE
 from Py4GWCoreLib.ImGui import ImGui
-from Sources.oazix.CustomBehaviors.PathLocator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.helpers.utility_skill_metrics import (
     UtilitySkillMetrics,
     UtilitySkillMetricsSample,

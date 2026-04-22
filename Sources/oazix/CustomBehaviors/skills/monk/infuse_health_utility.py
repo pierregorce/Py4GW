@@ -1,9 +1,7 @@
-from typing import Any, Generator, override
+from typing import Any, Generator, cast, override
 
-import PyImGui
-
-from Py4GWCoreLib import GLOBAL_CACHE, Range, Routines, Agent, Player
-from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
+from Py4GWCoreLib import Range, Routines, Agent, Player
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
@@ -13,6 +11,8 @@ from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import Healin
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
+from Sources.oazix.CustomBehaviors.skills.plugins.options.raw_boolean_option import RawBooleanOption
+from Sources.oazix.CustomBehaviors.skills.plugins.options.raw_number_option import RawNumberOption
 
 
 class InfuseHealthUtility(CustomSkillUtilityBase):
@@ -53,26 +53,18 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         self._aura_skill = CustomSkill("Aura_of_Restoration")
         self._life_skill = CustomSkill("Life_Attunement")
 
-        # Load persisted configuration or use defaults
-        self.sacrifice_life_limit_percent: float = float(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "sacrifice_life_limit_percent", str(0.22)))
-        self.sacrifice_life_limit_absolute: int = int(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "sacrifice_life_limit_absolute", str(100)))
-        self.require_aura_of_restoration: bool = PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "require_aura_of_restoration", str(0)) == "1"
-        self.require_life_attunement: bool = PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "require_life_attunement", str(0)) == "1"
-        self.should_cast_when_mana_low: bool = PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "should_cast_when_mana_low", str(0)) == "1"
-        self.mana_low_threshold: float = float(PersistenceLocator().skills.read_or_default(self.custom_skill.skill_name, "mana_low_threshold", str(0.40)))
+        self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "require_hp_higher_than_percent", default_value=0.40))
+        self.add_plugin_option(lambda x: RawBooleanOption(x.custom_skill, "require_aura_of_restoration", default_value=True))
+        self.add_plugin_option(lambda x: RawBooleanOption(x.custom_skill, "require_life_attunement", default_value=True))
+        self.add_plugin_option(lambda x: RawBooleanOption(x.custom_skill, "should_cast_when_mana_low", default_value=False))
+        self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "mana_low_threshold", default_value=0.40))
 
     def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        """
-        Return allies ordered by priority (lowest HP, then distance) within spellcast range,
-        excluding the player (caster) and only including allies that are injured (health < 1.0).
-        """
         player_agent = Player.GetAgentID()
 
         targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
             within_range=Range.Spellcast.value,
-            condition=lambda agent_id:
-                agent_id != player_agent and
-                (Agent.GetHealth(agent_id) is not None and Agent.GetHealth(agent_id) < 0.9),
+            condition=lambda agent_id: agent_id != player_agent, # we accept healing full life allies
             sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC),
         )
         return targets
@@ -88,30 +80,43 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         - Optionally check if mana is low (if should_cast_when_mana_low is enabled).
         - If all checks pass, pick top injured ally and return emergency/damaged score.
         """
-        # Safety check: don't kill ourselves! Infuse Health sacrifices 50% of our current health
-        if not custom_behavior_helpers.Resources.player_can_sacrifice_health(50, self.sacrifice_life_limit_percent, self.sacrifice_life_limit_absolute):
-            return None
+        require_hp_higher_than_percent_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("require_hp_higher_than_percent"))
+        require_hp_higher_than_percent: float = require_hp_higher_than_percent_option.option_value
+        should_cast_when_mana_low_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("should_cast_when_mana_low"))
+        should_cast_when_mana_low: bool = should_cast_when_mana_low_option.option_value
+        mana_low_threshold_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("mana_low_threshold"))
+        mana_low_threshold: float = mana_low_threshold_option.option_value
+        require_aura_of_restoration_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("require_aura_of_restoration"))
+        require_aura_of_restoration: bool = require_aura_of_restoration_option.option_value
+        require_life_attunement_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("require_life_attunement"))
+        require_life_attunement: bool = require_life_attunement_option.option_value
 
-        player_agent = Player.GetAgentID()
+        # 1 / Safety check: don't kill ourselves!
+        # Don't Infuse when HP% is too low. With ER pre-heal, Infuse converges
+        # to ~50% at normal HP. Under pressure or with inflated max HP, this floor
+        # prevents sitting at dangerously low HP%.
+        player_agent_id = Player.GetAgentID()
+        if Agent.GetHealth(player_agent_id) < require_hp_higher_than_percent: return None
 
-        # Check if mana is low (if enabled)
-        if self.should_cast_when_mana_low:
-            player_energy_percent = Agent.GetEnergy(player_agent)
-            if player_energy_percent <= self.mana_low_threshold:
+
+        # 2/ Check if mana is low (if enabled)
+        if should_cast_when_mana_low:
+            player_energy_percent = Agent.GetEnergy(player_agent_id)
+            if player_energy_percent <= mana_low_threshold:
                 return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED_EMERGENCY) # force cast when mana low (to regain energy)
 
-        # Configurable buff checks using Routines.Checks.Effects.HasBuff
+        # 3/ Configurable buff checks using Routines.Checks.Effects.HasBuff
         try:
-            has_aura = bool(Routines.Checks.Effects.HasBuff(player_agent, self._aura_skill.skill_id))
-            has_life = bool(Routines.Checks.Effects.HasBuff(player_agent, self._life_skill.skill_id))
+            has_aura = bool(custom_behavior_helpers.Resources.is_ally_under_specific_effect(player_agent_id, self._aura_skill.skill_id))
+            has_life = bool(custom_behavior_helpers.Resources.is_ally_under_specific_effect(player_agent_id, self._life_skill.skill_id))
         except Exception:
             # If the buff-check call itself fails, be conservative and skip
             return None
 
         # Check if required buffs are present (based on configuration)
-        if self.require_aura_of_restoration and not has_aura:
+        if require_aura_of_restoration and not has_aura:
             return None
-        if self.require_life_attunement and not has_life:
+        if require_life_attunement and not has_life:
             return None
 
         targets = self._get_targets()
@@ -121,7 +126,7 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         top = targets[0]
         if top.hp < 0.40:
             return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED_EMERGENCY)
-        if top.hp < 0.85:
+        if top.hp < 0.70: # reserve Infuse for truly damaged; should_cast_when_mana_low widens under energy pressure
             return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED)
 
         return None
@@ -131,35 +136,45 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         """
         Execution path re-checks safety, mana, and buffs defensively and then casts on the top target.
         """
-        # Safety check: don't kill ourselves!
-        if not custom_behavior_helpers.Resources.player_can_sacrifice_health(50, self.sacrifice_life_limit_percent, self.sacrifice_life_limit_absolute):
-            return BehaviorResult.ACTION_SKIPPED
+        require_hp_higher_than_percent_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("require_hp_higher_than_percent"))
+        require_hp_higher_than_percent: float = require_hp_higher_than_percent_option.option_value
+        should_cast_when_mana_low_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("should_cast_when_mana_low"))
+        should_cast_when_mana_low: bool = should_cast_when_mana_low_option.option_value
+        mana_low_threshold_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("mana_low_threshold"))
+        mana_low_threshold: float = mana_low_threshold_option.option_value
+        require_aura_of_restoration_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("require_aura_of_restoration"))
+        require_aura_of_restoration: bool = require_aura_of_restoration_option.option_value
+        require_life_attunement_option: RawBooleanOption = cast(RawBooleanOption, self.get_plugin_option("require_life_attunement"))
+        require_life_attunement: bool = require_life_attunement_option.option_value
 
-        player_agent = Player.GetAgentID()
+        # 1/ Safety check: don't kill ourselves!
 
-        # Check if mana is low (if enabled)
-        if self.should_cast_when_mana_low:
-            player_energy_percent = Agent.GetEnergy(player_agent)
-            if player_energy_percent <= self.mana_low_threshold:
-                # we force cast on a random party member to regain energy
+        player_agent_id = Player.GetAgentID()
+        if Agent.GetHealth(player_agent_id) < require_hp_higher_than_percent: return BehaviorResult.ACTION_SKIPPED
+
+        # 2/ Check if mana is low (if enabled)
+        if should_cast_when_mana_low:
+            player_energy_percent = Agent.GetEnergy(player_agent_id)
+            if player_energy_percent <= mana_low_threshold:
+                # force cast on lowest-HP ally to regain energy
                 target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
                     within_range=Range.Spellcast.value * 1.5,
-                    condition=lambda agent_id: agent_id != player_agent,
-                    sort_key=(TargetingOrder.DISTANCE_ASC,))
+                    condition=lambda agent_id: agent_id != player_agent_id,
+                    sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
                 if target is None: return BehaviorResult.ACTION_SKIPPED
                 result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target)
                 return result
 
         try:
-            has_aura = bool(Routines.Checks.Effects.HasBuff(player_agent, self._aura_skill.skill_id))
-            has_life = bool(Routines.Checks.Effects.HasBuff(player_agent, self._life_skill.skill_id))
+            has_aura = bool(Routines.Checks.Effects.HasBuff(player_agent_id, self._aura_skill.skill_id))
+            has_life = bool(Routines.Checks.Effects.HasBuff(player_agent_id, self._life_skill.skill_id))
         except Exception:
             return BehaviorResult.ACTION_SKIPPED
 
         # Check if required buffs are present (based on configuration)
-        if self.require_aura_of_restoration and not has_aura:
+        if require_aura_of_restoration and not has_aura:
             return BehaviorResult.ACTION_SKIPPED
-        if self.require_life_attunement and not has_life:
+        if require_life_attunement and not has_life:
             return BehaviorResult.ACTION_SKIPPED
 
         targets = self._get_targets()
@@ -169,46 +184,3 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         target = targets[0]
         result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target.agent_id)
         return result
-
-    @override
-    def customized_debug_ui(self, current_state: BehaviorState) -> None:
-        self.sacrifice_life_limit_percent = PyImGui.input_float("sacrifice_life_limit_percent##sacrifice_life_limit_percent", self.sacrifice_life_limit_percent)
-        self.sacrifice_life_limit_absolute = PyImGui.input_int("sacrifice_life_limit_absolute##sacrifice_life_limit_absolute", self.sacrifice_life_limit_absolute)
-        self.require_aura_of_restoration = PyImGui.checkbox("require_aura_of_restoration##require_aura_of_restoration", self.require_aura_of_restoration)
-        self.require_life_attunement = PyImGui.checkbox("require_life_attunement##require_life_attunement", self.require_life_attunement)
-        self.should_cast_when_mana_low = PyImGui.checkbox("should_cast_when_mana_low##should_cast_when_mana_low", self.should_cast_when_mana_low)
-        self.mana_low_threshold = PyImGui.input_float("mana_low_threshold##mana_low_threshold", self.mana_low_threshold)
-
-    @override
-    def has_persistence(self) -> bool:
-        return True
-
-    @override
-    def persist_configuration_for_account(self):
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "require_aura_of_restoration", "1" if self.require_aura_of_restoration else "0")
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "require_life_attunement", "1" if self.require_life_attunement else "0")
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "should_cast_when_mana_low", "1" if self.should_cast_when_mana_low else "0")
-        PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "mana_low_threshold", f"{self.mana_low_threshold:.2f}")
-        print("configuration saved for account")
-
-    @override
-    def persist_configuration_as_global(self):
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "require_aura_of_restoration", "1" if self.require_aura_of_restoration else "0")
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "require_life_attunement", "1" if self.require_life_attunement else "0")
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "should_cast_when_mana_low", "1" if self.should_cast_when_mana_low else "0")
-        PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "mana_low_threshold", f"{self.mana_low_threshold:.2f}")
-        print("configuration saved as global")
-
-    @override
-    def delete_persisted_configuration(self):
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "require_aura_of_restoration")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "require_life_attunement")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "should_cast_when_mana_low")
-        PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "mana_low_threshold")
-        print("configuration deleted")

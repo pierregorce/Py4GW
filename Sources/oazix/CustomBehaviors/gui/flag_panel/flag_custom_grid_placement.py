@@ -11,7 +11,7 @@ from Py4GWCoreLib.GlobalCache.shared_memory_src.AccountStruct import AccountStru
 from Py4GWCoreLib.py4gwcorelib_src.Color import Color
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.Py4GWcorelib import ColorPalette
-from Sources.oazix.CustomBehaviors.PersistenceLocator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_mouse_placement import FlagMousePlacement
 
 

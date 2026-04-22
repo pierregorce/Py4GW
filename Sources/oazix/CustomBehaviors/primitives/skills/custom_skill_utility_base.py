@@ -250,15 +250,6 @@ class CustomSkillUtilityBase:
         pass
 
     @abstractmethod
-    def get_buff_configuration(self) -> CustomBuffMultipleTarget | None:
-        '''
-        This method is used to get the buff configuration for the skill.
-        Can be overridden by the skill itself to return the buff configuration.
-        If the skill does not use buffs, return None.
-        '''
-        pass
-
-    @abstractmethod
     def has_persistence(self) -> bool:
         return False or any(plugin.has_persistence() for plugin in self._utility_skill_plugins)
     
