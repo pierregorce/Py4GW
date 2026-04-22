@@ -23,6 +23,7 @@ from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_execution_his
 from Sources.oazix.CustomBehaviors.skills.blessing.take_near_blessing import TakeNearBlessingUtility
 from Sources.oazix.CustomBehaviors.skills.botting.move_if_stuck import MoveIfStuckUtility
 from Sources.oazix.CustomBehaviors.skills.common.auto_attack_utility import AutoAttackUtility
+from Sources.oazix.CustomBehaviors.skills.common.scroll_of_resurrection_utility import ScrollOfResurrectionUtility
 from Sources.oazix.CustomBehaviors.skills.deamon.death_detection import DeathDetectionUtility
 from Sources.oazix.CustomBehaviors.skills.deamon.map_changed import MapChangedUtility
 from Sources.oazix.CustomBehaviors.skills.deamon.stuck_detection import StuckDetectionUtility
@@ -34,7 +35,6 @@ from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.helpers.eval_profiler import EvalProfiler
 from Sources.oazix.CustomBehaviors.primitives.helpers.utility_skill_metrics import UtilitySkillMetrics
 from Sources.oazix.CustomBehaviors.skills.generic.stub_utility import StubUtility
-from Sources.oazix.CustomBehaviors.skills.inventory.merchant_refill_if_needed_utility import MerchantRefillIfNeededUtility
 from Sources.oazix.CustomBehaviors.skills.looting.loot_utility import LootUtility
 from Sources.oazix.CustomBehaviors.skills.looting.open_near_chest_utility import OpenNearChestUtility
 from Sources.oazix.CustomBehaviors.skills.looting.open_near_dungeon_chest_utility import OpenNearDungeonChestUtility
@@ -90,7 +90,7 @@ class CustomBehaviorBaseUtility():
             MoveIfStuckUtility(event_bus=self.event_bus, current_build=self.in_game_build),
 
             # INVENTORY_MANAGEMENT
-            MerchantRefillIfNeededUtility(event_bus=self.event_bus, current_build=self.in_game_build),
+            ScrollOfResurrectionUtility(event_bus=self.event_bus, current_build=self.in_game_build),
         ]
         
         self.utility_generator: Generator[Any | None, Any | None, BehaviorResult] | None = None

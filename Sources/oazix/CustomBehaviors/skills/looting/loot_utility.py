@@ -1,5 +1,4 @@
 import math
-from tkinter.constants import N
 from typing import Any, Generator, override
 
 import PyImGui

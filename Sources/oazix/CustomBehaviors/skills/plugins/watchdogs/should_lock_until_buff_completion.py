@@ -43,7 +43,7 @@ class ShouldLockUntilBuffCompletion(UtilitySkillWatchdog):
 
         # Show lock status
         lock_manager = CustomBehaviorParty().get_shared_lock_manager()
-        PyImGui.text(f"Any Action Lock Taken: {lock_manager.is_any_lock_taken(ShareLockType.ACTIONS)}")
+        PyImGui.text(f"Any Action Lock Taken: {lock_manager.is_any_locktype_taken(ShareLockType.ACTIONS)}")
         PyImGui.text(f"Buff Config Fulfilled: {self.is_fulfilled()}")
 
     @override
@@ -61,11 +61,11 @@ class ShouldLockUntilBuffCompletion(UtilitySkillWatchdog):
         lock_manager = CustomBehaviorParty().get_shared_lock_manager()
 
         # If buff is fulfilled, release lock if we have it
-        if self.is_fulfilled() and lock_manager.is_any_lock_taken(ShareLockType.ACTIONS):
+        if self.is_fulfilled() and lock_manager.is_any_locktype_taken(ShareLockType.ACTIONS):
             lock_manager.release_lock(self.lock_key)
 
         # If buff is not fulfilled and no lock is taken, allow execution to take a lock
-        if not self.is_fulfilled() and not lock_manager.is_any_lock_taken(ShareLockType.ACTIONS):
+        if not self.is_fulfilled() and not lock_manager.is_any_locktype_taken(ShareLockType.ACTIONS):
             # Try to acquire lock
             if not lock_manager.try_aquire_lock(self.lock_key, timeout_seconds=30, lock_type=ShareLockType.ACTIONS):
                 # Someone else has the lock, skip

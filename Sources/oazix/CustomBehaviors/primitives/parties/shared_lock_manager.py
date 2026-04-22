@@ -268,6 +268,17 @@ class SharedLockManager:
         )
         # We successfully acquired the lock, return True
         return True
+    
+    def try_aquire_locks(self, keys: list[str], min_locks_to_acquire: int = 1, timeout_seconds: int = LOCK_TTL_SECONDS, lock_type: ShareLockType = ShareLockType.SKILLS) -> list[str] | None:
+        if min_locks_to_acquire < 1: return None
+        if min_locks_to_acquire > len(keys): return None
+        acquired_locks = []
+        for key in keys:
+            if self.try_aquire_lock(key, timeout_seconds, lock_type):
+                acquired_locks.append(key)
+            if len(acquired_locks) == min_locks_to_acquire:
+                return acquired_locks
+        return None
 
     def release_lock(self, key: str) -> None:
         if key is None or key == "":
@@ -288,6 +299,10 @@ class SharedLockManager:
             self.__update_history_on_release(key, acquired_at_before, sender_before, released_at_now)
             self.__update_shared_history_on_release(mem, key, acquired_at_before, sender_before, released_at_now)
             mem.LockEntries[idx].SenderEmail = ""
+
+    def release_locks(self, keys: list[str]) -> None:
+        for key in keys:
+            self.release_lock(key)
 
     # ---------- Shared history ring buffer helpers ----------
     def __append_shared_history(self, mem, key: str, sender_email: str, acquired_at: int, released_at: int, lock_type: ShareLockType = ShareLockType.SKILLS) -> None:
@@ -341,6 +356,19 @@ class SharedLockManager:
                 return True
         return False
 
+    def is_any_lock_taken(self, keys: list[str]) -> bool:
+        for key in keys:
+            if self.is_lock_taken(key):
+                return True
+        return False
+    
+    def count_available_locks(self, keys: list[str]) -> int:
+        count = 0
+        for key in keys:
+            if not self.is_lock_taken(key):
+                count += 1
+        return count
+
     def wait_aquire_lock(self, key: str, timeout_seconds: int = 20, lock_type: ShareLockType = ShareLockType.SKILLS) -> Generator[None, None, bool]:
         if timeout_seconds is None or timeout_seconds < 0:
             timeout_seconds = 20
@@ -372,7 +400,7 @@ class SharedLockManager:
                     result.append(entry)
         return result
 
-    def is_any_lock_taken(self, lock_type: ShareLockType | None = None) -> bool:
+    def is_any_locktype_taken(self, lock_type: ShareLockType | None = None) -> bool:
         """Check if any lock is currently active (not expired).
 
         Args:

@@ -51,7 +51,7 @@ class WaitIfLockTakenUtility(CustomSkillUtilityBase):
         # This prevents bots from continuing actions when no coordination is needed
 
         # If locks are active, continue executing (return score)
-        if CustomBehaviorParty().get_shared_lock_manager().is_any_lock_taken(ShareLockType.ACTIONS):
+        if CustomBehaviorParty().get_shared_lock_manager().is_any_locktype_taken(ShareLockType.ACTIONS):
             self.no_lock_timer.Reset()  # Reset timer when locks are active
             return self.score_definition.get_score()
 

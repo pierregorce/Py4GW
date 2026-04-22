@@ -1,4 +1,3 @@
-from tkinter.constants import N
 from typing import Any, Generator, override
 
 from Py4GWCoreLib import GLOBAL_CACHE, Routines, Range, Player
