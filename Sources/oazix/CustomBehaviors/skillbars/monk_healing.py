@@ -94,7 +94,10 @@ class MonkHealing_UtilitySkillBar(CustomBehaviorBaseUtility):
             self.selfless_spirit_kurzick_utility,
             self.vigorous_spirit_utility,
             self.arcane_mimicry_utility,
+            self.dwaynas_kiss_utility,
+            self.reversal_of_fortune_utility,
         ]
+        
 
     @property
     @override

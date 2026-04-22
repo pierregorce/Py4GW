@@ -108,6 +108,8 @@ class ParagonRefrain_UtilitySkillBar(CustomBehaviorBaseUtility):
             self.ebon_vanguard_assassin_support,
             self.ebon_battle_standard_of_wisdom,
             self.protectors_defense_utility,
+
+            self.we_shall_return,
         ]
 
     @property
