@@ -1,3 +1,5 @@
+from enum import Enum
+
 from Py4GWCoreLib import *
 
 class Blessings(Enum):
