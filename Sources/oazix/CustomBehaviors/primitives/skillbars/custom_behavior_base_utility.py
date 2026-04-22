@@ -203,6 +203,13 @@ class CustomBehaviorBaseUtility():
         '''
         pass
 
+    @abstractmethod
+    def decorate_skillbar(self, skills: list[CustomSkillUtilityBase]):
+        '''
+        allow to decorate skills with specific logic.
+        '''
+        pass
+
     #------------------------------------------
     # disabilities
     #------------------------------------------
@@ -286,6 +293,10 @@ class CustomBehaviorBaseUtility():
         for skill in self.__injected_additional_utility_skills:
             final_list.append(skill)
 
+        # allow skill decoration to be applied for the whole skillbar.
+        self.decorate_skillbar(final_list)
+
+        # cache the result
         self.__final_skills_list = final_list
         return self.__final_skills_list
 

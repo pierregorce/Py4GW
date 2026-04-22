@@ -1,5 +1,6 @@
 from typing import cast, override
 
+from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.scores.score_combot_definition import ScoreCombotDefinition
@@ -20,6 +21,8 @@ from Sources.oazix.CustomBehaviors.skills.paragon.blazing_finale_utility import 
 from Sources.oazix.CustomBehaviors.skills.paragon.heroic_refrain_utility import HeroicRefrainUtility
 from Sources.oazix.CustomBehaviors.skills.paragon.hasty_refrain_utility import HastyRefrainUtility
 from Sources.oazix.CustomBehaviors.skills.paragon.make_your_time_utility import MakeYourTimeUtility
+from Sources.oazix.CustomBehaviors.skills.paragon.we_shall_return_utility import WeShallReturnUtility
+from Sources.oazix.CustomBehaviors.skills.plugins.preconditions.should_reserve_energy_for_rez import ShouldReserveEnergyForRez
 from Sources.oazix.CustomBehaviors.skills.plugins.preconditions.should_wait_for_adrenaline_consumer import ShouldWaitForAdrenalineConsumer
 from Sources.oazix.CustomBehaviors.skills.plugins.preconditions.should_wait_for_save_yourselves_finalized_on_allies import ShouldWaitForSaveYourselvesFinalizedOnAllies
 from Sources.oazix.CustomBehaviors.skills.warrior.protectors_defense_utility import ProtectorsDefenseUtility
@@ -54,6 +57,8 @@ class ParagonRefrain_UtilitySkillBar(CustomBehaviorBaseUtility):
         self.make_your_time.add_plugin_precondition(lambda x: ShouldWaitForAdrenalineConsumer(x.custom_skill, generated_strike_of_adrenaline=lambda: cast(MakeYourTimeUtility, x).get_generated_strike_of_adrenaline(), adrenaline_consumers=[self.save_yourselves_luxon, self.save_yourselves_kurzick], default_value=True))
 
         #optional
+        self.we_shall_return: CustomSkillUtilityBase = WeShallReturnUtility(event_bus=self.event_bus, current_build=in_game_build)
+
         self.hasty_refrain_utility: CustomSkillUtilityBase = HastyRefrainUtility(event_bus=self.event_bus, current_build=in_game_build, score_definition=ScoreStaticDefinition(40))
         self.never_surrender: CustomSkillUtilityBase = ProtectiveShoutUtility(event_bus=self.event_bus, skill=CustomSkill("Never_Surrender"), current_build=in_game_build, allies_health_less_than_percent=0.7,allies_quantity_required=2,score_definition=ScoreStaticDefinition(88), allowed_states=[BehaviorState.IN_AGGRO])
         self.blazing_finale_utility: CustomSkillUtilityBase = BlazingFinaleUtility(event_bus=self.event_bus, current_build=in_game_build, score_definition=ScoreStaticDefinition(33))
@@ -69,6 +74,16 @@ class ParagonRefrain_UtilitySkillBar(CustomBehaviorBaseUtility):
         self.ebon_battle_standard_of_wisdom: CustomSkillUtilityBase = EbonBattleStandardOfWisdom(event_bus=self.event_bus, score_definition= ScorePerAgentQuantityDefinition(lambda agent_qte: 80 if agent_qte >= 3 else 60 if agent_qte <= 2 else 40), current_build=in_game_build, mana_required_to_cast=18)
         self.protectors_defense_utility: CustomSkillUtilityBase = ProtectorsDefenseUtility(event_bus=self.event_bus, current_build=in_game_build,score_definition=ScoreStaticDefinition(60))
 
+    @override
+    def decorate_skillbar(self, skills: list[CustomSkillUtilityBase]):
+        should_reserve_energy_for_rez_plugin = lambda x: ShouldReserveEnergyForRez(x.custom_skill, rez_energy_cost=25)
+        for skill in skills:
+            if skill.custom_skill.skill_id == 0: continue
+            if skill.custom_skill.skill_id == self.we_shall_return.custom_skill.skill_id: continue 
+            if skill.custom_skill.skill_id == self.theyre_on_fire_utility.custom_skill.skill_id: continue # only one allowed to maintain heroic_refrain on the team
+            
+            if GLOBAL_CACHE.Skill.Data.GetEnergyCost(skill.custom_skill.skill_id) > 0:
+                skill.add_plugin_precondition(should_reserve_energy_for_rez_plugin)
     
     @property
     @override
