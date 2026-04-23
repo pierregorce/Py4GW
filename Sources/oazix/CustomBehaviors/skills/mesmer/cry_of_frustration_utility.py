@@ -30,7 +30,7 @@ class CryOfFrustrationUtility(CustomSkillUtilityBase):
     def detect_casting_enemies(self) -> list[SortableAgentData]:
         targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
             within_range=Range.Spellcast,
-            condition=lambda agent_id: Agent.IsCasting(agent_id) and GLOBAL_CACHE.Skill.Data.GetActivation(Agent.GetCastingSkillID(agent_id)) >= 0.450,
+            condition=lambda agent_id: Agent.IsCasting(agent_id) and GLOBAL_CACHE.Skill.Data.GetActivation(Agent.GetCastingSkillID(agent_id)) >= 0.330,
             sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.CASTER_THEN_MELEE),
             range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
         )
