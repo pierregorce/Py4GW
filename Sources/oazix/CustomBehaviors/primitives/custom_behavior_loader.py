@@ -9,6 +9,7 @@ from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
+from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder import UtilitySkillFinder
 from Sources.oazix.CustomBehaviors.skillbars.generic_fallback import GenericFallback_UtilitySkillBar
 
 class MatchResult:
@@ -105,6 +106,7 @@ class CustomBehaviorLoader:
 
         subclasses: list[type] = self.__find_subclasses_in_folder(CustomBehaviorBaseUtility, skillbars_package)
         matches: List[MatchResult] = []
+        UtilitySkillFinder().refresh_cache() # this is required [as the loader detected a build-change, slots in skills has changed]
 
         for subclass in subclasses:
             try:

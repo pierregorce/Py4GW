@@ -28,6 +28,9 @@ class UtilitySkillFinder:
             self._initialized = True
             self._cached_result: dict[int, CustomSkillUtilityBase] | None = None
 
+    def refresh_cache(self):
+        self._cached_result = None
+
     def discover_all_utility_skills(
         self,
         event_bus: EventBus,
