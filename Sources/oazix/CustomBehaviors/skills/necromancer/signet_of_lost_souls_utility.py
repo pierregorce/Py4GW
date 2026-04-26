@@ -7,6 +7,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_hel
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.scores.score_boosted_definition import ScoreBoostedDefinition
+from Sources.oazix.CustomBehaviors.primitives.scores.score_per_energy_definition import ScorePerEnergyDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -16,10 +17,9 @@ class SignetOfLostSoulsUtility(CustomSkillUtilityBase):
     def __init__(self,
         event_bus: EventBus,
         current_build: list[CustomSkill],
-        score_definition: ScoreBoostedDefinition = ScoreBoostedDefinition(score_boosted=83, score_nominal=33),
+        score_definition: ScorePerEnergyDefinition = ScorePerEnergyDefinition(score_nominal=33, score_boosted=83, only_cast_if_energy_below=0.85, low_mana_threshold=0.30),
         mana_required_to_cast: int = 0,
         allowed_states: list[BehaviorState] = [BehaviorState.IN_AGGRO],
-        low_mana_threshold: float = 0.3
         ) -> None:
 
         super().__init__(
@@ -30,8 +30,7 @@ class SignetOfLostSoulsUtility(CustomSkillUtilityBase):
             mana_required_to_cast=mana_required_to_cast,
             allowed_states=allowed_states)
 
-        self.score_definition: ScoreBoostedDefinition = score_definition
-        self.low_mana_threshold: float = low_mana_threshold
+        self.score_definition: ScorePerEnergyDefinition = score_definition
 
     @staticmethod
     def _get_target() -> int | None:
@@ -48,18 +47,8 @@ class SignetOfLostSoulsUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
         target = self._get_target()
 
-        if not target:
-            return None
-
-        player_agent_id = Player.GetAgentID()
-        player_energy_percent = Agent.GetEnergy(player_agent_id)
-
-        if player_energy_percent <= self.low_mana_threshold:
-            return self.score_definition.get_score(True)
-        else:
-            return self.score_definition.get_score(False)
-
-        return None
+        if not target: return None
+        return self.score_definition.get_score()
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:

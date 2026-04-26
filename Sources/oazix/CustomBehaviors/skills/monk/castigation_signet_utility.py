@@ -7,6 +7,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_hel
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.scores.score_boosted_definition import ScoreBoostedDefinition
+from Sources.oazix.CustomBehaviors.primitives.scores.score_per_energy_definition import ScorePerEnergyDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -20,10 +21,9 @@ class CastigationSignetUtility(CustomSkillUtilityBase):
     def __init__(self,
         event_bus: EventBus,
         current_build: list[CustomSkill],
-        score_definition: ScoreBoostedDefinition = ScoreBoostedDefinition(60, 75),
+        score_definition: ScorePerEnergyDefinition = ScorePerEnergyDefinition(score_nominal=60, score_boosted=75, only_cast_if_energy_below=0.85, low_mana_threshold=0.30),
         mana_required_to_cast: int = 0,
         allowed_states: list[BehaviorState] = [BehaviorState.IN_AGGRO],
-        energy_missing_threshold: float = 15.0,
         ) -> None:
 
         super().__init__(
@@ -34,8 +34,7 @@ class CastigationSignetUtility(CustomSkillUtilityBase):
             mana_required_to_cast=mana_required_to_cast,
             allowed_states=allowed_states)
                 
-        self.score_definition: ScoreBoostedDefinition = score_definition
-        self._energy_missing_threshold: float = energy_missing_threshold
+        self.score_definition: ScorePerEnergyDefinition = score_definition
 
     def _get_target(self) -> int | None:
         """Get an enemy that is attacking, ordered by distance."""
@@ -50,13 +49,8 @@ class CastigationSignetUtility(CustomSkillUtilityBase):
         target = self._get_target()
         if target is None: return None
 
-        # Score high when missing energy — maximize energy recovery
-        energy_abs = custom_behavior_helpers.Resources.get_player_absolute_energy()
-        max_energy = Agent.GetMaxEnergy(Player.GetAgentID())
-        if max_energy > 0 and (max_energy - energy_abs) >= self._energy_missing_threshold:
-            return self.score_definition.get_score(is_boosted=True)
+        return self.score_definition.get_score()
 
-        return self.score_definition.get_score(is_boosted=False)
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
