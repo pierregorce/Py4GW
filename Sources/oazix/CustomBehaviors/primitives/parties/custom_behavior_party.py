@@ -1,15 +1,8 @@
-import ctypes
 from dataclasses import dataclass
-import inspect
-import importlib
-import pkgutil
 from typing import Callable, Generator, Any
-
-from PyAgent import AttributeClass
 
 from Py4GWCoreLib import Routines, Map, Agent, Player
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
-from Py4GWCoreLib.enums_src.Multiboxing_enums import SharedCommandType
 from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
@@ -61,7 +54,6 @@ class CustomBehaviorParty:
     def _handle(self) -> Generator[Any | None, Any | None, None]:
         while True:
             self.party_command_handler_manager.execute_next_step()
-            self.__messaging_process()
 
             self.party_teambuild_manager.act()
             self.party_disability_priorities_manager.act()
@@ -110,21 +102,6 @@ class CustomBehaviorParty:
     def is_ready_for_action(self) -> bool:
         """Check if it's safe to schedule another action."""
         return self.party_command_handler_manager.is_ready_for_action()
-
-    #---
-
-    def __messaging_process(self):
-
-        account_email = Player.GetAccountEmail()
-        index, message = GLOBAL_CACHE.ShMem.GetNextMessage(account_email)
-
-        if index == -1 or message is None:
-            return
-
-        match message.Command:
-            case SharedCommandType.CustomBehaviors:
-                
-                pass
 
     #---
 

@@ -1,4 +1,3 @@
-import os
 from Py4GWCoreLib import IconsFontAwesome5, ImGui, PyImGui
 from Py4GWCoreLib.Overlay import Overlay
 

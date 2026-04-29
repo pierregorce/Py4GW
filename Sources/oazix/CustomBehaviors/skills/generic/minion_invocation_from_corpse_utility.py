@@ -54,8 +54,8 @@ class MinionInvocationFromCorpseUtility(CustomSkillUtilityBase):
                                                   Agent.IsDead(agent_id) and 
                                                   not Agent.HasBossGlow(agent_id) and # filter out boss minions (that corpses never disappear)
                                                   not Agent.IsSpirit(agent_id) and 
-                                                  not Agent.IsSpawned(agent_id) and 
-                                                  not Agent.IsMinion(agent_id)
+                                                  not Agent.IsMinion(agent_id) and
+                                                  Agent.IsExploitableCorpse(agent_id)
                                             )
         
         agent_ids = AgentArray.Filter.ByCondition(agent_ids, _AllowedAlliegance)
@@ -97,6 +97,3 @@ class MinionInvocationFromCorpseUtility(CustomSkillUtilityBase):
     def customized_debug_ui(self, current_state):
             PyImGui.bullet_text(f"timer : {self.far_from_aggro_timer.GetTimeRemaining()}")
             PyImGui.bullet_text(f"is in timeout : {self.far_from_aggro_timer.IsExpired()}")
-        # targets = self._get_targets()
-
-        # for agent_id in targets:

@@ -5,7 +5,6 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers import corpse_exploited_tracker
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -16,9 +15,7 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
         self,
         event_bus: EventBus,
         current_build: list[CustomSkill],
-        score_definition: ScorePerAgentQuantityDefinition = ScorePerAgentQuantityDefinition(
-            lambda enemy_qte: 83 if enemy_qte >= 2 else 35
-        ),
+        score_definition: ScorePerAgentQuantityDefinition = ScorePerAgentQuantityDefinition(lambda enemy_qte: 83 if enemy_qte >= 2 else 35),
         mana_required_to_cast: int = 5,
         allowed_states: list[BehaviorState] = [BehaviorState.IN_AGGRO],
     ) -> None:
@@ -31,7 +28,7 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
             allowed_states=allowed_states,
         )
 
-        self.score_definition = score_definition
+        self.score_definition : ScorePerAgentQuantityDefinition = score_definition
 
     def _get_corpses(self) -> list[tuple[int, int, float]]:
         corpses = AgentArray.GetAgentArray()
@@ -43,7 +40,7 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
             and not Agent.IsSpirit(agent_id)
             and not Agent.IsSpawned(agent_id)
             and not Agent.IsMinion(agent_id)
-            and not corpse_exploited_tracker.was_corpse_exploited_recently(agent_id),
+            and Agent.IsExploitableCorpse(agent_id),
         )
 
         enemies = AgentArray.GetEnemyArray()
@@ -75,8 +72,7 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
 
     @override
     def _evaluate(
-        self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]
-    ) -> float | None:
+        self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
         best_target = self._get_best_target()
         if best_target is None:
             return None
@@ -94,10 +90,6 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
         result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(
             self.custom_skill, corpse_id
         )
-
-        # Record that this corpse was exploited
-        if result == BehaviorResult.ACTION_PERFORMED:
-            corpse_exploited_tracker.record_corpse_exploited(corpse_id)
 
         return result
 
