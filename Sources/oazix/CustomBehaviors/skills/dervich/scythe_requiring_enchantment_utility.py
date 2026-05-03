@@ -1,15 +1,14 @@
-from typing import List, Any, Generator, Callable, override
+from typing import Any, Generator, override
 
 import PyImGui
 
-from Py4GWCoreLib import GLOBAL_CACHE, Player, Routines, Range
+from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
-from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
@@ -34,6 +33,7 @@ class ScytheRequiringEnchantmentUtility(CustomSkillUtilityBase):
         self.score_definition: ScorePerAgentQuantityDefinition = score_definition
 
     def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+        
         return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
             within_range=Range.Spellcast,
             sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.DISTANCE_ASC),

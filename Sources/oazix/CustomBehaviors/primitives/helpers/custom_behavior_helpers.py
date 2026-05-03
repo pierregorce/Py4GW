@@ -13,7 +13,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_ta
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.helpers.sortable_agent_data import SortableAgentData
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
-from Sources.oazix.CustomBehaviors.primitives.parties.party_disability_manager import PartyDisabilityManager
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.disabilities_tracker import PartyDisabilityTracker
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 from Py4GWCoreLib import GLOBAL_CACHE, Agent, Player, Overlay, SkillBar, ActionQueueManager, Routines, Range, Utils, SPIRIT_BUFF_MAP, SpiritModelID, AgentArray
@@ -652,8 +652,9 @@ class Targets:
                     enemy_quantity_within_range=enemies_quantity_within_range,
                     agent_quantity_within_range=allies_quantity_within_range,
                     energy=Resources.get_energy_percent_in_party(agent_id),
-                    hex_priority_level=PartyDisabilityManager().get_hex_score(agent_id),
-                    condition_priority_level=PartyDisabilityManager().get_condition_score(agent_id),
+                    hex_priority_level=PartyDisabilityTracker().get_hex_score(agent_id),
+                    condition_priority_level=PartyDisabilityTracker().get_condition_score(agent_id),
+                    melee_optimised_aoe_score=0, 
                 )
 
             data_to_sort = list(map(lambda agent_id: build_sortable_array(agent_id), agent_ids))
@@ -813,7 +814,8 @@ class Targets:
                     agent_quantity_within_range=0,  # Not used for enemies
                     energy=0.0,  # Not used for enemies
                     hex_priority_level=0,  # Not used for enemies
-                    condition_priority_level=0,  # Not used for enemies
+                    condition_priority_level=0,  # Not used for enemies,
+                    melee_optimised_aoe_score=0,
                 )
 
             data_to_sort = list(map(lambda agentData: build_sortable_array(agentData), agentDatas))

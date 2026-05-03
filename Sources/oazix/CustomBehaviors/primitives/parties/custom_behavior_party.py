@@ -8,13 +8,15 @@ from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.casting.casting_tracker import CastingTracker
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.damage_received.damage_received_tracker import DamageReceivedTracker
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_handler_manager import PartyCommandHandlerManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_flagging_manager import PartyFlaggingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_following_manager import PartyFollowingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import SharedLockManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_teambuild_manager import PartyTeamBuildManager
-from Sources.oazix.CustomBehaviors.primitives.parties.party_disability_manager import PartyDisabilityManager
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.disabilities_tracker import PartyDisabilityTracker
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetData, CustomBehaviorWidgetMemoryManager
@@ -43,7 +45,6 @@ class CustomBehaviorParty:
             self.party_following_manager = PartyFollowingManager()
             self.party_shared_lock_manager = CustomBehaviorWidgetMemoryManager().GetSharedLockManager()
             self.party_flagging_manager = PartyFlaggingManager()
-            self.party_disability_priorities_manager = PartyDisabilityManager()
 
             # Rename GW windows to match custom behavior party names on load
             print("CustomBehaviorParty: Renaming GW windows")
@@ -53,10 +54,15 @@ class CustomBehaviorParty:
 
     def _handle(self) -> Generator[Any | None, Any | None, None]:
         while True:
-            self.party_command_handler_manager.execute_next_step()
 
+            # Managers
+            self.party_command_handler_manager.execute_next_step()
             self.party_teambuild_manager.act()
-            self.party_disability_priorities_manager.act()
+
+            # Trackers
+            PartyDisabilityTracker().act()
+            DamageReceivedTracker().act()
+            CastingTracker().act()
 
             # # ------------------------------ Custom party target ------------------------------
             if custom_behavior_helpers.CustomBehaviorHelperParty.is_party_leader():

@@ -37,7 +37,6 @@ class PanicUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
 
     def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-
         return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
             condition= lambda agent_id: not Agent.IsSpirit(agent_id),
             within_range=Range.Spellcast,

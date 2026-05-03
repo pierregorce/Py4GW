@@ -1,3 +1,5 @@
+
+
 class LockKeyHelper:
     """
     Centralized helper class for generating lock keys used in party coordination.

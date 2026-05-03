@@ -1,35 +1,12 @@
-from dataclasses import dataclass
-import inspect
-import importlib
 
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.GlobalCache.shared_memory_src.AccountStruct import AccountStruct
 from Py4GWCoreLib.GlobalCache.shared_memory_src.BuffStruct import BuffUnitStruct
 from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.parties.party_teambuild_manager import PartyTeamBuildManager
-from Sources.oazix.CustomBehaviors.primitives.skillbars.disabilities.hex_prioritiy import HexPriority
-from Sources.oazix.CustomBehaviors.primitives.skillbars.disabilities.condition_priority import ConditionPriority
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.agent_disability_live_data import AgentDisabilityLiveData
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.agent_disability_static_data import AgentDisabilityStaticData
 
-@dataclass
-class AgentDisabilityStaticData:
-    account_email: str # KEY
-    skillbar_name: str
-    hex_priorities: list[HexPriority]
-    condition_priorities: list[ConditionPriority]
-    
-@dataclass
-class AgentDisabilityLiveData:
-    agent_id: int | None # KEY
-    account_email: str
-    skillbar_name: str
-
-    hex_priorities: list[HexPriority]
-    hex_score: int # RESULT
-    
-    condition_priorities: list[ConditionPriority]
-    condition_score: int # RESULT
-
-class PartyDisabilityManager():
+class PartyDisabilityTracker():
     """
     Singleton class that aggregates disability priorities (hexes and conditions) from all party members' using custom behavior skillbars.
     """
@@ -37,7 +14,7 @@ class PartyDisabilityManager():
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(PartyDisabilityManager, cls).__new__(cls)
+            cls._instance = super(PartyDisabilityTracker, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
@@ -72,6 +49,7 @@ class PartyDisabilityManager():
 
         for account in accounts:
             email = account.AccountEmail
+            from Sources.oazix.CustomBehaviors.primitives.parties.party_teambuild_manager import PartyTeamBuildManager
             skillbar_name = PartyTeamBuildManager().get_custom_behavior_skillbar_used_for_account(email)
             if skillbar_name is None: continue
         
@@ -127,16 +105,9 @@ class PartyDisabilityManager():
         
         self._refresh_live_data() # real time data, fresh each frame
 
+    def get_live_data_for_agent(self, agent_id: int) -> AgentDisabilityLiveData | None:
+        return self._skillbar_live_data_by_agent_id.get(agent_id)
+
     def get_debug_data(self) -> tuple[dict[str, AgentDisabilityStaticData], dict[int, AgentDisabilityLiveData]]:
         # for UI
         return self._skillbar_static_data_by_skillbar_name, self._skillbar_live_data_by_agent_id
-
-    def get_hex_score(self, agent_id: int) -> int:
-        live_data: AgentDisabilityLiveData | None = self._skillbar_live_data_by_agent_id.get(agent_id)
-        if live_data is None: return 0
-        return live_data.hex_score
-
-    def get_condition_score(self, agent_id: int) -> int:
-        live_data: AgentDisabilityLiveData | None = self._skillbar_live_data_by_agent_id.get(agent_id)
-        if live_data is None: return 0
-        return live_data.condition_score

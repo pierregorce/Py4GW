@@ -23,4 +23,5 @@ class TargetingOrder(Enum):
     HEX_PRIORITY_LEVEL_DESC = 40
     CONDITION_PRIORITY_LEVEL_DESC = 41
 
-
+    MELEE_OPTIMISED_AOE_ASC = 50 # targeting optimized for melee players (based on range, clustering & moving status)
+    MELEE_OPTIMISED_SINGLE_TARGET_ASC = 51 # targeting optimized for melee players (based on range, clustering & moving status)

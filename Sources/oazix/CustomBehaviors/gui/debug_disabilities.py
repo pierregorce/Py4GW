@@ -2,7 +2,7 @@ import PyImGui
 
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.py4gwcorelib_src.Color import Color
-from Sources.oazix.CustomBehaviors.primitives.parties.party_disability_manager import PartyDisabilityManager
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.disabilities_tracker import PartyDisabilityTracker
 from Sources.oazix.CustomBehaviors.primitives.skillbars.disabilities.disability_priority import DisabilityPriority
 
 
@@ -56,7 +56,7 @@ def create_colored_button(label: str, color: Color, width=0, height=0):
 def render():
 
     # Get disability priorities manager and debug data
-    disability_prio = PartyDisabilityManager()
+    disability_prio = PartyDisabilityTracker()
     static_data_by_skillbar_name, live_data_by_agent_id = disability_prio.get_debug_data()
 
     # Aggregate all hex priorities from all party members

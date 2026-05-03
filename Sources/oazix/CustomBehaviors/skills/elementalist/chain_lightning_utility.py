@@ -8,7 +8,7 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers import glimmer_tracker
+from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.others import glimmer_tracker
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition

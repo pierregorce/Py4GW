@@ -13,3 +13,4 @@ class SortableAgentData:
     energy: float
     hex_priority_level: int
     condition_priority_level: int
+    melee_optimised_aoe_score: float
