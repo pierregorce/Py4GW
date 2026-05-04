@@ -7,7 +7,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -46,18 +47,17 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
 
         required_target_mana_lower_than_percent_option: RawNumberOption = cast(RawNumberOption, self.get_plugin_option("required_target_mana_lower_than_percent"))
         required_target_mana_lower_than_percent = required_target_mana_lower_than_percent_option.option_value
- 
-        target: int | None = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
-                within_range=Range.Spellcast.value,
-                condition=lambda agent_id:
-                    agent_id != Player.GetAgentID() and
-                    custom_behavior_helpers.Resources.get_energy_percent_in_party(agent_id) < required_target_mana_lower_than_percent and
-                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
-                sort_key=(TargetingOrder.ENERGY_ASC, TargetingOrder.DISTANCE_ASC),
-                range_to_count_enemies=None,
-                range_to_count_allies=None)
 
-        return target
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
+                source_agent_pos=Player.GetXY(),
+                within_range=Range.Spellcast.value,
+                condition_predicate=lambda ally_data:
+                    ally_data.agent_id != Player.GetAgentID()
+                    and ally_data.energy < required_target_mana_lower_than_percent
+                    and self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
+                sort_asc_predicate=lambda ally_data: (ally_data.energy, ally_data.distance_from_player))
+
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

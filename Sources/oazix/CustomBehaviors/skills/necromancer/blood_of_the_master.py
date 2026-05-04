@@ -6,6 +6,9 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -35,13 +38,18 @@ class BloodOfTheMasterUtility(CustomSkillUtilityBase):
         self.sacrifice_life_limit_absolute: int = sacrifice_life_limit_absolute
         self.required_target_mana_lower_than_percent: float = required_target_mana_lower_than_percent
 
+    def _get_minions(self) -> list[TargetingAllyData]:
+        minions = TargetingAlly.create().get_allies(
+            within_range=Range.Spellcast.value,
+            allegiance_to_include=TargetingAllyAllegiance.Minion,
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.50,
+            sort_asc_predicate=lambda ally_data: ally_data.hp,
+        )
+        return minions
+
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
-        minion_array = AgentArray.GetMinionArray()
-        minion_array = AgentArray.Filter.ByDistance(minion_array, Player.GetXY(), Range.Spellcast.value)
-        minion_array = AgentArray.Filter.ByCondition(minion_array, lambda agent_id: Agent.IsAlive(agent_id))
-        minion_array = AgentArray.Filter.ByCondition(minion_array, lambda agent_id: Agent.GetHealth(agent_id) < 0.50)
-
+        minion_array = self._get_minions()
         minion_count = len(minion_array)
         if minion_count < 2: return None
         

@@ -21,3 +21,7 @@ class LockKeyHelper:
     @staticmethod
     def interrupt(agent_id: int) -> str:
         return f"Interrupt_{agent_id}"
+    
+    @staticmethod
+    def corpse_usage(agent_id: int) -> str:
+        return f"Corpse_Usage_{agent_id}"

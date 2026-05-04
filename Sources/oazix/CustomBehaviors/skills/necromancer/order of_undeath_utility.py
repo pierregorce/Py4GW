@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -33,15 +34,15 @@ class OrderOfUndeathUtility(CustomSkillUtilityBase):
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
-        
+
         player_agent_id = Player.GetAgentID()
         current_heath_percent = Agent.GetHealth(player_agent_id)
         if current_heath_percent < 0.5: return None # too dangerous
 
-        enemy_array = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-        within_range=Range.Spellcast,
-        sort_key=(TargetingOrder.HP_ASC, ),
-        condition=lambda agent_id: Agent.IsAlive(agent_id) and Agent.GetHealth(agent_id) > 0.50)
+        enemy_array = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            sort_asc_predicate=lambda enemy_data: enemy_data.hp,
+            condition_predicate=lambda enemy_data: enemy_data.hp > 0.50)
 
         if len(enemy_array) < 2: return None
         return self.score_definition.get_score()

@@ -1,10 +1,14 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, AgentArray, Player, Range, Utils
+from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.targeting_core import TargetingCore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -30,66 +34,41 @@ class PutridExplosionUtility(CustomSkillUtilityBase):
 
         self.score_definition : ScorePerAgentQuantityDefinition = score_definition
 
-    def _get_corpses(self) -> list[tuple[int, int, float]]:
-        corpses = AgentArray.GetAgentArray()
-        corpses = AgentArray.Filter.ByDistance(corpses, Player.GetXY(), Range.Spellcast.value)
-        corpses = AgentArray.Filter.ByCondition(
-            corpses,
-            lambda agent_id: Agent.IsDead(agent_id)
-            and not Agent.HasBossGlow(agent_id)
-            and not Agent.IsSpirit(agent_id)
-            and not Agent.IsSpawned(agent_id)
-            and not Agent.IsMinion(agent_id)
-            and Agent.IsExploitableCorpse(agent_id),
+    def _get_lock_key(self, agent_id: int) -> str:
+        return LockKeyHelper.corpse_usage(agent_id)
+
+    def _get_exploitable_corpses(self) -> list[tuple[int, int]]:
+        corpse_enemies = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: Agent.IsExploitableCorpse(enemy_data.agent_id) and TargetingCore().is_lock_key_available(self._get_lock_key(enemy_data.agent_id)),
+            sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, enemy_data.distance_from_player),
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id),
+            is_alive=False
         )
 
-        enemies = AgentArray.GetEnemyArray()
-        enemies = AgentArray.Filter.ByDistance(enemies, Player.GetXY(), Range.Spellcast.value)
-        enemies = AgentArray.Filter.ByCondition(enemies, lambda agent_id: Agent.IsAlive(agent_id))
+        corpse_allies = TargetingAlly.create().get_allies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda ally_data: Agent.IsExploitableCorpse(ally_data.agent_id) and TargetingCore().is_lock_key_available(self._get_lock_key(ally_data.agent_id)),
+            sort_asc_predicate=lambda ally_data: (-ally_data.enemy_quantity_within_range, ally_data.distance_from_player),
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id),
+            is_alive=False
+        )
 
-        aoe_range = GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
-        player_pos = Player.GetXY()
-        result: list[tuple[int, int, float]] = []
-
-        for corpse_id in corpses:
-            corpse_pos = Agent.GetXY(corpse_id)
-            enemy_count = 0
-            for enemy_id in enemies:
-                if Utils.Distance(corpse_pos, Agent.GetXY(enemy_id)) <= aoe_range:
-                    enemy_count += 1
-            corpse_distance = Utils.Distance(player_pos, corpse_pos)
-            result.append((corpse_id, enemy_count, corpse_distance))
-
-        result.sort(key=lambda x: (-x[1], x[2]))
-        return result
-
-    def _get_best_target(self) -> tuple[int, int] | None:
-        corpses = self._get_corpses()
-        if len(corpses) == 0:
-            return None
-        corpse_id, enemy_count, _ = corpses[0]
-        return corpse_id, enemy_count
-
+        corpses = corpse_enemies + corpse_allies
+        return [ (corpses[0].agent_id, corpses[0].enemy_quantity_within_range) for corpse in corpses]
+    
     @override
-    def _evaluate(
-        self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
-        best_target = self._get_best_target()
-        if best_target is None:
-            return None
-
-        _, enemy_count = best_target
-        return self.score_definition.get_score(enemy_count)
+    def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
+        corpses = self._get_exploitable_corpses()
+        if len(corpses) == 0: return None
+        best_corpse = corpses[0]
+        return self.score_definition.get_score(best_corpse[1])
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
-        best_target = self._get_best_target()
-        if best_target is None:
-            return BehaviorResult.ACTION_SKIPPED
+        corpses = self._get_exploitable_corpses()
+        if len(corpses) == 0: return BehaviorResult.ACTION_SKIPPED
+        best_corpse = corpses[0]
 
-        corpse_id, _ = best_target
-        result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(
-            self.custom_skill, corpse_id
-        )
-
-        return result
+        return (yield from custom_behavior_helpers.Actions.cast_skill_to_target_with_lock(self._get_lock_key(best_corpse[0]), self.custom_skill, target_agent_id=best_corpse[0]))
 

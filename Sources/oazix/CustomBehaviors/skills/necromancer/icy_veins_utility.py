@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -36,22 +37,22 @@ class IcyVeinsUtility(CustomSkillUtilityBase):
 
         self.score_definition: ScoreStaticDefinition = score_definition
 
-    def _get_candidates(self) -> tuple[int, ...]:
+    def _get_candidates(self) -> list[TargetingEnemyData]:
         """
         Return enemy agent IDs ordered by priority (lowest HP, then distance) within shout/spellcast range.
         """
 
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: not Agent.IsSpirit(agent_id),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC),
+        return TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: not Agent.IsSpirit(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (enemy_data.hp, enemy_data.distance_from_player),
         )
 
     def _get_best_target(self) -> int | None:
         candidates = self._get_candidates()
         if not candidates:
             return None
-        return candidates[0]
+        return candidates[0].agent_id
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

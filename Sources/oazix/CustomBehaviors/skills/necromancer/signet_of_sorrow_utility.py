@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import \
     ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -37,14 +38,14 @@ class SignetOfSorrowUtility(CustomSkillUtilityBase):
         corpse_filter = AgentArray.Filter.ByDistance(corpse_array, Agent.GetXY(agent_id), Range.Nearby.value)
         return len(corpse_filter) != 0
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
         """Get attacking enemies ordered by cluster size. Not because the skill is aoe but to keep the sorrow chain going on kills"""
         corpses_list = Routines.Agents.GetCorpses(Range.Spirit.value)
 
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: self.corpse_nearby(corpse_array=corpses_list, agent_id=agent_id),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.CASTER_THEN_MELEE))
+        return TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: self.corpse_nearby(corpse_array=corpses_list, agent_id=enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (enemy_data.hp, 0 if enemy_data.is_caster else 1))
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

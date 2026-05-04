@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -33,13 +34,15 @@ class DeathNovaUtility(CustomSkillUtilityBase):
 
     @staticmethod
     def _get_target() -> int | None:
-        minion_array = AgentArray.GetMinionArray()
-        minion_array = AgentArray.Filter.ByDistance(minion_array, Player.GetXY(), Range.Spellcast.value)
-        minion_array = AgentArray.Filter.ByCondition(minion_array, lambda agent_id: Agent.IsAlive(agent_id) and Agent.GetHealth(agent_id) > 0.05 and not Agent.IsEnchanted(agent_id) and not Agent.IsSpirit(agent_id))
-        minion_array = AgentArray.Sort.ByCondition(minion_array, lambda agent_id: Agent.GetHealth(agent_id))
 
-        if len(minion_array) == 0: return None
-        return minion_array[0]
+        minions = TargetingAlly().create().get_allies(
+            within_range=Range.Spellcast.value,
+            allegiance_to_include=TargetingAllyAllegiance.Minion,
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) > 0.05 and not Agent.IsEnchanted(ally_data.agent_id),
+            sort_asc_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id),
+        )
+        if len(minions) == 0: return None
+        return minions[0].agent_id
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

@@ -5,6 +5,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -38,9 +39,11 @@ class DervichEnchantmentUtility(CustomSkillUtilityBase):
         self.renew_before_expiration_in_milliseconds: int = renew_before_expiration_in_milliseconds
 
     def _is_enemy_close_enough(self) -> bool:
-        enemies = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-            within_range=Range.Nearby,
+
+        enemies = TargetingEnemy.create().get_enemies(
+            within_range=Range.Nearby.value,
         )
+
         return len(enemies) > 0
 
     @override
