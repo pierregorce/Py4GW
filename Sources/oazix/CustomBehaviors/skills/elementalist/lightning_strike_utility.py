@@ -6,8 +6,8 @@ from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
 from Py4GWCoreLib.py4gwcorelib_src.Console import ConsoleLog
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
-from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers, glimmer_tracker
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import glimmer_observer
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -36,7 +36,7 @@ class LightningStrikeUtility(CustomSkillUtilityBase):
 
         target = custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
             within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_tracker.had_glimmer_recently(agent_id) and Agent.IsConditioned(agent_id)),
+            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id) and Agent.IsConditioned(agent_id)),
             sort_key=(TargetingOrder.DISTANCE_ASC,)
         )
         return target

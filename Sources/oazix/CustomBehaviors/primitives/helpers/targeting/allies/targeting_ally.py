@@ -2,7 +2,8 @@ from typing import Callable
 
 from Py4GWCoreLib import Agent
 from Py4GWCoreLib.AgentArray import AgentArray
-from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.agents_within_range_scoring import AgentsWithinRangeScoring
+
+from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.enemies_within_range_scoring import AgentsWithinRangeScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_core import TargetingAllyCore
@@ -29,8 +30,8 @@ class TargetingAlly:
         # core
         within_range: float,
         source_agent_pos: tuple[float, float] | None = None, # if None, will use Player.GetXY()
-        condition_predicate: Callable[[int], bool] | None = None,
-        sort_asc_predicate: Callable[[TargetingAllyData], tuple[float, float] | float] | None = None,
+        condition_predicate: Callable[[TargetingAllyData], bool] | None = None,
+        sort_asc_predicate: Callable[[TargetingAllyData],  tuple[float, float, float] | tuple[float, float] | float] | None = None,
 
         range_to_count_clustered_enemies: float | None = None,
         range_to_count_clustered_allies: float | None = None,
@@ -57,7 +58,7 @@ class TargetingAlly:
             if Agent.IsAlive(agent_data.agent_id) != is_alive:
                 continue
 
-            if condition_predicate is not None and not condition_predicate(agent_data.agent_id):
+            if condition_predicate is not None and not condition_predicate(agent_data):
                 continue
 
             agent_data_list_filtered.append(agent_data)

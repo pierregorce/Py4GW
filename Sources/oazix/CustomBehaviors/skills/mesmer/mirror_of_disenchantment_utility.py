@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -30,12 +31,13 @@ class MirrorOfDisenchantmentUtility(CustomSkillUtilityBase):
                 
         self.score_definition: ScoreStaticDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
         """Get enchanted enemies, prioritizing casters first."""
-        targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-                    within_range=Range.Spellcast,
-                    condition=lambda agent_id: Agent.IsEnchanted(agent_id),
-                    sort_key=(TargetingOrder.CASTER_THEN_MELEE, TargetingOrder.DISTANCE_ASC))
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: Agent.IsEnchanted(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (0 if enemy_data.is_caster else 1, enemy_data.distance_from_player)
+        )
 
         return targets
 

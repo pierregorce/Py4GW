@@ -17,3 +17,7 @@ class LockKeyHelper:
     @staticmethod
     def resurrection(agent_id: int) -> str:
         return f"Resurrection_{agent_id}"
+    
+    @staticmethod
+    def interrupt(agent_id: int) -> str:
+        return f"Interrupt_{agent_id}"

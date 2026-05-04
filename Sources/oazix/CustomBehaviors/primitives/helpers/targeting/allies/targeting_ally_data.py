@@ -13,5 +13,6 @@ class TargetingAllyData:
 
     hex_priority_score: int
     condition_priority_score: int
+        
 
     overidden_score: float | None

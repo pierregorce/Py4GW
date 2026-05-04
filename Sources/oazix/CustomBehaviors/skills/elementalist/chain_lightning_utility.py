@@ -7,8 +7,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import glimmer_observer
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.others import glimmer_tracker
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -40,7 +40,7 @@ class ChainLightningUtility(RawAoeAttackUtility):
         # avoid targeting already-hexed foes (would remove hex) — also ignore agents that currently have Glimmering_Mark
         return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
             within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_tracker.had_glimmer_recently(agent_id)),
+            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id)),
             sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.HP_DESC),
             range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
         )

@@ -3,8 +3,9 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 
 
 class InterruptPotentialScoring:
-    def __init__(self):
-        pass
+
+    def __init__(self, skills_cast_time_longer_than: float = 0.250):
+        self.skills_cast_time_longer_than: float = skills_cast_time_longer_than
 
     def get_score(self, agent_id: int) -> float:
 
@@ -13,6 +14,6 @@ class InterruptPotentialScoring:
         if not Agent.IsCasting(agent_id): return 0.0
         casting_skill_id = Agent.GetCastingSkillID(agent_id)
         casting_skill_activation = GLOBAL_CACHE.Skill.Data.GetActivation(casting_skill_id)
-        if casting_skill_activation < 0.250: return 0.0
+        if casting_skill_activation < self.skills_cast_time_longer_than: return 0.0
         return 100
         

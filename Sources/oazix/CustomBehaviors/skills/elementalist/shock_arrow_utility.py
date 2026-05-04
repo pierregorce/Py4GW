@@ -8,9 +8,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import cracked_armor_observer, glimmer_observer
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.others import cracked_armor_tracker
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.others import glimmer_tracker
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -40,7 +39,7 @@ class ShockArrowUtility(CustomSkillUtilityBase):
 
         target = custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
             within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_tracker.had_glimmer_recently(agent_id) and cracked_armor_tracker.has_cracked_armor(agent_id)),
+            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id) and cracked_armor_observer.has_cracked_armor(agent_id)),
             sort_key=(TargetingOrder.DISTANCE_ASC,)
         )
         return target

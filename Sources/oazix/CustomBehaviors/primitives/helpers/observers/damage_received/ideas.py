@@ -64,6 +64,18 @@
 
 #     def get_score_by_raw_damage_taken(self) -> float:
 #         return self.damage_time_series.get_total_damage()
+    
+#     # we want the raw damage taken
+#     # - can be health low whatever the source
+#     # - can be health low b/c of ennemy => we need to order per amount of life & date of last damage taken
+#     # - can be health low from a source we cant track.
+#     # - can be health low & under multiple enemy damage packets => seed of life / shield of absorption ideas
+#     # - 
+
+
+#     # overall there is 2 typology
+#     # - health low whatever the source => just heal
+#     # - under damage packet => seed of life ideas
 
 
 # class PartyHealingManager:

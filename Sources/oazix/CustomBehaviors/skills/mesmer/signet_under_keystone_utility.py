@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -38,12 +39,14 @@ class SignetUnderKeystoneUtility(CustomSkillUtilityBase):
     def _get_lock_key(self, agent_id: int) -> str:
         return f"Interrupt_{agent_id}"
 
-    def _get_targets(self, condition: Callable[[int], bool]) -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-                within_range=Range.Spellcast,
-                condition=lambda agent_id: condition(agent_id),
-                sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.DISTANCE_ASC),
-                range_to_count_enemies=Range.Adjacent.value) # keystone signet is doing dmg to adjacents
+    def _get_targets(self, condition: Callable[[int], bool]) -> list[TargetingEnemyData]:
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: condition(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, enemy_data.distance_from_player),
+            range_to_count_clustered_enemies=Range.Adjacent.value # keystone signet is doing dmg to adjacents
+        )
+        return targets
     
     def should_spam_all_signets(self) -> bool:
 
@@ -58,7 +61,6 @@ class SignetUnderKeystoneUtility(CustomSkillUtilityBase):
         
         return False
         
-
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
@@ -67,7 +69,7 @@ class SignetUnderKeystoneUtility(CustomSkillUtilityBase):
 
         if self.should_spam_all_signets(): return self.score_definition.get_score(80)
 
-        targets: list[custom_behavior_helpers.SortableAgentData] = self._get_targets(self.condition)
+        targets: list[TargetingEnemyData] = self._get_targets(self.condition)
         if len(targets) == 0: return None
 
         lock_key = self._get_lock_key(targets[0].agent_id)
@@ -79,14 +81,14 @@ class SignetUnderKeystoneUtility(CustomSkillUtilityBase):
     def _execute(self, state: BehaviorState) -> Generator[Any | None, Any | None, BehaviorResult]:
 
         if self.should_spam_all_signets():
-            target = custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
-                within_range=Range.Spellcast,
-                condition=lambda agent_id: True,
-                sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.DISTANCE_ASC),
-                range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
+            targets_spam = TargetingEnemy.create().get_enemies(
+                within_range=Range.Spellcast.value,
+                condition_predicate=lambda enemy_data: True,
+                sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, enemy_data.distance_from_player),
+                range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
             )
-            if target is None: return BehaviorResult.ACTION_SKIPPED
-            result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target)
+            if len(targets_spam) == 0: return BehaviorResult.ACTION_SKIPPED
+            result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=targets_spam[0].agent_id)
             return result
         
         enemies = self._get_targets(self.condition)

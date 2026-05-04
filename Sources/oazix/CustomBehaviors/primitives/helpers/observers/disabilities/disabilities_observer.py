@@ -3,10 +3,10 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.GlobalCache.shared_memory_src.AccountStruct import AccountStruct
 from Py4GWCoreLib.GlobalCache.shared_memory_src.BuffStruct import BuffUnitStruct
 from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.agent_disability_live_data import AgentDisabilityLiveData
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.agent_disability_static_data import AgentDisabilityStaticData
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.agent_disability_live_data import AgentDisabilityLiveData
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.agent_disability_static_data import AgentDisabilityStaticData
 
-class PartyDisabilityTracker():
+class PartyDisabilityObserver():
     """
     Singleton class that aggregates disability priorities (hexes and conditions) from all party members' using custom behavior skillbars.
     """
@@ -14,7 +14,7 @@ class PartyDisabilityTracker():
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(PartyDisabilityTracker, cls).__new__(cls)
+            cls._instance = super(PartyDisabilityObserver, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 

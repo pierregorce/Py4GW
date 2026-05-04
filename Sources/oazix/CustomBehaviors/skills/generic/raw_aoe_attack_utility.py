@@ -5,9 +5,9 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
-from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
@@ -35,18 +35,18 @@ class RawAoeAttackUtility(CustomSkillUtilityBase):
         self.ignore_spirits = ignore_spirits
         self.custom_agent_targeting_predicate: Callable[[int], bool] | None = custom_agent_targeting_predicate
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
 
         def condition(agent_id: int) -> bool:
             if self.ignore_spirits:
                 return not Agent.IsSpirit(agent_id)
             return True
 
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-            condition= lambda agent_id: condition(agent_id) and (self.custom_agent_targeting_predicate is None or self.custom_agent_targeting_predicate(agent_id)),
-            within_range=Range.Spellcast,
-            sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.HP_DESC),
-            range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
+        return TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: condition(enemy_data.agent_id) and (self.custom_agent_targeting_predicate is None or self.custom_agent_targeting_predicate(enemy_data.agent_id)),
+            sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, -enemy_data.hp),
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

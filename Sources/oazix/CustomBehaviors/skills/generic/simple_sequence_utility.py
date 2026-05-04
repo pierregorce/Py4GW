@@ -88,4 +88,3 @@ class SimpleSequenceUtility(CustomSkillUtilityBase):
         # Execute utility_2 immediately after
         result_2 = yield from self.utility_2._execute(state)
         return result_2
-

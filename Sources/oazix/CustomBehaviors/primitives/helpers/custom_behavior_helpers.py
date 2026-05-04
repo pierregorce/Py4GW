@@ -10,10 +10,11 @@ from Py4GWCoreLib.enums_src.Model_enums import GadgetModelID
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers_tests
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_target import CustomTargeting
+from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.disabilities_allies_scoring import DisabilitiesAlliesScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.helpers.sortable_agent_data import SortableAgentData
+from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.disabilities_tracker import PartyDisabilityTracker
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 from Py4GWCoreLib import GLOBAL_CACHE, Agent, Player, Overlay, SkillBar, ActionQueueManager, Routines, Range, Utils, SPIRIT_BUFF_MAP, SpiritModelID, AgentArray
@@ -408,6 +409,17 @@ class Actions:
         if constants.DEBUG: print(f"cast_skill_to_target {skill.skill_name} to {target_agent_id}")
         yield from Helpers.delay_aftercast(skill)
         return BehaviorResult.ACTION_PERFORMED
+    
+    @staticmethod
+    def cast_skill_to_target_with_lock(lock_key: str, skill: CustomSkill, target_agent_id: int, call_target: bool = False) -> Generator[Any, Any, BehaviorResult]:
+        lock_manager = CustomBehaviorParty().get_shared_lock_manager()
+        if not lock_manager.try_aquire_lock(lock_key):
+            return BehaviorResult.ACTION_SKIPPED
+        try:
+            result = yield from Actions.cast_skill_to_lambda(skill, select_target=lambda: target_agent_id, call_target=call_target)
+        finally:
+            lock_manager.release_lock(lock_key)
+        return result
 
     @staticmethod
     def cast_skill_to_target(skill: CustomSkill, target_agent_id: int, call_target: bool = False) -> Generator[Any, Any, BehaviorResult]:
@@ -652,8 +664,8 @@ class Targets:
                     enemy_quantity_within_range=enemies_quantity_within_range,
                     agent_quantity_within_range=allies_quantity_within_range,
                     energy=Resources.get_energy_percent_in_party(agent_id),
-                    hex_priority_level=PartyDisabilityTracker().get_hex_score(agent_id),
-                    condition_priority_level=PartyDisabilityTracker().get_condition_score(agent_id),
+                    hex_priority_level=DisabilitiesAlliesScoring().get_hex_score(agent_id),
+                    condition_priority_level=DisabilitiesAlliesScoring().get_condition_score(agent_id),
                     melee_optimised_aoe_score=0, 
                 )
 

@@ -5,7 +5,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -37,12 +37,11 @@ class ProtectiveShoutUtility(CustomSkillUtilityBase):
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
-        
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            condition=lambda agent_id: Agent.GetHealth(agent_id) < self.allies_health_less_than_percent,
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
-        
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < self.allies_health_less_than_percent)
+
         if len(targets) == 0: return None
         if len(targets) < self.allies_quantity_required: return None
         return self.score_definition.get_score()

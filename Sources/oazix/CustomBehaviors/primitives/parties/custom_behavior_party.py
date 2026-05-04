@@ -8,15 +8,15 @@ from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.casting.casting_tracker import CastingTracker
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.damage_received.damage_received_tracker import DamageReceivedTracker
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.casting.casting_observer import CastingObserver
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.damage_received_observer import DamageReceivedObserver
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.disabilities_observer import PartyDisabilityObserver
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_handler_manager import PartyCommandHandlerManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_flagging_manager import PartyFlaggingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_following_manager import PartyFollowingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import SharedLockManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_teambuild_manager import PartyTeamBuildManager
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.disabilities.disabilities_tracker import PartyDisabilityTracker
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetData, CustomBehaviorWidgetMemoryManager
@@ -59,10 +59,10 @@ class CustomBehaviorParty:
             self.party_command_handler_manager.execute_next_step()
             self.party_teambuild_manager.act()
 
-            # Trackers
-            PartyDisabilityTracker().act()
-            DamageReceivedTracker().act()
-            CastingTracker().act()
+            # Observers
+            PartyDisabilityObserver().act()
+            DamageReceivedObserver().act()
+            CastingObserver().act()
 
             # # ------------------------------ Custom party target ------------------------------
             if custom_behavior_helpers.CustomBehaviorHelperParty.is_party_leader():

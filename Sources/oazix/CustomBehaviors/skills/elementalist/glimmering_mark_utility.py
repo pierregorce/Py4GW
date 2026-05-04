@@ -9,8 +9,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import glimmer_observer
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
-from Sources.oazix.CustomBehaviors.primitives.helpers.trackers.others import glimmer_tracker
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -46,7 +46,7 @@ class GlimmeringMarkUtility(CustomSkillUtilityBase):
         # Exclude agents that currently have the buff OR that had glimmer applied recently
         return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
             within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_tracker.had_glimmer_recently(agent_id)),
+            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id)),
             sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.HP_DESC),
             range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id),
         )
@@ -71,7 +71,7 @@ class GlimmeringMarkUtility(CustomSkillUtilityBase):
         # record glimmer on success so other utilities avoid the target for the window
         try:
             if result == BehaviorResult.ACTION_PERFORMED:
-                glimmer_tracker.record_glimmer_on(target.agent_id)
+                glimmer_observer.record_glimmer_on(target.agent_id)
         except Exception:
             # be defensive - don't break flow if tracker fails
             pass
@@ -81,5 +81,5 @@ class GlimmeringMarkUtility(CustomSkillUtilityBase):
     @override
     def customized_debug_ui(self, current_state: BehaviorState) -> None:
         PyImGui.bullet_text(f"recently_glimmered_agent_ids :")
-        for agent_id in glimmer_tracker._recent_glimmers:
-            PyImGui.bullet_text(f"agent_id : {agent_id} - timestamp : {glimmer_tracker._recent_glimmers[agent_id]}")
+        for agent_id in glimmer_observer._recent_glimmers:
+            PyImGui.bullet_text(f"agent_id : {agent_id} - timestamp : {glimmer_observer._recent_glimmers[agent_id]}")

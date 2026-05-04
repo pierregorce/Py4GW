@@ -1,11 +1,12 @@
-from typing import Any, Generator, Callable, override
+from typing import Any, Generator, override
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
+from Py4GWCoreLib import GLOBAL_CACHE, Range
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -38,13 +39,15 @@ class ArcaneConundrumUtility(CustomSkillUtilityBase):
     def _get_lock_key(self, agent_id: int) -> str:
         return f"ArcaneConundrum_{agent_id}"
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
         """Get caster enemies ordered by cluster size."""
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-                    within_range=Range.Spellcast,
-                    condition=lambda agent_id: Agent.IsCaster(agent_id),
-                    sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC,),
-                    range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: enemy_data.is_caster,
+            sort_asc_predicate=lambda enemy_data: -enemy_data.enemy_quantity_within_range,  # DESC order (negate for descending)
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
+        )
+        return targets
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

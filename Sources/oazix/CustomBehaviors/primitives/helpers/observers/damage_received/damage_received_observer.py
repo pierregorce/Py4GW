@@ -1,4 +1,4 @@
-class DamageReceivedTracker:
+class DamageReceivedObserver:
     pass
 
     def act(self):

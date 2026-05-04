@@ -1,19 +1,18 @@
-from typing import List, Any, Generator, Callable, override
+from typing import Any, Generator, override
 
 import PyImGui
 
-from Py4GWCoreLib import GLOBAL_CACHE, AgentArray, Agent, Range, Player
+from Py4GWCoreLib import Range
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.targeting_core import TargetingCore
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
-from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
-from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
@@ -37,15 +36,18 @@ class GenericResurrectionUtility(CustomSkillUtilityBase):
         
         self.score_definition: ScorePerHealthGravityDefinition = score_definition
 
-    def _get_target(self) -> int | None:
-        return custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
-            within_range=Range.Spellcast.value * 1.5,
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
-            is_alive=False
-        )
-
     def _get_lock_key(self, agent_id: int) -> str:
         return LockKeyHelper.resurrection(agent_id)
+
+    def _get_target(self) -> int | None:
+        allies = TargetingAlly.create().get_allies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda ally_data: TargetingCore().is_lock_key_available(self._get_lock_key(ally_data.agent_id)),
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player,
+            is_alive=False
+        )
+        if len(allies) == 0: return None
+        return allies[0].agent_id
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

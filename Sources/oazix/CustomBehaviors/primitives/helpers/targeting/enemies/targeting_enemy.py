@@ -6,7 +6,7 @@ from Py4GWCoreLib.Player import Player
 from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_party import CustomBehaviorHelperParty
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_overriding.enemy_blacklist_override import EnemyBlacklistOverride
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_overriding.party_leader_called_target_override import PartyLeaderCalledTargetOverride
-from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.agents_within_range_scoring import AgentsWithinRangeScoring
+from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.enemies_within_range_scoring import AgentsWithinRangeScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.interrupt_potential_scoring import InterruptPotentialScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.melee_aoe_enemies_scoring import MeleeAoeEnemiesScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_core import TargetingEnemyCore
@@ -54,7 +54,7 @@ class TargetingEnemy:
         )
 
     @staticmethod
-    def create_with_custom_interrupt_potential_scoring(self, interrupt_potential_scoring: InterruptPotentialScoring) -> 'TargetingEnemy':
+    def create_with_custom_interrupt_potential_scoring(interrupt_potential_scoring: InterruptPotentialScoring) -> 'TargetingEnemy':
         return TargetingEnemy(
             override_score_functions=[EnemyBlacklistOverride.override],
             interrupt_potential_scoring=interrupt_potential_scoring)
@@ -65,8 +65,8 @@ class TargetingEnemy:
             # core
             within_range: float,
             source_agent_pos: tuple[float, float] | None = None, # if None, will use Player.GetXY()
-            condition_predicate: Callable[[int], bool] | None = None,
-            sort_asc_predicate: Callable[[TargetingEnemyData], tuple[float, float] | float] | None = None,
+            condition_predicate: Callable[[TargetingEnemyData], bool] | None = None,
+            sort_asc_predicate: Callable[[TargetingEnemyData], tuple[float, float, float] | tuple[float, float] | float] | None = None,
             range_to_count_clustered_enemies: float | None = None,
             
             # optional extra data
@@ -96,16 +96,16 @@ class TargetingEnemy:
             if Agent.IsAlive(agent_data.agent_id) != is_alive:
                 continue
 
-            if condition_predicate is not None and not condition_predicate(agent_data.agent_id):
+            if condition_predicate is not None and not condition_predicate(agent_data):
                 continue
 
             agent_data_list_filtered.append(agent_data)
             
             if range_to_count_clustered_enemies is not None:
                 all_enemies_ids: list[int] = AgentArray.GetEnemyArray()
-                agent_data.enemy_quantity_within_range = AgentsWithinRangeScoring().get_score(agent_data.agent_id, all_enemies_ids, range_to_count_clustered_enemies)
-            agent_data.melee_optimised_aoe_score = MeleeAoeEnemiesScoring().get_melee_optimised_aoe_score(agent_data.agent_id, agent_data.enemy_quantity_within_range)
-            agent_data.interrupt_potential_score = InterruptPotentialScoring().get_score(agent_data.agent_id)
+                agent_data.enemy_quantity_within_range = self.agents_within_range_scoring.get_score(agent_data.agent_id, all_enemies_ids, range_to_count_clustered_enemies)
+            agent_data.melee_optimised_aoe_score = self.melee_aoe_enemies_scoring.get_melee_optimised_aoe_score(agent_data.agent_id, agent_data.enemy_quantity_within_range)
+            agent_data.interrupt_potential_score = self.interrupt_potential_scoring.get_score(agent_data.agent_id)
 
         # sorting
         agent_data_list_sorted: list[TargetingEnemyData] = agent_data_list_filtered

@@ -79,9 +79,7 @@ class MeleeAoeEnemiesScoring:
         pass
 
     def __categorize_distance(self, distance: float) -> str:
-        if distance <= MeleeAoeEnemiesScoring.DISTANCE_THRESHOLDS['super_close']:
-            return 'super_close'
-        elif distance <= MeleeAoeEnemiesScoring.DISTANCE_THRESHOLDS['close']:
+        if distance <= MeleeAoeEnemiesScoring.DISTANCE_THRESHOLDS['close']:
             return 'close'
         elif distance > MeleeAoeEnemiesScoring.DISTANCE_THRESHOLDS['far']:
             return 'far'
