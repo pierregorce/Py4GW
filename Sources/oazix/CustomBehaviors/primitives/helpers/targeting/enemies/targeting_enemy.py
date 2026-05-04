@@ -12,6 +12,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.melee_aoe_e
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_core import TargetingEnemyCore
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.tarteging_enemy_allegiance import TargetingEnemyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.targeting_core import TargetingCore
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 
 
@@ -79,7 +80,7 @@ class TargetingEnemy:
         if sort_asc_predicate is None: sort_asc_predicate = lambda x: x.distance_from_player
 
         source_pos = source_agent_pos if source_agent_pos is not None else Player.GetXY()
-        party_leader_id : int = MemoryCacheManager.get_or_set(MemoryCacheManager.PARTY_LEADER_ID, lambda: CustomBehaviorHelperParty.get_party_leader_id())
+        party_leader_id : int = TargetingCore().get_party_leader_id()
 
         agent_data_list : list[TargetingEnemyData] = TargetingEnemyCore().get_combined_enemy_targets(
             source_pos=source_pos,

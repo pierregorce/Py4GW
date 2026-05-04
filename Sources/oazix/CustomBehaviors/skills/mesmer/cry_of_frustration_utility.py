@@ -39,7 +39,9 @@ class CryOfFrustrationUtility(CustomSkillUtilityBase):
                 .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skills_cast_time_longer_than=0.330))\
                 .get_enemies(
                     within_range=Range.Spellcast.value,
-                    condition_predicate=lambda enemy_data: enemy_data.interrupt_potential_score > 0 and TargetingCore().is_lock_key_available(self._get_lock_key(enemy_data.agent_id)),
+                    condition_predicate=lambda enemy_data: 
+                        enemy_data.interrupt_potential_score > 0 
+                        and TargetingCore().is_lock_key_available(self._get_lock_key(enemy_data.agent_id)),
                     sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, 0 if enemy_data.is_caster else 1),
                     range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
                 )
