@@ -54,18 +54,18 @@ class MeleeAoeEnemiesScoring:
             'far': 10
             },
         1: {
-            'close': 120, 
+            'close': 90, 
             'mid': 70, 
             'far': {'moving': 40, 'stationary': 50}
             },
         2: {
             'close': {'moving': 140, 'stationary': 160}, 
-            'mid': 90, 
+            'mid': 120, 
             'far': 60
             },
         3: {
             'close': 180, 
-            'mid': 120, 
+            'mid': 110, 
             'far': 80
             },
         4: {  # 4+ range

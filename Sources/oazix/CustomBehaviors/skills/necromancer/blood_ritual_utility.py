@@ -47,7 +47,6 @@ class BloodRitualUtility(CustomSkillUtilityBase):
     def _get_target(self) -> int | None:
 
         targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
-                source_agent_pos=Player.GetXY(),
                 within_range=Range.Spellcast.value,
                 condition_predicate=lambda ally_data:
                     ally_data.agent_id != Player.GetAgentID()

@@ -68,7 +68,6 @@ class DarkAuraUtility(CustomSkillUtilityBase):
             return True
 
         targets = TargetingAlly.create().get_allies(
-                source_agent_pos=Player.GetXY(),
                 within_range=Range.Spellcast.value * 1.5,
                 condition_predicate=condition_predicate,
                 sort_asc_predicate=lambda ally_data: ally_data.distance_from_player)

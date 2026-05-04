@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -59,13 +60,13 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
         self.add_plugin_option(lambda x: RawBooleanOption(x.custom_skill, "should_cast_when_mana_low", default_value=False))
         self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "mana_low_threshold", default_value=0.40))
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingAllyData]:
         player_agent = Player.GetAgentID()
 
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value,
-            condition=lambda agent_id: agent_id != player_agent, # we accept healing full life allies
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC),
+            condition_predicate=lambda ally_data: ally_data.agent_id != player_agent, # we accept healing full life allies
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player),
         )
         return targets
 
@@ -157,12 +158,12 @@ class InfuseHealthUtility(CustomSkillUtilityBase):
             player_energy_percent = Agent.GetEnergy(player_agent_id)
             if player_energy_percent <= mana_low_threshold:
                 # force cast on lowest-HP ally to regain energy
-                target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+                targets = TargetingAlly.create().get_allies(
                     within_range=Range.Spellcast.value * 1.5,
-                    condition=lambda agent_id: agent_id != player_agent_id,
-                    sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
-                if target is None: return BehaviorResult.ACTION_SKIPPED
-                result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target)
+                    condition_predicate=lambda ally_data: ally_data.agent_id != player_agent_id,
+                    sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
+                if len(targets) == 0: return BehaviorResult.ACTION_SKIPPED
+                result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=targets[0].agent_id)
                 return result
 
         try:

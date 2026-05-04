@@ -1,12 +1,13 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range, Agent
+from Py4GWCoreLib import Range, Agent, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -32,12 +33,12 @@ class CureHexUtility(CustomSkillUtilityBase):
                 
         self.score_definition: ScoreStaticDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingAllyData]:
         """Get allies that are hexed, ordered by lowest health first."""
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: Agent.IsHexed(agent_id),
-            sort_key=(TargetingOrder.HEX_PRIORITY_LEVEL_DESC, TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
+            condition_predicate=lambda ally_data: Agent.IsHexed(ally_data.agent_id),
+            sort_asc_predicate=lambda ally_data: (-ally_data.hex_priority_score, ally_data.hp, ally_data.distance_from_player))
         return targets
 
     def _get_lock_key(self, agent_id: int) -> str:

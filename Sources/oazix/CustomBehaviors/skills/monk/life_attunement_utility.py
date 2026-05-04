@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range
+from Py4GWCoreLib import Range, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_boosted_on_self_definition import ScoreBoostedOnSelfDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
@@ -41,14 +42,12 @@ class LifeAttunementUtility(CustomSkillUtilityBase):
         self.add_plugin_watchdog(lambda x: ShouldLockUntilBuffCompletion(x.custom_skill, is_buff_config_fulfilled= lambda: self._get_target_id() is None, default_value= True))
 
     def _get_target_id(self) -> int | None:
-        target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value,
-            condition=lambda agent_id: (self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id)
+            condition_predicate=lambda ally_data: (self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id)
             ),
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
-            range_to_count_enemies=None,
-            range_to_count_allies=None)
-        return target
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player)
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

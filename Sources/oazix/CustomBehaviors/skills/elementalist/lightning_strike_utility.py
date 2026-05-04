@@ -1,14 +1,12 @@
-from operator import truediv
-from token import STRING
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
-from Py4GWCoreLib.py4gwcorelib_src.Console import ConsoleLog
+from Py4GWCoreLib import Agent, Range
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
+from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import glimmer_observer
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -34,12 +32,12 @@ class LightningStrikeUtility(CustomSkillUtilityBase):
 
     def _get_target(self) -> int | None:
 
-        target = custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id) and Agent.IsConditioned(agent_id)),
-            sort_key=(TargetingOrder.DISTANCE_ASC,)
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: (not glimmer_observer.had_glimmer_recently(enemy_data.agent_id) and Agent.IsConditioned(enemy_data.agent_id)),
+            sort_asc_predicate=lambda enemy_data: enemy_data.distance_from_player
         )
-        return target
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

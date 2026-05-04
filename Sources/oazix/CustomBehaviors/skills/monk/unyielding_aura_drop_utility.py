@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -50,10 +51,10 @@ class UnyieldingAuraDropUtility(CustomSkillUtilityBase):
         if buff_id != 0:
             Effects.DropBuff(buff_id)
 
-    def _get_dead_allies(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_dead_allies(self) -> list[TargetingAllyData]:
+        return TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.5,
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player,
             is_alive=False
         )
 

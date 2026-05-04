@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range
+from Py4GWCoreLib import Range, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_boosted_on_self_definition import ScoreBoostedOnSelfDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -39,12 +40,10 @@ class ProtectiveBondUtility(CustomSkillUtilityBase):
 
     def _get_target(self) -> int | None:
 
-        targets = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets = TargetingAlly.create().get_allies(
                 within_range=Range.Spellcast.value,
-                condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
-                sort_key=(TargetingOrder.DISTANCE_ASC,),
-                range_to_count_enemies=None,
-                range_to_count_allies=None)
+                condition_predicate=lambda ally_data: self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
+                sort_asc_predicate=lambda ally_data: ally_data.distance_from_player)
 
         if targets is None: return None
         if len(targets) == 0: return None

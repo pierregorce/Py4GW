@@ -40,7 +40,6 @@ class FoulFeastUtility(CustomSkillUtilityBase):
     def _get_targets(self) -> list[TargetingAllyData]:
         """Get allies that are conditioned, ordered by lowest health first."""
         targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
-            source_agent_pos=Player.GetXY(),
             within_range=Range.Spellcast.value * 1.2,
             condition_predicate=lambda ally_data: Agent.IsConditioned(ally_data.agent_id) and Player.GetAgentID() != ally_data.agent_id,
             sort_asc_predicate=lambda ally_data: (-ally_data.condition_priority_score, 1 if Agent.IsMelee(ally_data.agent_id) else 0, ally_data.hp))

@@ -49,7 +49,6 @@ class BloodIsPowerUtility(CustomSkillUtilityBase):
         required_target_mana_lower_than_percent = required_target_mana_lower_than_percent_option.option_value
 
         targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
-                source_agent_pos=Player.GetXY(),
                 within_range=Range.Spellcast.value,
                 condition_predicate=lambda ally_data:
                     ally_data.agent_id != Player.GetAgentID()

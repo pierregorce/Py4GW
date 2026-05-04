@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range
+from Py4GWCoreLib import Range, Player, Agent
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -36,13 +37,12 @@ class VigorousSpiritUtility(CustomSkillUtilityBase):
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_MARTIAL))
 
     def _get_target(self) -> int | None:
-        return custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
-            sort_key=(TargetingOrder.MELEE_THEN_CASTER, TargetingOrder.DISTANCE_ASC),
-            range_to_count_enemies=None,
-            range_to_count_allies=None,
+            condition_predicate=lambda ally_data: self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
+            sort_asc_predicate=lambda ally_data: (1 if Agent.IsMelee(ally_data.agent_id) else 0, ally_data.distance_from_player),
         )
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

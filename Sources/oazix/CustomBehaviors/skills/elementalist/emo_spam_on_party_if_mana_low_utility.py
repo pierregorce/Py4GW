@@ -8,7 +8,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -50,11 +51,11 @@ class EmoSpamOnPartyIfManaLowUtility(CustomSkillUtilityBase):
         self.add_plugin_option(lambda x: RawNumberOption(x.custom_skill, "mana_low_threshold", 0.70))
 
     def get_party_target(self) -> int | None:
-        target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            condition=lambda agent_id: agent_id != Player.GetAgentID(),
-            sort_key=(TargetingOrder.HP_ASC,))
-        return target
+            condition_predicate=lambda ally_data: ally_data.agent_id != Player.GetAgentID(),
+            sort_asc_predicate=lambda ally_data: ally_data.hp)
+        return targets[0].agent_id if len(targets) > 0 else None
 
     def are_common_pre_checks_valid(self, current_state: BehaviorState) -> bool:
         if current_state is BehaviorState.IDLE: return False

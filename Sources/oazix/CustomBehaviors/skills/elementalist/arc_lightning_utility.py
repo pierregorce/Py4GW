@@ -1,9 +1,6 @@
-from operator import truediv
-from token import STRING
-from typing import Any, Generator, override
+from typing import override
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Player, Range, Routines
-from Py4GWCoreLib.py4gwcorelib_src.Console import ConsoleLog
+from Py4GWCoreLib import Agent, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition

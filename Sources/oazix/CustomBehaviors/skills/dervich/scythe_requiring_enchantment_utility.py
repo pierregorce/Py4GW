@@ -38,7 +38,7 @@ class ScytheRequiringEnchantmentUtility(CustomSkillUtilityBase):
         
         enemies = TargetingEnemy.create().get_enemies(
             within_range=Range.Spellcast.value,
-            sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, enemy_data.distance_from_player),
+            sort_asc_predicate=lambda enemy_data: (-enemy_data.melee_optimised_aoe_score, enemy_data.distance_from_player),
             range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
         
         return enemies

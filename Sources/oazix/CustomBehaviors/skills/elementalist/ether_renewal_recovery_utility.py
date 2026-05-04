@@ -8,7 +8,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -118,13 +119,14 @@ class EtherRenewalRecoveryUtility(CustomSkillUtilityBase):
                 continue
 
             # Find any ally in range (not just hurt — casting for ER trigger)
-            target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+            targets = TargetingAlly.create().get_allies(
                 within_range=Range.Spellcast.value,
-                condition=lambda agent_id: agent_id != player_id,
-                sort_key=(TargetingOrder.HP_ASC,),
+                condition_predicate=lambda ally_data: ally_data.agent_id != player_id,
+                sort_asc_predicate=lambda ally_data: ally_data.hp,
             )
-            if target is None:
+            if len(targets) == 0:
                 continue
+            target = targets[0].agent_id
 
             result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(
                 skill_utility.custom_skill, target_agent_id=target,

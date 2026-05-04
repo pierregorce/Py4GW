@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_boosted_definition import ScoreBoostedDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_energy_definition import ScorePerEnergyDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -38,10 +39,11 @@ class CastigationSignetUtility(CustomSkillUtilityBase):
 
     def _get_target(self) -> int | None:
         """Get an enemy that is attacking, ordered by distance."""
-        return custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: Agent.IsAttacking(agent_id),
-            sort_key=(TargetingOrder.DISTANCE_ASC, ))
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: Agent.IsAttacking(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: enemy_data.distance_from_player)
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

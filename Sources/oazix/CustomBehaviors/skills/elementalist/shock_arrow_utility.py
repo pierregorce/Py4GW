@@ -9,7 +9,8 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.others import cracked_armor_observer, glimmer_observer
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -37,12 +38,12 @@ class ShockArrowUtility(CustomSkillUtilityBase):
         # prefer closest enemy in spellcast range; skip enemies that already have Glimmering_Mark
 
 
-        target = custom_behavior_helpers.Targets.get_first_or_default_from_enemy_ordered_by_priority(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: (not glimmer_observer.had_glimmer_recently(agent_id) and cracked_armor_observer.has_cracked_armor(agent_id)),
-            sort_key=(TargetingOrder.DISTANCE_ASC,)
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: (not glimmer_observer.had_glimmer_recently(enemy_data.agent_id) and cracked_armor_observer.has_cracked_armor(enemy_data.agent_id)),
+            sort_asc_predicate=lambda enemy_data: enemy_data.distance_from_player
         )
-        return target
+        return targets[0].agent_id if len(targets) > 0 else None
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
