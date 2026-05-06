@@ -1,390 +1,1146 @@
 {
   "enemies": {
-    "enc:\\\\x0BCF\\\\x8FBE\\\\xAE3E\\\\x4796": {
+    "enc:\\\\x0F95\\\\xF318\\\\x6CFE": {
       "encoded_names": [
-        "\\\\x0BCF\\\\x8FBE\\\\xAE3E\\\\x4796"
+        "\\\\x0F95\\\\xF318\\\\x6CFE"
       ],
-      "inferred_primary": "Elementalist",
+      "inferred_primary": "",
       "inferred_secondary": "",
-      "last_seen": 177279906,
       "model_ids": [
-        129
+        2934
       ],
-      "names": [
-        "Master of Lightning"
-      ],
-      "observed_skills": {
-        "164": {
-          "count": 1,
-          "id": 164,
-          "last_seen": 177279906,
-          "name": "Elemental_Attunement",
-          "profession": "Elementalist",
-          "profession_id": 6
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
         }
       },
-      "profession_counts": {
-        "Elementalist": 1
+      "observed_skills": {}
+    },
+    "enc:\\\\x1232\\\\xF535\\\\x05E0": {
+      "encoded_names": [
+        "\\\\x1232\\\\xF535\\\\x05E0"
+      ],
+      "inferred_primary": "",
+      "inferred_secondary": "",
+      "model_ids": [
+        2282
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
+    },
+    "enc:\\\\x7B64\\\\x95DB\\\\xAB29\\\\x1430": {
+      "encoded_names": [
+        "\\\\x7B64\\\\x95DB\\\\xAB29\\\\x1430"
+      ],
+      "inferred_primary": "Mesmer",
+      "inferred_secondary": "",
+      "model_ids": [
+        5370
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1345": {
+          "id": 1345,
+          "name": "Enchanter's Conundrum",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "23": {
+          "id": 23,
+          "name": "Power Spike",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "68": {
+          "id": 68,
+          "name": "Drain Enchantment",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "69": {
+          "id": 69,
+          "name": "Shatter Enchantment",
+          "profession": "Mesmer",
+          "profession_id": 5
+        }
       }
     },
-    "enc:\\\\x0BD1\\\\xFDC1\\\\xE5BB\\\\x5299": {
+    "enc:\\\\x7B65\\\\x8C79\\\\xA766\\\\x3402": {
       "encoded_names": [
-        "\\\\x0BD1\\\\xFDC1\\\\xE5BB\\\\x5299"
+        "\\\\x7B65\\\\x8C79\\\\xA766\\\\x3402"
       ],
       "inferred_primary": "Necromancer",
       "inferred_secondary": "",
-      "last_seen": 177279906,
       "model_ids": [
-        135
+        5374
       ],
-      "names": [
-        "Master of Hexes"
-      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
       "observed_skills": {
-        "126": {
-          "count": 2,
-          "id": 126,
-          "last_seen": 174892640,
-          "name": "Life_Transfer",
-          "profession": "Necromancer",
-          "profession_id": 4
-        },
-        "135": {
-          "count": 2,
-          "id": 135,
-          "last_seen": 174882156,
-          "name": "Faintheartedness",
+        "109": {
+          "id": 109,
+          "name": "Life Siphon",
           "profession": "Necromancer",
           "profession_id": 4
         },
         "143": {
-          "count": 1,
           "id": 143,
-          "last_seen": 174877890,
-          "name": "Strip_Enchantment",
+          "name": "Strip Enchantment",
+          "profession": "Necromancer",
+          "profession_id": 4
+        }
+      }
+    },
+    "enc:\\\\x7B66\\\\xFB29\\\\x8327\\\\x4869": {
+      "encoded_names": [
+        "\\\\x7B66\\\\xFB29\\\\x8327\\\\x4869"
+      ],
+      "inferred_primary": "Elementalist",
+      "inferred_secondary": "",
+      "model_ids": [
+        5378
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1378": {
+          "id": 1378,
+          "name": "Master of Magic",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "174": {
+          "id": 174,
+          "name": "Aftershock",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "186": {
+          "id": 186,
+          "name": "Fireball",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "187": {
+          "id": 187,
+          "name": "Meteor",
+          "profession": "Elementalist",
+          "profession_id": 6
+        }
+      }
+    },
+    "enc:\\\\x7B68\\\\x8BBE\\\\xBBF3\\\\x416A": {
+      "encoded_names": [
+        "\\\\x7B68\\\\x8BBE\\\\xBBF3\\\\x416A"
+      ],
+      "inferred_primary": "Monk",
+      "inferred_secondary": "",
+      "model_ids": [
+        5382
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1687": {
+          "id": 1687,
+          "name": "Zealous Benediction",
+          "profession": "Monk",
+          "profession_id": 3
+        },
+        "299": {
+          "id": 299,
+          "name": "Shielding Hands",
+          "profession": "Monk",
+          "profession_id": 3
+        },
+        "307": {
+          "id": 307,
+          "name": "Reversal of Fortune",
+          "profession": "Monk",
+          "profession_id": 3
+        }
+      }
+    },
+    "enc:\\\\x7B69\\\\xD0CB\\\\x8475\\\\x20A2": {
+      "encoded_names": [
+        "\\\\x7B69\\\\xD0CB\\\\x8475\\\\x20A2"
+      ],
+      "inferred_primary": "",
+      "inferred_secondary": "",
+      "model_ids": [
+        5387
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
+    },
+    "enc:\\\\x7B6A\\\\xEBA0\\\\x5E45": {
+      "encoded_names": [
+        "\\\\x7B6A\\\\xEBA0\\\\x5E45"
+      ],
+      "inferred_primary": "Ranger",
+      "inferred_secondary": "",
+      "model_ids": [
+        5394
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1730": {
+          "id": 1730,
+          "name": "Infuriating Heat",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "446": {
+          "id": 446,
+          "name": "Troll Unguent",
+          "profession": "Ranger",
+          "profession_id": 2
+        }
+      }
+    },
+    "enc:\\\\x7B75\\\\xC299\\\\xEC48\\\\x5558": {
+      "encoded_names": [
+        "\\\\x7B75\\\\xC299\\\\xEC48\\\\x5558"
+      ],
+      "inferred_primary": "Dervish",
+      "inferred_secondary": "",
+      "model_ids": [
+        5398
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1515": {
+          "id": 1515,
+          "name": "Armor of Sanctity",
+          "profession": "Dervish",
+          "profession_id": 10
+        }
+      }
+    },
+    "enc:\\\\x7D54\\\\xF46D\\\\xEC6C\\\\x721C": {
+      "encoded_names": [
+        "\\\\x7D54\\\\xF46D\\\\xEC6C\\\\x721C"
+      ],
+      "inferred_primary": "Paragon",
+      "inferred_secondary": "",
+      "model_ids": [
+        5402
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1588": {
+          "id": 1588,
+          "name": "Cautery Signet",
+          "profession": "Paragon",
+          "profession_id": 9
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x09C2\\\\x8FDA\\\\x911A\\\\x46E7": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C2\\\\x8FDA\\\\x911A\\\\x46E7"
+      ],
+      "inferred_primary": "Monk",
+      "inferred_secondary": "",
+      "model_ids": [
+        4728
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1393": {
+          "id": 1393,
+          "name": "Healer's Boon",
+          "profession": "Monk",
+          "profession_id": 3
+        },
+        "1396": {
+          "id": 1396,
+          "name": "Words of Comfort",
+          "profession": "Monk",
+          "profession_id": 3
+        },
+        "281": {
+          "id": 281,
+          "name": "Orison of Healing",
+          "profession": "Monk",
+          "profession_id": 3
+        },
+        "313": {
+          "id": 313,
+          "name": "Healing Touch",
+          "profession": "Monk",
+          "profession_id": 3
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x09C3\\\\xCD6C\\\\x8FE6\\\\x7BD7": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C3\\\\xCD6C\\\\x8FE6\\\\x7BD7"
+      ],
+      "inferred_primary": "",
+      "inferred_secondary": "",
+      "model_ids": [
+        4729
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
+    },
+    "enc:\\\\x8101\\\\x09C4\\\\xA88E\\\\xE8DD\\\\x2A21": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C4\\\\xA88E\\\\xE8DD\\\\x2A21"
+      ],
+      "inferred_primary": "Ranger",
+      "inferred_secondary": "",
+      "model_ids": [
+        4730
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "472": {
+          "id": 472,
+          "name": "Favorable Winds",
+          "profession": "Ranger",
+          "profession_id": 2
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x09C5\\\\xEFF1\\\\x247F": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C5\\\\xEFF1\\\\x247F"
+      ],
+      "inferred_primary": "",
+      "inferred_secondary": "",
+      "model_ids": [
+        4731
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
+    },
+    "enc:\\\\x8101\\\\x09C7\\\\xA4FE\\\\xB958\\\\x2879": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C7\\\\xA4FE\\\\xB958\\\\x2879"
+      ],
+      "inferred_primary": "Mesmer",
+      "inferred_secondary": "",
+      "model_ids": [
+        5584
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1337": {
+          "id": 1337,
+          "name": "Drain Delusions",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "1343": {
+          "id": 1343,
+          "name": "Ether Phantom",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "1349": {
+          "id": 1349,
+          "name": "Mirror of Disenchantment",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "40": {
+          "id": 40,
+          "name": "Ether Feast",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "79": {
+          "id": 79,
+          "name": "Energy Drain",
+          "profession": "Mesmer",
+          "profession_id": 5
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x09C8\\\\x9A97\\\\x9F98\\\\x0468": {
+      "encoded_names": [
+        "\\\\x8101\\\\x09C8\\\\x9A97\\\\x9F98\\\\x0468"
+      ],
+      "inferred_primary": "Necromancer",
+      "inferred_secondary": "",
+      "model_ids": [
+        5585
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "135": {
+          "id": 135,
+          "name": "Faintheartedness",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "1362": {
+          "id": 1362,
+          "name": "Corrupt Enchantment",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "159": {
+          "id": 159,
+          "name": "Weaken Armor",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "1660": {
+          "id": 1660,
+          "name": "Well of Silence",
           "profession": "Necromancer",
           "profession_id": 4
         },
         "99": {
-          "count": 2,
           "id": 99,
-          "last_seen": 174879734,
-          "name": "Parasitic_Bond",
+          "name": "Parasitic Bond",
           "profession": "Necromancer",
           "profession_id": 4
         }
-      },
-      "profession_counts": {
-        "Necromancer": 7
       }
     },
-    "enc:\\\\x0BD4\\\\x8E71\\\\xF6DB\\\\x0BAB": {
+    "enc:\\\\x8101\\\\x09C9\\\\xFDC3\\\\xD720\\\\x7612": {
       "encoded_names": [
-        "\\\\x0BD4\\\\x8E71\\\\xF6DB\\\\x0BAB"
+        "\\\\x8101\\\\x09C9\\\\xFDC3\\\\xD720\\\\x7612"
       ],
-      "inferred_primary": "",
+      "inferred_primary": "Elementalist",
       "inferred_secondary": "",
-      "last_seen": 177279906,
       "model_ids": [
-        134
+        5586
       ],
-      "names": [
-        "Master of Healing"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
-    },
-    "enc:\\\\x0BD7\\\\x82CB\\\\x0528": {
-      "encoded_names": [
-        "\\\\x0BD7\\\\x82CB\\\\x0528"
-      ],
-      "inferred_primary": "",
-      "inferred_secondary": "",
-      "last_seen": 179376609,
-      "model_ids": [
-        154
-      ],
-      "names": [
-        "Suit of 100 Armor"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
-    },
-    "enc:\\\\x0BD8\\\\xA06E\\\\xC195\\\\x4292": {
-      "encoded_names": [
-        "\\\\x0BD8\\\\xA06E\\\\xC195\\\\x4292"
-      ],
-      "inferred_primary": "",
-      "inferred_secondary": "",
-      "last_seen": 179376609,
-      "model_ids": [
-        152
-      ],
-      "names": [
-        "Suit of 60 Armor"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
-    },
-    "enc:\\\\x0BD9\\\\xE564\\\\x5BF4": {
-      "encoded_names": [
-        "\\\\x0BD9\\\\xE564\\\\x5BF4"
-      ],
-      "inferred_primary": "",
-      "inferred_secondary": "",
-      "last_seen": 179376609,
-      "model_ids": [
-        153
-      ],
-      "names": [
-        "Suit of 80 Armor"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
-    },
-    "enc:\\\\x0BDA\\\\x8F1B\\\\xCCCF\\\\x7F30": {
-      "encoded_names": [
-        "\\\\x0BDA\\\\x8F1B\\\\xCCCF\\\\x7F30"
-      ],
-      "inferred_primary": "",
-      "inferred_secondary": "",
-      "last_seen": 180971218,
-      "model_ids": [
-        155
-      ],
-      "names": [
-        "Practice Target",
-        "Agent 71"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
-    },
-    "enc:\\\\x0BDC\\\\xF8B5\\\\xCE9B\\\\x6BFE": {
-      "encoded_names": [
-        "\\\\x0BDC\\\\xF8B5\\\\xCE9B\\\\x6BFE"
-      ],
-      "inferred_primary": "Warrior",
-      "inferred_secondary": "",
-      "last_seen": 180998578,
-      "model_ids": [
-        157
-      ],
-      "names": [
-        "Student of Blind",
-        "Agent 117"
-      ],
-      "observed_skills": {
-        "1": {
-          "count": 1,
-          "id": 1,
-          "last_seen": 178626515,
-          "name": "Healing_Signet",
-          "profession": "Warrior",
-          "profession_id": 1
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
         }
       },
-      "profession_counts": {
-        "Warrior": 1
+      "observed_skills": {
+        "1368": {
+          "id": 1368,
+          "name": "Chilling Winds",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "1382": {
+          "id": 1382,
+          "name": "Freezing Gust",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "1664": {
+          "id": 1664,
+          "name": "Invoke Lightning",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "225": {
+          "id": 225,
+          "name": "Air Attunement",
+          "profession": "Elementalist",
+          "profession_id": 6
+        }
       }
     },
-    "enc:\\\\x0BDF\\\\xFB0B\\\\xF320\\\\x3739": {
+    "enc:\\\\x8101\\\\x09CB\\\\x9756\\\\xE318\\\\x3604": {
       "encoded_names": [
-        "\\\\x0BDF\\\\xFB0B\\\\xF320\\\\x3739"
+        "\\\\x8101\\\\x09CB\\\\x9756\\\\xE318\\\\x3604"
       ],
       "inferred_primary": "Monk",
       "inferred_secondary": "",
-      "last_seen": 180998578,
       "model_ids": [
-        160
+        5587
       ],
-      "names": [
-        "Student of Dazed",
-        "Agent 96"
-      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
       "observed_skills": {
-        "313": {
-          "count": 2,
-          "id": 313,
-          "last_seen": 178604593,
-          "name": "Healing_Touch",
+        "1392": {
+          "id": 1392,
+          "name": "Watchful Healing",
           "profession": "Monk",
           "profession_id": 3
         }
-      },
-      "profession_counts": {
-        "Monk": 2
       }
     },
-    "enc:\\\\x0BE0\\\\x8D50\\\\xD487\\\\x7295": {
+    "enc:\\\\x8101\\\\x09CC\\\\xC423\\\\x8448\\\\x347B": {
       "encoded_names": [
-        "\\\\x0BE0\\\\x8D50\\\\xD487\\\\x7295"
+        "\\\\x8101\\\\x09CC\\\\xC423\\\\x8448\\\\x347B"
       ],
       "inferred_primary": "Warrior",
       "inferred_secondary": "",
-      "last_seen": 180998578,
       "model_ids": [
-        161
+        5588
       ],
-      "names": [
-        "Student of Disease",
-        "Agent 93"
-      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
       "observed_skills": {
         "1": {
-          "count": 108,
           "id": 1,
-          "last_seen": 180998578,
-          "name": "Healing_Signet",
+          "name": "Healing Signet",
           "profession": "Warrior",
           "profession_id": 1
         }
-      },
-      "profession_counts": {
-        "Warrior": 108
       }
     },
-    "enc:\\\\x0BE2\\\\x9F4A\\\\xCAE8\\\\x0687": {
+    "enc:\\\\x8101\\\\x09CD\\\\xBB25\\\\x8A1E\\\\x5E2F": {
       "encoded_names": [
-        "\\\\x0BE2\\\\x9F4A\\\\xCAE8\\\\x0687"
+        "\\\\x8101\\\\x09CD\\\\xBB25\\\\x8A1E\\\\x5E2F"
       ],
-      "inferred_primary": "Warrior",
+      "inferred_primary": "Ranger",
       "inferred_secondary": "",
-      "last_seen": 180998578,
       "model_ids": [
-        163
+        5589
       ],
-      "names": [
-        "Student of Weakness",
-        "Agent 99"
-      ],
-      "observed_skills": {
-        "1": {
-          "count": 55,
-          "id": 1,
-          "last_seen": 178840328,
-          "name": "Healing_Signet",
-          "profession": "Warrior",
-          "profession_id": 1
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
         }
       },
-      "profession_counts": {
-        "Warrior": 55
+      "observed_skills": {
+        "1470": {
+          "id": 1470,
+          "name": "Barbed Arrows",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "446": {
+          "id": 446,
+          "name": "Troll Unguent",
+          "profession": "Ranger",
+          "profession_id": 2
+        }
       }
     },
-    "enc:\\\\x0D39\\\\xCF3B\\\\xED6E\\\\x4EF1": {
+    "enc:\\\\x8101\\\\x09CE\\\\x8C33\\\\x4349": {
       "encoded_names": [
-        "\\\\x0D39\\\\xCF3B\\\\xED6E\\\\x4EF1"
+        "\\\\x8101\\\\x09CE\\\\x8C33\\\\x4349"
       ],
-      "inferred_primary": "",
+      "inferred_primary": "Dervish",
       "inferred_secondary": "",
-      "last_seen": 179376609,
       "model_ids": [
-        149
+        5590
       ],
-      "names": [
-        "Guard of the Isles"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1491": {
+          "id": 1491,
+          "name": "Mystic Twister",
+          "profession": "Dervish",
+          "profession_id": 10
+        },
+        "1502": {
+          "id": 1502,
+          "name": "Arcane Zeal",
+          "profession": "Dervish",
+          "profession_id": 10
+        },
+        "1505": {
+          "id": 1505,
+          "name": "Vow of Piety",
+          "profession": "Dervish",
+          "profession_id": 10
+        },
+        "1509": {
+          "id": 1509,
+          "name": "Faithful Intervention",
+          "profession": "Dervish",
+          "profession_id": 10
+        },
+        "1527": {
+          "id": 1527,
+          "name": "Mystic Healing",
+          "profession": "Dervish",
+          "profession_id": 10
+        }
+      }
     },
-    "enc:\\\\x0D7F\\\\xB5A9\\\\x3373": {
+    "enc:\\\\x8101\\\\x1CE3\\\\xA10F\\\\x9001\\\\x49F3": {
       "encoded_names": [
-        "\\\\x0D7F\\\\xB5A9\\\\x3373"
+        "\\\\x8101\\\\x1CE3\\\\xA10F\\\\x9001\\\\x49F3"
       ],
-      "inferred_primary": "",
+      "inferred_primary": "Mesmer",
       "inferred_secondary": "",
-      "last_seen": 180971515,
       "model_ids": [
-        155
+        4689
       ],
-      "names": [
-        "Adjacent"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "40": {
+          "id": 40,
+          "name": "Ether Feast",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "43": {
+          "id": 43,
+          "name": "Clumsiness",
+          "profession": "Mesmer",
+          "profession_id": 5
+        },
+        "66": {
+          "id": 66,
+          "name": "Spirit Shackles",
+          "profession": "Mesmer",
+          "profession_id": 5
+        }
+      }
     },
-    "enc:\\\\x0D80\\\\xD7E3\\\\x96FB\\\\x5C39": {
+    "enc:\\\\x8101\\\\x4731\\\\x9857\\\\x863A\\\\x3B88": {
       "encoded_names": [
-        "\\\\x0D80\\\\xD7E3\\\\x96FB\\\\x5C39"
+        "\\\\x8101\\\\x4731\\\\x9857\\\\x863A\\\\x3B88"
       ],
       "inferred_primary": "",
       "inferred_secondary": "",
-      "last_seen": 180971859,
       "model_ids": [
-        155
+        5766
       ],
-      "names": [
-        "In the Area"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
     },
-    "enc:\\\\x0D82\\\\xFDF3\\\\x95B0\\\\x4670": {
+    "enc:\\\\x8101\\\\x4C88\\\\xB01C\\\\xF31C\\\\x3879": {
       "encoded_names": [
-        "\\\\x0D82\\\\xFDF3\\\\x95B0\\\\x4670"
+        "\\\\x8101\\\\x4C88\\\\xB01C\\\\xF31C\\\\x3879"
       ],
       "inferred_primary": "",
       "inferred_secondary": "",
-      "last_seen": 180971031,
       "model_ids": [
-        155
+        5388
       ],
-      "names": [
-        "Adjacent to Foe"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
     },
-    "enc:\\\\x0D83\\\\x8FB5\\\\xFA35\\\\x771A": {
+    "enc:\\\\x8101\\\\x5134\\\\x877B\\\\x8D12\\\\x7167": {
       "encoded_names": [
-        "\\\\x0D83\\\\x8FB5\\\\xFA35\\\\x771A"
+        "\\\\x8101\\\\x5134\\\\x877B\\\\x8D12\\\\x7167"
       ],
-      "inferred_primary": "",
+      "inferred_primary": "Necromancer",
       "inferred_secondary": "",
-      "last_seen": 180971890,
       "model_ids": [
-        155
+        4718
       ],
-      "names": [
-        "Nearby"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "104": {
+          "id": 104,
+          "name": "Death Nova",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "108": {
+          "id": 108,
+          "name": "Suffering",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "1659": {
+          "id": 1659,
+          "name": "Toxic Chill",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "85": {
+          "id": 85,
+          "name": "Animate Bone Minions",
+          "profession": "Necromancer",
+          "profession_id": 4
+        }
+      }
     },
-    "enc:\\\\x8101\\\\x07C9\\\\xB3FA\\\\x9C14\\\\x5D72": {
+    "enc:\\\\x8101\\\\x5137\\\\x9E87\\\\xCE88\\\\x5E97": {
       "encoded_names": [
-        "\\\\x8101\\\\x07C9\\\\xB3FA\\\\x9C14\\\\x5D72"
+        "\\\\x8101\\\\x5137\\\\x9E87\\\\xCE88\\\\x5E97"
       ],
-      "inferred_primary": "",
+      "inferred_primary": "Elementalist",
       "inferred_secondary": "",
-      "last_seen": 179217593,
       "model_ids": [
-        144
+        4738
       ],
-      "names": [
-        "Master of Damage",
-        "Agent 121"
-      ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1378": {
+          "id": 1378,
+          "name": "Master of Magic",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "165": {
+          "id": 165,
+          "name": "Armor of Earth",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "171": {
+          "id": 171,
+          "name": "Stoning",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "172": {
+          "id": 172,
+          "name": "Stone Daggers",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "180": {
+          "id": 180,
+          "name": "Aura of Restoration",
+          "profession": "Elementalist",
+          "profession_id": 6
+        }
+      }
     },
-    "enc:\\\\x8103\\\\x073F\\\\x8210\\\\xAE49\\\\x48D5": {
+    "enc:\\\\x8101\\\\x5138\\\\xA38C\\\\xE7CD\\\\x7A40": {
       "encoded_names": [
-        "\\\\x8103\\\\x073F\\\\x8210\\\\xAE49\\\\x48D5"
+        "\\\\x8101\\\\x5138\\\\xA38C\\\\xE7CD\\\\x7A40"
+      ],
+      "inferred_primary": "Ranger",
+      "inferred_secondary": "",
+      "model_ids": [
+        4736
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "446": {
+          "id": 446,
+          "name": "Troll Unguent",
+          "profession": "Ranger",
+          "profession_id": 2
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x513A\\\\xBDA7\\\\x8CA7\\\\x6E92": {
+      "encoded_names": [
+        "\\\\x8101\\\\x513A\\\\xBDA7\\\\x8CA7\\\\x6E92"
       ],
       "inferred_primary": "",
       "inferred_secondary": "",
-      "last_seen": 179376609,
       "model_ids": [
-        165
+        4720
       ],
-      "names": [
-        "Agent 139",
-        "Student of Cracked Armor"
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {}
+    },
+    "enc:\\\\x8101\\\\x5150\\\\xA134\\\\xC3B2\\\\x5A26": {
+      "encoded_names": [
+        "\\\\x8101\\\\x5150\\\\xA134\\\\xC3B2\\\\x5A26"
       ],
-      "observed_skills": {},
-      "profession_counts": {}
+      "inferred_primary": "Elementalist",
+      "inferred_secondary": "",
+      "model_ids": [
+        4697
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "165": {
+          "id": 165,
+          "name": "Armor of Earth",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "171": {
+          "id": 171,
+          "name": "Stoning",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "172": {
+          "id": 172,
+          "name": "Stone Daggers",
+          "profession": "Elementalist",
+          "profession_id": 6
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x51F0\\\\xA80A\\\\xECC2\\\\x2B31": {
+      "encoded_names": [
+        "\\\\x8101\\\\x51F0\\\\xA80A\\\\xECC2\\\\x2B31"
+      ],
+      "inferred_primary": "Necromancer",
+      "inferred_secondary": "",
+      "model_ids": [
+        5567
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "135": {
+          "id": 135,
+          "name": "Faintheartedness",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "159": {
+          "id": 159,
+          "name": "Weaken Armor",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "1660": {
+          "id": 1660,
+          "name": "Well of Silence",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "99": {
+          "id": 99,
+          "name": "Parasitic Bond",
+          "profession": "Necromancer",
+          "profession_id": 4
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x51F1\\\\x9B68\\\\xB507\\\\x0423": {
+      "encoded_names": [
+        "\\\\x8101\\\\x51F1\\\\x9B68\\\\xB507\\\\x0423"
+      ],
+      "inferred_primary": "Elementalist",
+      "inferred_secondary": "",
+      "model_ids": [
+        5568
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1368": {
+          "id": 1368,
+          "name": "Chilling Winds",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "1382": {
+          "id": 1382,
+          "name": "Freezing Gust",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "1664": {
+          "id": 1664,
+          "name": "Invoke Lightning",
+          "profession": "Elementalist",
+          "profession_id": 6
+        },
+        "225": {
+          "id": 225,
+          "name": "Air Attunement",
+          "profession": "Elementalist",
+          "profession_id": 6
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x571C\\\\xC16F\\\\xF995\\\\x3C6F": {
+      "encoded_names": [
+        "\\\\x8101\\\\x571C\\\\xC16F\\\\xF995\\\\x3C6F"
+      ],
+      "inferred_primary": "Necromancer",
+      "inferred_secondary": "",
+      "model_ids": [
+        5274
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "109": {
+          "id": 109,
+          "name": "Life Siphon",
+          "profession": "Necromancer",
+          "profession_id": 4
+        },
+        "143": {
+          "id": 143,
+          "name": "Strip Enchantment",
+          "profession": "Necromancer",
+          "profession_id": 4
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x571D\\\\xBFC6\\\\xE2B5\\\\x6324": {
+      "encoded_names": [
+        "\\\\x8101\\\\x571D\\\\xBFC6\\\\xE2B5\\\\x6324"
+      ],
+      "inferred_primary": "Dervish",
+      "inferred_secondary": "",
+      "model_ids": [
+        5275
+      ],
+      "observed_maps": {
+        "392": {
+          "base_id": 392,
+          "id": 392,
+          "instance_type": "Explorable",
+          "name": "Yatendi Canyons"
+        }
+      },
+      "observed_skills": {
+        "1515": {
+          "id": 1515,
+          "name": "Armor of Sanctity",
+          "profession": "Dervish",
+          "profession_id": 10
+        }
+      }
+    },
+    "enc:\\\\x8101\\\\x7F4D\\\\xFC50\\\\xD378\\\\x2E42": {
+      "encoded_names": [
+        "\\\\x8101\\\\x7F4D\\\\xFC50\\\\xD378\\\\x2E42"
+      ],
+      "inferred_primary": "Ranger",
+      "inferred_secondary": "None",
+      "model_ids": [
+        6709
+      ],
+      "observed_maps": {
+        "649": {
+          "base_id": 649,
+          "id": 649,
+          "instance_type": "Explorable",
+          "name": "Grothmar Wardowns"
+        }
+      },
+      "observed_skills": {
+        "1476": {
+          "id": 1476,
+          "name": "Tripwire",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "1729": {
+          "id": 1729,
+          "name": "Smoke Trap",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "2083": {
+          "id": 2083,
+          "name": "Mandragors_Charge",
+          "profession": "None",
+          "profession_id": 0
+        },
+        "459": {
+          "id": 459,
+          "name": "Flame Trap",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "460": {
+          "id": 460,
+          "name": "Healing Spring",
+          "profession": "Ranger",
+          "profession_id": 2
+        },
+        "854": {
+          "id": 854,
+          "name": "Snare",
+          "profession": "Ranger",
+          "profession_id": 2
+        }
+      }
     }
   },
-  "schema": "py4gw_enemy_tracker_v1"
+  "schema": "py4gw_enemy_tracker",
+  "schema_version": 2
 }
