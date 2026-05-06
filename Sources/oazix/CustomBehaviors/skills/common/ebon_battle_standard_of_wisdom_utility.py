@@ -6,6 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -34,9 +36,9 @@ class EbonBattleStandardOfWisdom(CustomSkillUtilityBase):
 
     def _get_agent_array(self) -> list[int]:
         buff_predicate = self.get_plugin_targeting_modifiers_filtering_predicate_any()
-        allies = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        allies = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value,
-            condition=lambda agent_id: agent_id != Player.GetAgentID() and buff_predicate(agent_id)
+            condition_predicate=lambda ally_data: ally_data.agent_id != Player.GetAgentID() and buff_predicate(ally_data.agent_id)
         )
         return [a.agent_id for a in allies]
 

@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
@@ -34,14 +35,14 @@ class EbonEscapeUtility(CustomSkillUtilityBase):
         self.score_definition: ScorePerHealthGravityDefinition = score_definition
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_ALL))
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingAllyData]:
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: 
-                agent_id != Player.GetAgentID() and 
-                Agent.GetHealth(agent_id) < 0.8 and
-                self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
+            condition_predicate=lambda ally_data:
+                ally_data.agent_id != Player.GetAgentID() and
+                Agent.GetHealth(ally_data.agent_id) < 0.8 and
+                self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
         return targets
 
     @override

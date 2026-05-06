@@ -1,6 +1,6 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range
+from Py4GWCoreLib import Agent, Range
 from Py4GWCoreLib.enums import SpiritModelID
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 
@@ -8,6 +8,9 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -41,10 +44,10 @@ class SignetOfSpiritsUtility(CustomSkillUtilityBase):
 
         # we only recast if one of the 3 spirits is dead
 
-        spirits: list[custom_behavior_helpers.SpiritAgentData] = custom_behavior_helpers.Targets.get_all_spirits_raw(
-            within_range=Range.Spirit,
-            spirit_model_ids=self.owned_spirit_model_ids,
-            condition=lambda agent_id: True
+        spirits : list[TargetingAllyData] = TargetingAlly.create().get_allies(
+            within_range=Range.Spirit.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
+            condition_predicate=lambda ally_data: Agent.GetModelID(ally_data.agent_id) in [int(self.hate_spirit), int(self.suffering_spirit), int(self.anger_spirit)],
         )
 
         if len(spirits) >= 3: return None

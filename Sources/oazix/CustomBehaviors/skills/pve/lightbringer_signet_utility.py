@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -32,11 +33,10 @@ class LightbringerSignetUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
         self.mana_gained : int = 24
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingEnemyData]:
+        targets = TargetingEnemy.create().get_enemies(
             within_range=Range.Area,
-            condition=lambda agent_id: True, # no need to really check enemy type, let's consider we are in DoA
-            sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, ),
+            condition_predicate=lambda enemy_data: True, # no need to really check enemy type, let's consider we are in DoA
         )
         return targets
 

@@ -2,7 +2,7 @@ from typing import Any, Generator, override
 
 import PyImGui
 
-from Py4GWCoreLib import Range
+from Py4GWCoreLib import Range, Agent
 from Py4GWCoreLib.enums import SpiritModelID
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 
@@ -11,6 +11,9 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMess
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -47,10 +50,10 @@ class SummonSpiritUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
         # we check life & distance of owned spirits
-        spirits: list[custom_behavior_helpers.SpiritAgentData] = custom_behavior_helpers.Targets.get_all_spirits_raw(
-            within_range=Range.Compass,
-            spirit_model_ids=self.owned_spirits,
-            condition=lambda agent_id: True
+        spirits: list[TargetingAllyData] = TargetingAlly.create().get_allies(
+            within_range=Range.Compass.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
+            condition_predicate=lambda ally_data: Agent.GetModelID(ally_data.agent_id) in [int(spirit_id) for spirit_id in self.owned_spirits]
         )
 
         for spirit in spirits:
@@ -75,10 +78,10 @@ class SummonSpiritUtility(CustomSkillUtilityBase):
         for spirit in self.owned_spirits:
             PyImGui.text(f"spirit : {spirit}")
 
-        spirits: list[custom_behavior_helpers.SpiritAgentData] = custom_behavior_helpers.Targets.get_all_spirits_raw(
-            within_range=Range.Compass,
-            spirit_model_ids=self.owned_spirits,
-            condition=lambda agent_id: True
+        spirits: list[TargetingAllyData] = TargetingAlly.create().get_allies(
+            within_range=Range.Compass.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
+            condition_predicate=lambda ally_data: Agent.GetModelID(ally_data.agent_id) in [int(spirit_id) for spirit_id in self.owned_spirits]
         )
 
         PyImGui.bullet_text(f"spirits on map :")

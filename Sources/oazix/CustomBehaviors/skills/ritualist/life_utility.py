@@ -6,6 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -35,12 +37,14 @@ class LifeUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
         if current_state is BehaviorState.FAR_FROM_AGGRO: return None
 
-        spirit_exists:bool = custom_behavior_helpers.Resources.is_spirit_exist(
-            within_range=Range.Spirit,
-            associated_to_skill=self.custom_skill
+        spirits = TargetingAlly.create().get_allies(
+            within_range=Range.Spirit.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
         )
 
-        if spirit_exists:
+        is_spirit_exists = len(spirits) > 0
+
+        if is_spirit_exists:
             return None
         if current_state is BehaviorState.CLOSE_TO_AGGRO:
             return self.score_definition.get_score(HealingScore.PARTY_HEALTHY)

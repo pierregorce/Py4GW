@@ -8,6 +8,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import Beh
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.targeting_core import TargetingCore
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -36,26 +37,26 @@ class SmiteHexUtility(CustomSkillUtilityBase):
                 
         self.score_definition: ScoreStaticDefinition = score_definition
 
+    def _get_lock_key(self, agent_id: int) -> str:
+        return LockKeyHelper.hex_removal(agent_id)
+    
     def _get_targets(self) -> list[TargetingAllyData]:
         """Get allies (excluding player) that are hexed, ordered by lowest health first."""
         player_agent_id = Player.GetAgentID()
         targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition_predicate=lambda ally_data: Agent.IsHexed(ally_data.agent_id) and ally_data.agent_id != player_agent_id,
+            condition_predicate=lambda ally_data: 
+                Agent.IsHexed(ally_data.agent_id) 
+                and ally_data.agent_id != player_agent_id
+                and TargetingCore().is_lock_key_available(self._get_lock_key(ally_data.agent_id)),
             sort_asc_predicate=lambda ally_data: (-ally_data.hex_priority_score, ally_data.hp, ally_data.distance_from_player))
         return targets
-
-    def _get_lock_key(self, agent_id: int) -> str:
-        return LockKeyHelper.hex_removal(agent_id)
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
         targets = self._get_targets()
         if len(targets) == 0: return None
-
-        lock_key = self._get_lock_key(targets[0].agent_id)
-        if CustomBehaviorParty().get_shared_lock_manager().is_lock_taken(lock_key): return None
 
         return self.score_definition.get_score()
 

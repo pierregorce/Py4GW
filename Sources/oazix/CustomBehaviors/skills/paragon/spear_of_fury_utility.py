@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import \
     ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -29,12 +30,12 @@ class AttackNearestEnemyHasConditionUtility(CustomSkillUtilityBase):
 
         self.score_definition: ScorePerAgentQuantityDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-         
-        targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingEnemyData]:
+
+        targets = TargetingEnemy.create().get_enemies(
                     within_range=Range.Spellcast,
-                    condition=lambda agent_id: Agent.IsConditioned(agent_id),
-                    sort_key=(TargetingOrder.HP_ASC, TargetingOrder.CASTER_THEN_MELEE))
+                    condition_predicate=lambda enemy_data: Agent.IsConditioned(enemy_data.agent_id),
+                    sort_asc_predicate=lambda enemy_data: (enemy_data.hp, 0 if enemy_data.is_caster else 1))
 
         return targets
     

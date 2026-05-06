@@ -44,11 +44,4 @@ class FallBackUtility(CustomSkillUtilityBase):
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
 
         lock_key = f"Fall_Back_utility"
-
-        if CustomBehaviorParty().get_shared_lock_manager().try_aquire_lock(lock_key) == False:
-            yield
-            return BehaviorResult.ACTION_SKIPPED
-
-        result:BehaviorResult = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
-        CustomBehaviorParty().get_shared_lock_manager().release_lock(lock_key)
-        return result 
+        return (yield from custom_behavior_helpers.Actions.cast_skill_with_lock(lock_key, self.custom_skill))

@@ -8,7 +8,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -47,11 +48,11 @@ class SaveYourselvesUtility(CustomSkillUtilityBase):
     def _get_lock_key(self) -> str:
         return f"{SaveYourselvesUtility.LOCK_KEY}"
     
-    def _get_allies(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_allies(self) -> list[TargetingAllyData]:
+        return TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            condition=lambda agent_id: agent_id != Player.GetAgentID(),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC)
+            condition_predicate=lambda ally_data: ally_data.agent_id != Player.GetAgentID(),
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player)
         )
 
     @override

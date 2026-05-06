@@ -7,7 +7,8 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
@@ -39,11 +40,12 @@ class JununduWailUtility(CustomSkillUtilityBase):
         self.score_definition: ScorePerHealthGravityDefinition = score_definition
 
     def _get_target(self) -> int | None:
-        return custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player,
             is_alive=False
         )
+        return targets[0].agent_id if len(targets) > 0 else None
     
     def _get_lock_key(self, agent_id: int) -> str:
         return LockKeyHelper.resurrection(agent_id)

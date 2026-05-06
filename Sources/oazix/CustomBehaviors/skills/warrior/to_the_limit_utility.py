@@ -7,6 +7,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -32,9 +34,9 @@ class ToTheLimitUtility(CustomSkillUtilityBase):
 
     def get_generated_strike_of_adrenaline(self) -> int:
         # how much allies in earshot
-        allies = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        allies = TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            condition=lambda agent_id: agent_id != Player.GetAgentID()
+            condition_predicate=lambda ally_data: ally_data.agent_id != Player.GetAgentID()
         )
 
         return min(len(allies), 6)

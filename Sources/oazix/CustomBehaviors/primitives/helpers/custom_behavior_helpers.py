@@ -411,6 +411,17 @@ class Actions:
         return BehaviorResult.ACTION_PERFORMED
     
     @staticmethod
+    def cast_skill_with_lock(lock_key: str, skill: CustomSkill) -> Generator[Any, Any, BehaviorResult]:
+        lock_manager = CustomBehaviorParty().get_shared_lock_manager()
+        if not lock_manager.try_aquire_lock(lock_key):
+            return BehaviorResult.ACTION_SKIPPED
+        try:
+            result = yield from Actions.cast_skill(skill)
+        finally:
+            lock_manager.release_lock(lock_key)
+        return result
+    
+    @staticmethod
     def cast_skill_to_target_with_lock(lock_key: str, skill: CustomSkill, target_agent_id: int, call_target: bool = False) -> Generator[Any, Any, BehaviorResult]:
         lock_manager = CustomBehaviorParty().get_shared_lock_manager()
         if not lock_manager.try_aquire_lock(lock_key):

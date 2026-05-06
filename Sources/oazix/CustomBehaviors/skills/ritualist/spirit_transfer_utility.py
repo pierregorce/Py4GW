@@ -2,7 +2,7 @@ from typing import Any, Generator, override
 
 import PyImGui
 
-from Py4GWCoreLib import Agent, Range
+from Py4GWCoreLib import Agent, Range, Player
 from Py4GWCoreLib.enums_src.Model_enums import SpiritModelID
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
@@ -10,7 +10,9 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMess
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -48,12 +50,12 @@ class SpiritTransferUtility(CustomSkillUtilityBase):
             self.owned_spirits.append(spirit_model_id)
         yield
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingAllyData]:
 
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value,
-            condition=lambda agent_id: Agent.GetHealth(agent_id) < 0.5,
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.5,
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
         return targets
 
     @override
@@ -61,13 +63,13 @@ class SpiritTransferUtility(CustomSkillUtilityBase):
         targets = self._get_targets()
         if len(targets) == 0: return None
 
-        
-        spirits: list[custom_behavior_helpers.SpiritAgentData] = custom_behavior_helpers.Targets.get_all_spirits_raw(
-            within_range=Range.Spellcast,
-            spirit_model_ids=self.owned_spirits,
-            condition=lambda agent_id: True
+
+        spirits: list[TargetingAllyData] = TargetingAlly.create().get_allies(
+            within_range=Range.Spellcast.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
+            condition_predicate=lambda ally_data: Agent.GetModelID(ally_data.agent_id) in [int(spirit_id) for spirit_id in self.owned_spirits]
         )
-        
+
         if len(spirits) == 0: return None
 
         return self.score_definition.get_score(HealingScore.MEMBER_DAMAGED_EMERGENCY)

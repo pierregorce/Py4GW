@@ -1,11 +1,12 @@
 from typing import List, Any, Generator, Callable, override
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
+from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -30,14 +31,14 @@ class HolySpearUtility(CustomSkillUtilityBase):
                 
         self.score_definition: ScorePerAgentQuantityDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        
-        targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingEnemyData]:
+
+        targets = TargetingEnemy.create().get_enemies(
                     within_range=Range.Spellcast,
-                    condition=lambda agent_id: Agent.IsSpawned(agent_id),
-                    sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.HP_DESC),
-                    range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
-        
+                    condition_predicate=lambda enemy_data: Agent.IsSpawned(enemy_data.agent_id),
+                    sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, -enemy_data.hp),
+                    range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
+
         return targets
     
     @override

@@ -54,7 +54,7 @@ class DervichEnchantmentUtility(CustomSkillUtilityBase):
             return None
 
         # Check if we already have the buff
-        has_buff = Routines.Checks.Effects.HasBuff(Player.GetAgentID(), self.custom_skill.skill_id)
+        has_buff = Routines.Checks.Effects.HasEffect(Player.GetAgentID(), self.custom_skill.skill_id)
         if not has_buff:
             return self.score_definition.get_score()
 

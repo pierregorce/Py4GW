@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
@@ -41,11 +42,11 @@ class ByUralsHammerUtility(CustomSkillUtilityBase):
 
         player_agent_id = Player.GetAgentID()
 
-        allies_qte = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        allies_qte = TargetingAlly.create().get_allies(
             within_range=Range.Earshot.value,
-            condition=lambda agent_id: agent_id != player_agent_id,
+            condition_predicate=lambda ally_data: ally_data.agent_id != player_agent_id,
             is_alive=False,
-            sort_key=(TargetingOrder.DISTANCE_ASC, )
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player
         )
         if len(allies_qte) == 0: return None
 

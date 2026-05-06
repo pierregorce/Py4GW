@@ -1,6 +1,8 @@
 from typing import Any, Generator, override
 
 from Py4GWCoreLib import GLOBAL_CACHE, Agent, Player, Routines
+from Py4GWCoreLib.enums_src.GameData_enums import Range
+from Py4GWCoreLib.py4gwcorelib_src.Utils import Utils
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
@@ -35,6 +37,9 @@ class ComfortAnimalUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
         pet_id = GLOBAL_CACHE.Party.Pets.GetPetID(Player.GetAgentID())
         if pet_id == 0:
+            return None
+        
+        if Utils.Distance(Agent.GetXY(pet_id), Agent.GetXY(Player.GetAgentID())) < Range.Spellcast.value * 1.2:
             return None
 
         if Agent.IsDead(pet_id):

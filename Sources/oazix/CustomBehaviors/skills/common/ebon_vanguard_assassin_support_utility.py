@@ -3,13 +3,14 @@ from typing import List, Any, Generator, Callable, cast, override
 
 import PyImGui
 
-from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range
+from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range, Player
 from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
@@ -38,12 +39,12 @@ class EbonVanguardAssassinSupportUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
         self.add_plugin_option(lambda x: RawBooleanOption(x.custom_skill, "is_spike_mode_activated", is_spike_mode_activated))
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingEnemyData]:
+        return TargetingEnemy.create().get_enemies(
             within_range=Range.Spellcast,
-            sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_ASC, TargetingOrder.DISTANCE_ASC),
-            range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id),
-            condition=lambda agent_id: Agent.GetHealth(agent_id) > 0.2)
+            sort_asc_predicate=lambda enemy_data: (enemy_data.enemy_quantity_within_range, enemy_data.distance_from_player),
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id),
+            condition_predicate=lambda enemy_data: Agent.GetHealth(enemy_data.agent_id) > 0.2)
     
     def _get_lock_key(self, agent_id: int) -> str:
         return f"EbonVanguardAssassinSupport_{agent_id}"

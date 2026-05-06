@@ -8,6 +8,9 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_allegiance import TargetingAllyAllegiance
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -37,14 +40,14 @@ class RecuperationUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
 
     def _spirit_alive(self) -> bool:
-        spirit = custom_behavior_helpers.Targets.get_first_or_default_from_spirits_raw(
-            within_range=Range.Spirit,
-            spirit_model_ids=[self.SPIRIT_MODEL_ID],
-            condition=lambda agent_id: True,
+        spirits: list[TargetingAllyData] = TargetingAlly.create().get_allies(
+            within_range=Range.Spirit.value,
+            allegiance_to_include=TargetingAllyAllegiance.Spirit,
+            condition_predicate=lambda ally_data: Agent.GetModelID(ally_data.agent_id) == int(self.SPIRIT_MODEL_ID)
         )
-        if spirit is None:
+        if len(spirits) == 0:
             return False
-        return spirit.hp >= 0.2
+        return spirits[0].hp >= 0.2
 
     @staticmethod
     def _is_suffering_degen(agent_id: int, burning_skill_id: int) -> bool:

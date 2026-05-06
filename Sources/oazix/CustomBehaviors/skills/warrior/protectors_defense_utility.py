@@ -5,7 +5,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -31,11 +32,10 @@ class ProtectorsDefenseUtility(CustomSkillUtilityBase):
         self.score_definition: ScoreStaticDefinition = score_definition
 
     @staticmethod
-    def _get_allies() -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_allies() -> list[TargetingAllyData]:
+        return TargetingAlly.create().get_allies(
             within_range=Range.Adjacent.value,
-            condition=lambda agent_id: True,
-            sort_key=(TargetingOrder.DISTANCE_ASC,)
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player
         )
 
     @override

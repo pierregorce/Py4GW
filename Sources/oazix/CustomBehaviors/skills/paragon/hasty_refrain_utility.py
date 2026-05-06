@@ -12,7 +12,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_definition import ScorePerAgentQuantityDefinition
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_multiple_target import CustomBuffMultipleTarget
@@ -47,15 +48,13 @@ class HastyRefrainUtility(CustomSkillUtilityBase):
 
     def _get_target_agent_id(self) -> int | None:
         # PHASE 2 - CAST ON PARTY
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
                 within_range=Range.Spellcast.value * 1.2,
-                condition=lambda agent_id:
-                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and
-                    not custom_behavior_helpers.Resources.is_ally_under_specific_effect(agent_id, self.custom_skill.skill_id),
-                sort_key=(TargetingOrder.DISTANCE_ASC, TargetingOrder.CASTER_THEN_MELEE),
-                range_to_count_enemies=None,
-                range_to_count_allies=None)
-        
+                condition_predicate=lambda ally_data:
+                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id) and
+                    not custom_behavior_helpers.Resources.is_ally_under_specific_effect(ally_data.agent_id, self.custom_skill.skill_id),
+                sort_asc_predicate=lambda ally_data: (ally_data.distance_from_player, 0 if ally_data.is_caster else 1))
+
         # sort by priority
         targets.sort(key=lambda target: self.get_plugin_targeting_modifiers_ordering_predicate()(target.agent_id))
 

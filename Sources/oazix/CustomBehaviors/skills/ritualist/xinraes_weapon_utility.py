@@ -1,12 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range, Agent
+from Py4GWCoreLib import Range, Agent, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.sortable_agent_data import SortableAgentData
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
@@ -37,11 +37,11 @@ class XinraesWeaponUtility(CustomSkillUtilityBase):
 
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_ALL))
 
-    def _get_candidates(self) -> list[SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_candidates(self) -> list[TargetingAllyData]:
+        return TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: (self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and not Agent.IsWeaponSpelled(agent_id)),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC,)
+            condition_predicate=lambda ally_data: (self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id) and not Agent.IsWeaponSpelled(ally_data.agent_id)),
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player,)
         )
 
     @override

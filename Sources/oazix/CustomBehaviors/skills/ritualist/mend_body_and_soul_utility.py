@@ -1,12 +1,13 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range, Agent
+from Py4GWCoreLib import Range, Agent, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
@@ -36,17 +37,17 @@ class MendBodyAndSoulUtility(CustomSkillUtilityBase):
     def _get_lock_key(self, agent_id: int) -> str:
         return LockKeyHelper.condition_removal(agent_id)
     
-    def _get_target(self, can_dismiss_condition: bool = False) -> custom_behavior_helpers.SortableAgentData | None:
+    def _get_target(self, can_dismiss_condition: bool = False) -> TargetingAllyData | None:
 
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and Agent.GetHealth(agent_id) < 0.75,
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC))
-            
-        targets_conditionned: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+            condition_predicate=lambda ally_data: self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id) and Agent.GetHealth(ally_data.agent_id) < 0.75,
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
+
+        targets_conditionned: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id) and Agent.IsConditioned(agent_id),
-            sort_key=(TargetingOrder.CONDITION_PRIORITY_LEVEL_DESC, TargetingOrder.MELEE_THEN_CASTER, TargetingOrder.HP_ASC))
+            condition_predicate=lambda ally_data: self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id) and Agent.IsConditioned(ally_data.agent_id),
+            sort_asc_predicate=lambda ally_data: (-ally_data.condition_priority_score, ally_data.hp))
 
         if len(targets) > 0: return targets[0]
         if can_dismiss_condition and len(targets_conditionned) > 0: return targets_conditionned[0]

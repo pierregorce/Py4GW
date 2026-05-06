@@ -1,10 +1,11 @@
 from typing import Any, Generator, override
-from Py4GWCoreLib import Agent, Range, GLOBAL_CACHE
+from Py4GWCoreLib import Agent, Range, GLOBAL_CACHE, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
@@ -46,13 +47,11 @@ class BreathOfTheGreatDwarfUtility(CustomSkillUtilityBase):
 
         burning_skill_id:int = GLOBAL_CACHE.Skill.GetID("Burning")
 
-        allies = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        allies = TargetingAlly.create().get_allies(
             within_range=Range.Spirit.value,
-            condition= lambda agent_id: Agent.GetHealth(agent_id) < 0.85 
-                and custom_behavior_helpers.Resources.is_ally_under_specific_effect(agent_id, burning_skill_id),
-            sort_key= (TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC),
-            range_to_count_enemies=None,
-            range_to_count_allies=None)
+            condition_predicate= lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.85
+                and custom_behavior_helpers.Resources.is_ally_under_specific_effect(ally_data.agent_id, burning_skill_id),
+            sort_asc_predicate= lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
 
         if len(allies) > 1: return self.score_definition.get_score(HealingScore.PARTY_DAMAGE)
 

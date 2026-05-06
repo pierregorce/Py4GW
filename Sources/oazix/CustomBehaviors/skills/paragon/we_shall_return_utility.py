@@ -7,7 +7,8 @@ from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
 from Sources.oazix.CustomBehaviors.primitives.helpers.lock_key_helper import LockKeyHelper
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
@@ -46,16 +47,16 @@ class WeShallReturnUtility(CustomSkillUtilityBase):
     def _get_lock_key(self, agent_id: int) -> str:
         return LockKeyHelper.resurrection(agent_id)
 
-    def _get_dead_allies(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_dead_allies(self) -> list[TargetingAllyData]:
         import time as _time
         now = _time.time()
         # Expire old blocks
         self._blocked_targets = {k: v for k, v in self._blocked_targets.items() if v > now}
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        return TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.5,
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
+            sort_asc_predicate=lambda ally_data: ally_data.distance_from_player,
             is_alive=False,
-            condition=lambda aid: aid not in self._blocked_targets,
+            condition_predicate=lambda ally_data: ally_data.agent_id not in self._blocked_targets,
         )
 
     @override

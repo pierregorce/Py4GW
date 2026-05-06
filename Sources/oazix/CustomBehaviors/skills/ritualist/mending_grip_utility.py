@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Range, Agent
+from Py4GWCoreLib import Range, Agent, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -32,15 +33,15 @@ class MendingGripUtility(CustomSkillUtilityBase):
         )
         self.score_definition: ScorePerHealthGravityDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
-        return custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+    def _get_targets(self) -> list[TargetingAllyData]:
+        return TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition=lambda agent_id: (
-                Agent.IsWeaponSpelled(agent_id)
-                and Agent.IsConditioned(agent_id)
-                and Agent.GetHealth(agent_id) < 0.8
+            condition_predicate=lambda ally_data: (
+                Agent.IsWeaponSpelled(ally_data.agent_id)
+                and Agent.IsConditioned(ally_data.agent_id)
+                and Agent.GetHealth(ally_data.agent_id) < 0.8
             ),
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC),
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player),
         )
 
     @override

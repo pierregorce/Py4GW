@@ -6,7 +6,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -32,21 +33,21 @@ class JunundoBiteUtility(CustomSkillUtilityBase):
 
         self.score_definition: ScoreStaticDefinition = score_definition
 
-    def _get_targets(self) -> tuple[int, ...]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
 
-        filtering_predicate: Callable[[int], bool] = lambda agent_id: True
+        filtering_predicate: Callable[[TargetingEnemyData], bool] = lambda enemy_data: True
 
         if Agent.GetHealth(Player.GetAgentID()) < 0.6:
             # we limit to knockdown enemies when we are below 60% health
-            filtering_predicate = lambda agent_id: Agent.IsKnockedDown(agent_id)
+            filtering_predicate = lambda enemy_data: Agent.IsKnockedDown(enemy_data.agent_id)
         else:
             # any enemy is valid
-            filtering_predicate = lambda agent_id: True
-        
-        return custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority(
+            filtering_predicate = lambda enemy_data: True
+
+        return TargetingEnemy.create().get_enemies(
             within_range=Range.Spellcast,
-            condition=filtering_predicate,
-            sort_key=(TargetingOrder.DISTANCE_ASC,),
+            condition_predicate=filtering_predicate,
+            sort_asc_predicate=lambda enemy_data: enemy_data.distance_from_player,
         )
 
     @override
@@ -62,7 +63,7 @@ class JunundoBiteUtility(CustomSkillUtilityBase):
         if target is None: return BehaviorResult.ACTION_SKIPPED
         if len(target) == 0: return BehaviorResult.ACTION_SKIPPED
 
-        result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target[0])
+        result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target[0].agent_id)
         return result
 
 

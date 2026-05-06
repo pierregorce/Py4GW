@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Agent, Range
+from Py4GWCoreLib import Agent, Range, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
 from Sources.oazix.CustomBehaviors.primitives.scores.score_per_health_gravity_definition import ScorePerHealthGravityDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -34,10 +35,10 @@ class SoothingMemoriesUtility(CustomSkillUtilityBase):
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
-        targets: list[custom_behavior_helpers.SortableAgentData] = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spirit.value,
-            condition=lambda agent_id: Agent.GetHealth(agent_id) < 0.9,
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC)
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.9,
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player)
         )
         
         if len(targets) == 0: return None
@@ -52,12 +53,12 @@ class SoothingMemoriesUtility(CustomSkillUtilityBase):
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
-        target = custom_behavior_helpers.Targets.get_first_or_default_from_allies_ordered_by_priority(
+        targets = TargetingAlly.create().get_allies(
             within_range=Range.Spirit.value,
-            condition=lambda agent_id: Agent.GetHealth(agent_id) < 0.95,
-            sort_key=(TargetingOrder.HP_ASC, TargetingOrder.DISTANCE_ASC)
+            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.95,
+            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player)
         )
 
-        if target is None: return BehaviorResult.ACTION_SKIPPED
-        result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=target)
-        return result 
+        if len(targets) == 0: return BehaviorResult.ACTION_SKIPPED
+        result = yield from custom_behavior_helpers.Actions.cast_skill_to_target(self.custom_skill, target_agent_id=targets[0].agent_id)
+        return result

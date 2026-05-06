@@ -9,7 +9,8 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target_per_profession import BuffConfigurationPerProfession
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -54,15 +55,13 @@ class GreatDwarfWeaponUtility(CustomSkillUtilityBase):
                 return npc_agent_id
         
         # Check if we have a valid target
-        target = custom_behavior_helpers.Targets.get_all_possible_allies_ordered_by_priority_raw(
+        target = TargetingAlly.create().get_allies(
                 within_range=Range.Spellcast.value * 1.2,
-                condition=lambda agent_id: 
-                    agent_id != Player.GetAgentID() and
-                    not Agent.IsWeaponSpelled(agent_id) and
-                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(agent_id),
-                sort_key=(TargetingOrder.DISTANCE_DESC, TargetingOrder.CASTER_THEN_MELEE),
-                range_to_count_enemies=None,
-                range_to_count_allies=None)
+                condition_predicate=lambda ally_data:
+                    ally_data.agent_id != Player.GetAgentID() and
+                    not Agent.IsWeaponSpelled(ally_data.agent_id) and
+                    self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
+                sort_asc_predicate=lambda ally_data: (-ally_data.distance_from_player, 0 if ally_data.is_caster else 1))
 
         return target[0].agent_id if target else None
 

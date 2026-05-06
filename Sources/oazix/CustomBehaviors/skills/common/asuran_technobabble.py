@@ -1,11 +1,12 @@
 from typing import Any, Generator, override
 
-from Py4GWCoreLib import Agent, Range, GLOBAL_CACHE
+from Py4GWCoreLib import Agent, Range, GLOBAL_CACHE, Player
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
-from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
@@ -32,21 +33,23 @@ class Technobabble_Utility(CustomSkillUtilityBase):
 
         self.score_definition: ScoreStaticDefinition = score_definition
 
-    def _get_targets(self) -> list[custom_behavior_helpers.SortableAgentData]:
+    def _get_targets(self) -> list[TargetingEnemyData]:
 
-        priorities = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-            within_range=Range.Spellcast,
-            condition=lambda agent_id: not Agent.HasBossGlow(agent_id),
-            sort_key=(TargetingOrder.AGENT_QUANTITY_WITHIN_RANGE_DESC, TargetingOrder.CASTER_THEN_MELEE),
-            range_to_count_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id))
+        priorities = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: not Agent.HasBossGlow(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (-enemy_data.enemy_quantity_within_range, 0 if enemy_data.is_caster else 1),
+            range_to_count_clustered_enemies=GLOBAL_CACHE.Skill.Data.GetAoERange(self.custom_skill.skill_id)
+        )
 
         if priorities is not None and len(priorities) > 0:
             return priorities
-         
-        targets = custom_behavior_helpers.Targets.get_all_possible_enemies_ordered_by_priority_raw(
-                    within_range=Range.Spellcast,
-                    condition=lambda agent_id: Agent.IsHexed(agent_id) or Agent.IsConditioned(agent_id),
-                    sort_key=(TargetingOrder.HP_ASC, TargetingOrder.CASTER_THEN_MELEE))
+
+        targets = TargetingEnemy.create().get_enemies(
+            within_range=Range.Spellcast.value,
+            condition_predicate=lambda enemy_data: Agent.IsHexed(enemy_data.agent_id) or Agent.IsConditioned(enemy_data.agent_id),
+            sort_asc_predicate=lambda enemy_data: (enemy_data.hp, 0 if enemy_data.is_caster else 1)
+        )
         return targets
     
     @override
