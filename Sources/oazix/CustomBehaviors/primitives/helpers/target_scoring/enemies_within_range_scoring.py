@@ -14,7 +14,8 @@ class AgentsWithinRangeScoring:
         agent_pos = Agent.GetXY(enemy_id)
         agent_count = 0
         for other_agent_id in agent_ids:
+            if other_agent_id == enemy_id: continue
             if Utils.Distance(agent_pos, Agent.GetXY(other_agent_id)) <= within_range:
                 agent_count += 1
 
-        return 0
+        return agent_count

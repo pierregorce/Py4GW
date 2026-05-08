@@ -9,7 +9,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.casting.casting_observer import CastingObserver
-from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.damage_received_observer import DamageReceivedObserver
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.health_level_observer import HealthLevelObserver
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.disabilities_observer import PartyDisabilityObserver
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_handler_manager import PartyCommandHandlerManager
@@ -61,7 +61,7 @@ class CustomBehaviorParty:
 
             # Observers
             PartyDisabilityObserver().act()
-            DamageReceivedObserver().act()
+            HealthLevelObserver().act()
             CastingObserver().act()
 
             # # ------------------------------ Custom party target ------------------------------
