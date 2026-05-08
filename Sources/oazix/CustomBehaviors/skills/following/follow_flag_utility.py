@@ -99,7 +99,7 @@ class FollowFlagUtility(CustomSkillUtilityBase):
 
             return (x, y)
         except Exception as e:
-            print(f"FollowFlagUtility._get_my_assigned_flag_position error: {e}")
+            self.logger.information(f"FollowFlagUtility._get_my_assigned_flag_position error: {e}")
             return None
 
     @override
@@ -147,7 +147,7 @@ class FollowFlagUtility(CustomSkillUtilityBase):
             return BehaviorResult.ACTION_SKIPPED
 
         # Move to assigned flag position
-        if constants.DEBUG: print(f"Moving to flag position: {flag_pos}")
+        self.logger.information(f"Moving to flag position: {flag_pos}")
 
         # Cancel any current action (like auto-attacking) before moving
         # from Py4GWCoreLib.Routines import Routines
@@ -182,13 +182,13 @@ class FollowFlagUtility(CustomSkillUtilityBase):
     def persist_configuration_for_account(self):
         """Save movement threshold to flagging.ini (global storage)."""
         self.save_movement_threshold_to_flagging()
-        print(f"Follow flag movement threshold saved to global storage: {self.manager.movement_threshold}")
+        self.logger.information(f"Follow flag movement threshold saved to global storage: {self.manager.movement_threshold}")
 
     @override
     def persist_configuration_as_global(self):
         """Save movement threshold to flagging.ini (global storage)."""
         self.save_movement_threshold_to_flagging()
-        print(f"Follow flag movement threshold saved to global storage: {self.manager.movement_threshold}")
+        self.logger.information(f"Follow flag movement threshold saved to global storage: {self.manager.movement_threshold}")
 
     @override
     def delete_persisted_configuration(self):
@@ -196,7 +196,7 @@ class FollowFlagUtility(CustomSkillUtilityBase):
         persistence = PersistenceLocator().flagging
         persistence.delete_follow_flag_thresholds()
         self.manager.movement_threshold = 50.0
-        print("Follow flag movement threshold deleted and reset to default (50.0)")
+        self.logger.information("Follow flag movement threshold deleted and reset to default (50.0)")
 
     @override
     def customized_debug_ui(self, current_state: BehaviorState) -> None:
@@ -320,7 +320,7 @@ class FollowFlagUtility(CustomSkillUtilityBase):
 
         except Exception as e:
             # Silently fail on debug UI errors
-            print(f"FollowFlagUtility.draw_overlay error: {e}")
+            self.logger.information(f"FollowFlagUtility.draw_overlay error: {e}")
             raise e
         finally:
             Overlay().EndDraw()

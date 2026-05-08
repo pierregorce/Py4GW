@@ -88,7 +88,7 @@ class FollowPartyLeaderNewUtility(CustomSkillUtilityBase):
             
             return pos
         except Exception as e:
-            print(f"FollowPartyLeaderNewUtility._get_party_leader_position error: {e}")
+            self.logger.information(f"FollowPartyLeaderNewUtility._get_party_leader_position error: {e}")
             return None
     
     def _am_i_party_leader(self) -> bool:
@@ -443,7 +443,7 @@ class FollowPartyLeaderNewUtility(CustomSkillUtilityBase):
             return BehaviorResult.ACTION_SKIPPED
             
         except Exception as e:
-            print(f"FollowPartyLeaderNewUtility._execute error: {e}")
+            self.logger.information(f"FollowPartyLeaderNewUtility._execute error: {e}")
             yield
             return BehaviorResult.ACTION_SKIPPED
 
@@ -475,7 +475,7 @@ class FollowPartyLeaderNewUtility(CustomSkillUtilityBase):
             self._draw_debug_overlay(my_pos, leader_pos, party_positions, self.last_target_pos, state)
         except Exception as e:
             # Silently fail on debug UI errors
-            print(f"FollowPartyLeaderNewUtility.draw_overlay error: {e}")
+            self.logger.information(f"FollowPartyLeaderNewUtility.draw_overlay error: {e}")
 
     @override
     def customized_debug_ui(self, current_state: BehaviorState) -> None:

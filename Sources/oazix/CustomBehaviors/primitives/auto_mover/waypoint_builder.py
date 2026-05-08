@@ -8,9 +8,11 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.Map import Map
 from Py4GWCoreLib.Pathing import AutoPathing
 from Sources.oazix.CustomBehaviors.primitives import constants
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
 class WaypointBuilder:
     def __init__(self):
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
         self.list_of_points: list[tuple[float, float]] = []
         self._last_processed_click: tuple[float, float] | None = None
         self._last_point_add_time: float = 0.0
@@ -40,7 +42,7 @@ class WaypointBuilder:
         if not self._initialized_click and current_click is not None:
             self._last_processed_click = current_click
             self._initialized_click = True
-            if constants.DEBUG: print(f"Initialized click position: {current_click}")
+            self.logger.information(f"Initialized click position: {current_click}")
             return
         
         if current_click is not None and current_click != self._last_processed_click:
@@ -53,8 +55,8 @@ class WaypointBuilder:
                 self.list_of_points.append((game_x, game_y))
                 self._last_processed_click = current_click
                 self._last_point_add_time = current_time
-                if constants.DEBUG: print(f"Added new point: normalized {current_click} -> game ({game_x}, {game_y})")
-                if constants.DEBUG: print(f"Total points: {len(self.list_of_points)}")
+                self.logger.information(f"Added new point: normalized {current_click} -> game ({game_x}, {game_y})")
+                self.logger.information(f"Total points: {len(self.list_of_points)}")
             else:
                 # Update last processed click to prevent spam but don't add point yet
                 self._last_processed_click = current_click
@@ -63,11 +65,11 @@ class WaypointBuilder:
         """Remove the most recently added point from the list."""
         if self.list_of_points:
             removed_point = self.list_of_points.pop()
-            if constants.DEBUG: print(f"Removed last point: {removed_point}")
-            if constants.DEBUG: print(f"Remaining points: {len(self.list_of_points)}")
+            self.logger.information(f"Removed last point: {removed_point}")
+            self.logger.information(f"Remaining points: {len(self.list_of_points)}")
             return removed_point
         else:
-            if constants.DEBUG: print("No points to remove")
+            self.logger.information("No points to remove")
             return None
 
     def clear_list(self):
@@ -99,7 +101,7 @@ class WaypointBuilder:
                         new_points.append((float(item[0]), float(item[1])))
                 self.list_of_points = new_points
         except Exception:
-            print("Failed to parse clipboard. Use a list of tuples like [(x1, y1), (x2, y2)].")
+            self.logger.information("Failed to parse clipboard. Use a list of tuples like [(x1, y1), (x2, y2)].")
 
     @staticmethod
     def parse_coordinate_from_text(text: str) -> tuple[float, float] | None:
@@ -137,10 +139,10 @@ class WaypointBuilder:
         if coord is not None:
             self.list_of_points.append(coord)
             if constants.DEBUG:
-                print(f"Injected waypoint: {coord}")
+                self.logger.information(f"Injected waypoint: {coord}")
             return coord
         else:
-            print('Failed to parse clipboard. Use "x, y" or "(x, y)".')
+            self.logger.information('Failed to parse clipboard. Use "x, y" or "(x, y)".')
             return None
 
 

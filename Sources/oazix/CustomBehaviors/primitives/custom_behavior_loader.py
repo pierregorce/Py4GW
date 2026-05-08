@@ -8,6 +8,7 @@ from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
 from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder import UtilitySkillFinder
 from Sources.oazix.CustomBehaviors.skillbars.generic_fallback import GenericFallback_UtilitySkillBar
@@ -40,6 +41,7 @@ class CustomBehaviorLoader:
             # Botting daemon state - stores FSM and factory for re-registration after FSM restart
             self._botting_daemon_fsm = None
             self._botting_daemon_factory = None
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
     # internal
 
@@ -72,10 +74,10 @@ class CustomBehaviorLoader:
                 try:
                     # Dynamically import the module
                     module = importlib.import_module(module_name)
-                    if constants.DEBUG: print(f"Loaded module: {module.__name__}")
+                    self.logger.information(f"Loaded module: {module.__name__}")
                     loaded_modules.append(module)
                 except ImportError as e:
-                    print(f"Failed to import module {module_name}: {e}")
+                    self.logger.information(f"Failed to import module {module_name}: {e}")
 
             return loaded_modules
 
@@ -83,20 +85,20 @@ class CustomBehaviorLoader:
         modules = __load_all_modules_in_folder(package_name)
 
         if constants.DEBUG:
-            print(f"\nSearching for subclasses of {base_class.__name__}")
+            self.logger.information(f"\nSearching for subclasses of {base_class.__name__}")
             for module in modules:
-                print(f"Module: {module.__name__}")
+                self.logger.information(f"Module: {module.__name__}")
 
         for module in modules:
             # Inspect module contents for subclasses
             for name, obj in inspect.getmembers(module):
                 
                 if("_UtilitySkillBar" in name):
-                    if constants.DEBUG: print(f"Found subclass: {obj.__name__}")
+                    self.logger.information(f"Found subclass: {obj.__name__}")
                     subclasses.append(obj)
                     break
 
-        if constants.DEBUG: print(f"Total subclasses found: {len(subclasses)}")
+        self.logger.information(f"Total subclasses found: {len(subclasses)}")
 
         return subclasses
 
@@ -110,31 +112,31 @@ class CustomBehaviorLoader:
 
         for subclass in subclasses:
             try:
-                if constants.DEBUG: print(f"Checking subclass: {subclass.__name__} (defined in {subclass.__module__})")
+                self.logger.information(f"Checking subclass: {subclass.__name__} (defined in {subclass.__module__})")
 
                 # Create temporary instance with StubEventBus ONLY for matching check
                 instance: CustomBehaviorBaseUtility = subclass(StubEventBus())
 
                 build_size = len(instance.skills_required_in_behavior)
-                if constants.DEBUG: print(f"build_size: {build_size}")
+                self.logger.information(f"build_size: {build_size}")
                 matching_count = instance.count_matches_between_custom_behavior_and_in_game_build()
-                if constants.DEBUG: print(f"matching_count: {matching_count}")
+                self.logger.information(f"matching_count: {matching_count}")
                 custom_skills_count = len(instance.custom_skills_in_behavior)
-                if constants.DEBUG: print(f"custom_skills_count: {custom_skills_count}")
+                self.logger.information(f"custom_skills_count: {custom_skills_count}")
                 custom_skills_matching_count = instance.count_custom_skills_in_behavior_matching_in_game_build()
-                if constants.DEBUG: print(f"custom_skills_matching_count: {custom_skills_matching_count}")
+                self.logger.information(f"custom_skills_matching_count: {custom_skills_matching_count}")
 
                 if matching_count == build_size:
-                    if constants.DEBUG: print(f"Found custom behavior: {subclass.__name__} (defined in {subclass.__module__})")
+                    self.logger.information(f"Found custom behavior: {subclass.__name__} (defined in {subclass.__module__})")
                     is_matched_with_current_build = True if matching_count > 0 else False
                     matches.append(MatchResult(build_size=build_size, matching_count=matching_count, instance=instance, is_matched_with_current_build=is_matched_with_current_build, custom_skills_count=custom_skills_count, custom_skills_matching_count=custom_skills_matching_count))
                 else:
-                    if constants.DEBUG: print(f"{subclass.__name__} (defined in {subclass.__module__} - Custom behavior does not match in-game build.")
+                    self.logger.information(f"{subclass.__name__} (defined in {subclass.__module__} - Custom behavior does not match in-game build.")
                     matches.append(MatchResult(build_size=build_size, matching_count=matching_count, instance=instance, is_matched_with_current_build=False, custom_skills_count=custom_skills_count, custom_skills_matching_count=custom_skills_matching_count))
 
             except Exception as e:
                 # if there are errors on buildign out a skill bar class load the other classes but log the errors that prevented this one from loading
-                print(f"Exception loading subclass: {e}")
+                self.logger.information(f"Exception loading subclass: {e}")
                 raise e
 
         # Sort by: 1) matching_result (asc), 2) matching_count (desc), 3) custom_skills_matching_count (desc)
@@ -153,13 +155,13 @@ class CustomBehaviorLoader:
         result: CustomBehaviorBaseUtility | None = __behaviors_candidates[0].instance if len(__behaviors_candidates) > 0 else None
 
         if result is not None:
-            if constants.DEBUG: print(f"custom behavior instance {result.__class__.__name__} affected")
+            self.logger.information(f"custom behavior instance {result.__class__.__name__} affected")
             # let's recreate the instance with a real event bus
             result_with_real_event_bus: CustomBehaviorBaseUtility | None = result.__class__(EventBus())
             self.custom_combat_behavior = result_with_real_event_bus
             self.custom_combat_behavior.enable()
         else:
-            if constants.DEBUG: print(f"no custom behavior found, fallback to generic skillbar.")
+            self.logger.information(f"no custom behavior found, fallback to generic skillbar.")
             self.custom_combat_behavior = GenericFallback_UtilitySkillBar(EventBus())
             self.custom_combat_behavior.enable()
 
@@ -197,5 +199,5 @@ class CustomBehaviorLoader:
         fsm = self._botting_daemon_fsm
         # Only register if FSM is running and daemon is not already attached
         if fsm.current_state is not None and not fsm.HasManagedCoroutine("CustomBehaviorsBottingDaemon"):
-            print("CustomBehaviorsBottingDaemon re-registering (daemon loop)")
+            self.logger.information("CustomBehaviorsBottingDaemon re-registering (daemon loop)")
             fsm.AddManagedCoroutine("CustomBehaviorsBottingDaemon", self._botting_daemon_factory)

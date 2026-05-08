@@ -81,7 +81,7 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
             yield
             return BehaviorResult.ACTION_SKIPPED
 
-        # print(f"open_near_chest_utility_ STARTING")
+        # self.logger.information(f"open_near_chest_utility_ STARTING")
 
         chest_x, chest_y = Agent.GetXY(chest_agent_id)
         lock_key = f"open_near_chest_utility_{chest_agent_id}"
@@ -91,12 +91,12 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
             timeout=10_000)
 
         if result == False:
-            # print(f"open_near_chest_utility_ FAIL FollowPath")
+            # self.logger.information(f"open_near_chest_utility_ FAIL FollowPath")
             yield
             return BehaviorResult.ACTION_SKIPPED
 
         if CustomBehaviorParty().get_shared_lock_manager().try_aquire_lock(lock_key, lock_type=ShareLockType.ACTIONS) == False:
-            # print(f"open_near_chest_utility_ FAIL try_aquire_lock")
+            # self.logger.information(f"open_near_chest_utility_ FAIL try_aquire_lock")
             yield
             return BehaviorResult.ACTION_SKIPPED
 
@@ -105,13 +105,13 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
             yield from custom_behavior_helpers.Helpers.wait_for(1000) # we must wait until the chest closing animation is finalized
             # this must be done first, so beeing interrupted in that process is not an issue
 
-            if self.dedicated_debug: print(f"open_near_chest_utility_ LOCK AQUIRED")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ LOCK AQUIRED")
             ActionQueueManager().ResetAllQueues()
 
             # ----------- 1 WAIT FOR CHEST WINDOW TO OPEN PHASE ------------
-            if self.dedicated_debug: print(f"open_near_chest_utility_ wait_for_chest_window_to_open")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_open")
             is_chest_window_opened = yield from self.wait_for_chest_window_to_open(chest_agent_id)
-            print(f"open_near_chest_utility_ wait_for_chest_window_to_open is_successful:{is_chest_window_opened}")
+            self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_open is_successful:{is_chest_window_opened}")
             
             if is_chest_window_opened == False:
                 self.opened_chest_agent_ids.add(chest_agent_id)
@@ -119,19 +119,19 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
                 return BehaviorResult.ACTION_SKIPPED
             
             # ----------- 2 SEND DIALOG AND WAIT FOR CHEST WINDOW TO CLOSE PHASE ------------
-            if self.dedicated_debug: print(f"open_near_chest_utility_ wait_for_chest_window_to_close")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_close")
             is_chest_window_closed = yield from self.wait_for_chest_window_to_close()
-            print(f"open_near_chest_utility_ wait_for_chest_window_to_close is_successful:{is_chest_window_closed}")
+            self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_close is_successful:{is_chest_window_closed}")
 
             # ----------- 3 SUCCESS ------------
             self.opened_chest_agent_ids.add(chest_agent_id)
             yield from self.event_bus.publish(EventType.CHEST_OPENED, state, data=chest_agent_id)
-            print(f"open_near_chest_utility_ CHEST_OPENED")
+            self.logger.information(f"open_near_chest_utility_ CHEST_OPENED")
             yield
             return BehaviorResult.ACTION_PERFORMED
 
         except Exception as e:
-            print(f"ERROR in OpenNearChestUtility._execute: {type(e).__name__}: {e}")
+            self.logger.information(f"ERROR in OpenNearChestUtility._execute: {type(e).__name__}: {e}")
             import traceback
             traceback.print_exc()
             yield
@@ -151,18 +151,18 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
         while not self.window_open_timeout.IsExpired():
 
             # 2.a) interact with the chest
-            if self.dedicated_debug: print(f"open_near_chest_utility_ Interact")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ Interact")
             Player.Interact(chest_agent_id, call_target=False)
             yield from custom_behavior_helpers.Helpers.wait_for(150)
 
             # 2.b) wait for the chest window to open
-            if self.dedicated_debug: print(f"open_near_chest_utility_ wait_for_chest_window_to_open")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_open")
             if UIManager.IsLockedChestWindowVisible():
                 self.window_open_timeout.Stop()
                 return True
         
         # 3) timeout
-        print(f"open_near_chest_utility_ TIMEOUT waiting for chest window to open (chest_agent_id={chest_agent_id})")
+        self.logger.information(f"open_near_chest_utility_ TIMEOUT waiting for chest window to open (chest_agent_id={chest_agent_id})")
         self.window_open_timeout.Stop()
         return False
 
@@ -176,18 +176,18 @@ class OpenNearChestUtility(CustomSkillUtilityBase):
         while not self.window_close_timeout.IsExpired():
 
             # 2.a) send dialog to close the chest window
-            if self.dedicated_debug: print(f"open_near_chest_utility_ SendDialog")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ SendDialog")
             Player.SendDialog(2)
             yield from custom_behavior_helpers.Helpers.wait_for(150)
 
             # 2.b) check if the chest window is closed
-            if self.dedicated_debug: print(f"open_near_chest_utility_ wait_for_chest_window_to_close")
+            if self.dedicated_debug: self.logger.information(f"open_near_chest_utility_ wait_for_chest_window_to_close")
             if not UIManager.IsLockedChestWindowVisible():
                 self.window_close_timeout.Stop()
                 return True
 
         # 3) timeout
-        print(f"open_near_chest_utility_ TIMEOUT waiting for chest window to close")
+        self.logger.information(f"open_near_chest_utility_ TIMEOUT waiting for chest window to close")
         self.window_close_timeout.Stop()
         return False
 

@@ -2,7 +2,6 @@ from enum import Enum
 
 from Py4GWCoreLib.Py4GWcorelib import Utils
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
-
 class UtilitySkillTypologyColor:
     COMBAT_COLOR = Utils.ColorToTuple(Utils.RGBToColor(76, 151, 173, 200))
     LOOTING_COLOR = Utils.ColorToTuple(Utils.RGBToColor(229, 226, 70, 200))
@@ -33,5 +32,4 @@ class UtilitySkillTypologyColor:
         if utility_skill_typology == UtilitySkillTypology.INVENTORY:
             return UtilitySkillTypologyColor.INVENTORY_COLOR
         
-        print(f"Unknown typology {utility_skill_typology}")
-        return Utils.ColorToTuple(Utils.RGBToColor(255, 2, 255, 200))
+        raise Exception(f"Unknown typology {utility_skill_typology}")

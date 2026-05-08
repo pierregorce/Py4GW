@@ -77,9 +77,9 @@ class WaitIfPartyMemberTooFarUtility(CustomSkillUtilityBase):
     @override
     def persist_configuration_for_account(self):
         PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "max_distance", f"{self.max_distance:.2f}")
-        print("configuration saved for account")
+        self.logger.information("configuration saved for account")
 
     @override
     def persist_configuration_as_global(self):
         PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "max_distance", f"{self.max_distance:.2f}")
-        print("configuration saved as global")
+        self.logger.information("configuration saved as global")

@@ -69,14 +69,14 @@ class WaitIfPartyMemberManaTooLowUtility(CustomSkillUtilityBase):
     @override
     def persist_configuration_for_account(self):
         PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "mana_limit", f"{self.mana_limit:.2f}")
-        print("configuration saved for account")
+        self.logger.information("configuration saved for account")
 
     @override
     def persist_configuration_as_global(self):
         PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "mana_limit", f"{self.mana_limit:.2f}")
-        print("configuration saved as global")
+        self.logger.information("configuration saved as global")
 
     @override
     def delete_persisted_configuration(self):
         PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "mana_limit")
-        print("configuration deleted")
+        self.logger.information("configuration deleted")

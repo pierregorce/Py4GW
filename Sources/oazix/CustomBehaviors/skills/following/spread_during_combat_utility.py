@@ -119,7 +119,7 @@ class SpreadDuringCombatUtility(CustomSkillUtilityBase):
                     positions.append(enemy_pos)
 
         except Exception as e:
-            print(f"SpreadDuringCombatUtility._get_enemy_positions error: {e}")
+            self.logger.information(f"SpreadDuringCombatUtility._get_enemy_positions error: {e}")
 
         return positions
 
@@ -133,12 +133,12 @@ class SpreadDuringCombatUtility(CustomSkillUtilityBase):
             leader_pos = Agent.GetXY(leader_agent_id)
             return leader_pos
         except Exception as e:
-            print(f"SpreadDuringCombatUtility._get_party_leader_position error: {e}")
+            self.logger.information(f"SpreadDuringCombatUtility._get_party_leader_position error: {e}")
             return None
 
     def _debug_log(self, message: str) -> None:
         if self.manager.enable_debug_overlay:
-            print(message)
+            self.logger.information(message)
 
     def _calculate_finale_position(self, my_pos: tuple[float, float]) -> tuple[float, float] | None:
         """
@@ -533,7 +533,7 @@ class SpreadDuringCombatUtility(CustomSkillUtilityBase):
             return BehaviorResult.ACTION_SKIPPED
 
         except Exception as e:
-            print(f"SpreadDuringCombatUtility._execute error: {e}")
+            self.logger.information(f"SpreadDuringCombatUtility._execute error: {e}")
             yield
             return BehaviorResult.ACTION_SKIPPED
 
@@ -561,7 +561,7 @@ class SpreadDuringCombatUtility(CustomSkillUtilityBase):
             self._draw_debug_overlay_2(my_pos, party_positions, enemy_positions, leader_pos, self.last_target_pos)
         except Exception as e:
             # Silently fail on debug UI errors
-            print(f"SpreadDuringCombatUtility.draw_overlay error: {e}")
+            self.logger.information(f"SpreadDuringCombatUtility.draw_overlay error: {e}")
 
     @override
     def customized_debug_ui(self, current_state: BehaviorState) -> None:

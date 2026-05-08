@@ -50,7 +50,7 @@ class PlagueSendingUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
 
         if not custom_behavior_helpers.Resources.player_can_sacrifice_health(percentage_to_sacrifice=10):
-            print("Cannot Sacrifice Health")
+            self.logger.information("Cannot Sacrifice Health")
             return None
 
 
@@ -70,7 +70,7 @@ class PlagueSendingUtility(CustomSkillUtilityBase):
             scoreMult += 0.5
             targets = self._get_cultists_fervor_best_targets()
             if len(targets) != 0:
-                if constants.DEBUG: print("Have a fervor best target")
+                self.logger.information("Have a fervor best target")
                 return self.score_definition.get_score(targets[0].enemy_quantity_within_range) * scoreMult
 
 
@@ -78,7 +78,7 @@ class PlagueSendingUtility(CustomSkillUtilityBase):
 
         #if nothing just be done
         if not Agent.IsConditioned(Player.GetAgentID()):
-            if constants.DEBUG: print("No Conditions to send")
+            self.logger.information("No Conditions to send")
             return None
 
 
@@ -88,7 +88,7 @@ class PlagueSendingUtility(CustomSkillUtilityBase):
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
-        if constants.DEBUG: print("Do Plague Sending")
+        self.logger.information("Do Plague Sending")
 
         if Routines.Checks.Effects.HasBuff(Player.GetAgentID(), GLOBAL_CACHE.Skill.GetID("Cultists_Fervor")):
             enemies = self._get_cultists_fervor_best_targets()

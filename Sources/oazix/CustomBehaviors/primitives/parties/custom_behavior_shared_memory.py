@@ -10,6 +10,7 @@ from typing import Generator
 
 from Py4GWCoreLib.enums_src.GameData_enums import Range
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import (
     SharedLockEntry,
     SharedLockEntryStruct,
@@ -159,17 +160,18 @@ class CustomBehaviorWidgetMemoryManager:
     def __init__(self, name=SHMEM_SHARED_MEMORY_FILE_NAME):
         
         if not self._initialized:
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
             self.shm_name = name
             self.size = sizeof(CustomBehaviorWidgetStruct)
 
             # Create or attach shared memory
             try:
                 self.shm = shared_memory.SharedMemory(name=self.shm_name)
-                if DEBUG: print(f"Shared memory area '{self.shm_name}' attached.")
+                if DEBUG: self.logger.information(f"Shared memory area '{self.shm_name}' attached.")
                 # we keep current.
             except FileNotFoundError:
                 self.shm = shared_memory.SharedMemory(name=self.shm_name, create=True, size=self.size)
-                if DEBUG: print(f"Shared memory area '{self.shm_name}' created.")
+                if DEBUG: self.logger.information(f"Shared memory area '{self.shm_name}' created.")
                 self.__reset_all_data()  # Initialize all player data
 
             # Attach the shared memory structure
@@ -267,12 +269,12 @@ class CustomBehaviorWidgetMemoryManager:
             party_leader_email= leader_email,
             party_forced_state= mem.PartyForcedState if hasattr(mem, "PartyForcedState") and mem.PartyForcedState != 0 else None
         )
-        # print(f"GetCustomBehaviorWidgetData: {result.is_enabled} {result.party_target_id} {result.party_forced_state}")
+        # self.logger.information(f"GetCustomBehaviorWidgetData: {result.is_enabled} {result.party_target_id} {result.party_forced_state}")
 
         return result
 
     def SetCustomBehaviorWidgetData(self, is_enabled:bool, is_combat_enabled:bool, is_looting_enabled:bool, is_chesting_enabled:bool, is_following_enabled:bool, is_blessing_enabled:bool, is_inventory_enabled:bool, party_target_id:int|None, party_leader_email:str|None, party_forced_state:int|None):
-        # print(f"SetCustomBehaviorWidgetData: {is_enabled}, {party_target_id}, {party_forced_state}")
+        # self.logger.information(f"SetCustomBehaviorWidgetData: {is_enabled}, {party_target_id}, {party_forced_state}")
         mem = self._get_struct()
         mem.IsEnabled = is_enabled
         mem.IsLootingEnabled = is_looting_enabled

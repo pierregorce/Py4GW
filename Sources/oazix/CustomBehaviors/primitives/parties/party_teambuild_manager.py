@@ -12,6 +12,7 @@ from Py4GWCoreLib.routines_src.Yield import Yield
 from Py4GWCoreLib import Utils, Player
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.pawned2.Pawned2TeamBuild import Pawned2TeamBuild
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
@@ -58,6 +59,7 @@ class PartyTeamBuildManager:
         if self._initialized:
             return
 
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
         self._initialized = True
         self._memory_manager = CustomBehaviorWidgetMemoryManager()
         self.skillbar_datas : dict[str, SkillbarData] = {}
@@ -263,7 +265,7 @@ class PartyTeamBuildManager:
             return True
 
         except Exception as e:
-            print(f"Failed to update template: {e}")
+            self.logger.information(f"Failed to update template: {e}")
             return False
 
     def __get_all_templates(self) -> dict[str, tuple[str, str]]:
@@ -342,7 +344,7 @@ class PartyTeamBuildManager:
     def apply_skillbar_template(self, template_code: str, account_email: str):
         # let's ask a specific account to apply a skillbar template.
         sender_email = Player.GetAccountEmail()
-        if constants.DEBUG: print(f"SendMessage {account_email} to {account_email}")
+        self.logger.information(f"SendMessage {account_email} to {account_email}")
         extra_data: tuple[str, str, str, str] = self.__build_extra_data(template_code)
         GLOBAL_CACHE.ShMem.SendMessage(sender_email, account_email, SharedCommandType.LoadSkillTemplate, ExtraData = extra_data)
 

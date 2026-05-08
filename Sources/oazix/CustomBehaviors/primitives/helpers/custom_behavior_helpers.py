@@ -13,6 +13,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_ta
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.disabilities_allies_scoring import DisabilitiesAlliesScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.helpers.sortable_agent_data import SortableAgentData
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -22,7 +23,7 @@ from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_party import CustomBehaviorHelperParty
 from Sources.oazix.CustomBehaviors.primitives.helpers.eval_profiler import EvalProfiler
 
-MODULE_NAME = "Custom Combat Behavior Helpers"
+logger = SimpleLogger.get_logger(__name__)
 
 @dataclass
 class SpiritAgentData:
@@ -65,7 +66,7 @@ class Helpers:
         activation_time = GLOBAL_CACHE.Skill.Data.GetActivation(skill_casted.skill_id) * 1000
         aftercast = GLOBAL_CACHE.Skill.Data.GetAftercast(skill_casted.skill_id) * 1000
         delay = activation_time if activation_time > aftercast else aftercast
-        if constants.DEBUG: print(f"{skill_casted.skill_name} let's wait for aftercast :{delay}ms | activation_time:{activation_time} | aftercast:{aftercast}")
+        logger.information(f"{skill_casted.skill_name} let's wait for aftercast :{delay}ms | activation_time:{activation_time} | aftercast:{aftercast}")
 
         yield from Helpers.wait_for(delay + 50)  # 200ms more to really avoid double-cast
 
@@ -76,7 +77,7 @@ class Helpers:
         while (time.time() - start_time) < milliseconds / 1000:
             action_result: BehaviorResult = yield from action()
             if action_result == BehaviorResult.ACTION_PERFORMED:
-                if constants.DEBUG: print(f"wait_for_or_until_completion has reached completion : {milliseconds}ms")
+                logger.information(f"wait_for_or_until_completion has reached completion : {milliseconds}ms")
                 return BehaviorResult.ACTION_PERFORMED
             yield 'wait'  # Pause and allow resumption while waiting
         return BehaviorResult.ACTION_SKIPPED
@@ -100,7 +101,7 @@ class Helpers:
             
             yield from Helpers.wait_for(100)
 
-        if constants.DEBUG: print(f"wait_for_condition_before_execution has reached completion : {milliseconds}ms")
+        logger.information(f"wait_for_condition_before_execution has reached completion : {milliseconds}ms")
         action_result: BehaviorResult = yield from action()
         return action_result
 
@@ -406,7 +407,7 @@ class Actions:
         Routines.Sequential.Skills.CastSkillSlot(skill.skill_slot)
         if call_target:
             yield from Routines.Yield.Keybinds.CallTarget(False)
-        if constants.DEBUG: print(f"cast_skill_to_target {skill.skill_name} to {target_agent_id}")
+        logger.information(f"cast_skill_to_target {skill.skill_name} to {target_agent_id}")
         yield from Helpers.delay_aftercast(skill)
         return BehaviorResult.ACTION_PERFORMED
     
@@ -454,7 +455,7 @@ class Actions:
         buff_time_remaining = GLOBAL_CACHE.Effects.GetEffectTimeRemaining(Player.GetAgentID(), skill.skill_id) if has_buff else 0
         if not has_buff or buff_time_remaining <= time_before_expire:
             ActionQueueManager().AddAction("ACTION", SkillBar.UseSkill, skill.skill_slot, 0)
-            if constants.DEBUG: print(f"cast_effect_before_expiration {skill.skill_name}")
+            logger.information(f"cast_effect_before_expiration {skill.skill_name}")
             yield from Helpers.delay_aftercast(skill)
             return BehaviorResult.ACTION_PERFORMED
 
@@ -480,7 +481,7 @@ class Targets:
             seek_range: float = range_to_cover.value - 50
 
             if OVERLAY_DEBUG: Overlay().DrawPoly3D(player_x, player_y, player_z, seek_range, Utils.RGBToColor(255, 128, 0 , 128), numsegments=32, thickness=5.0)
-            # print(f"other_party_member_positions: {other_party_member_positions}")
+            # logger.information(f"other_party_member_positions: {other_party_member_positions}")
 
             for pos in other_party_member_positions:
                 # Overlay().DrawPoly3D(pos[0], pos[1], player_z, range_to_cover.value, Utils.RGBToColor(128, 255, 0 , 128), numsegments=32, thickness=2.0)
@@ -490,10 +491,10 @@ class Targets:
             if len(other_party_member_positions) == 0: return None
             # if len(other_party_member_positions) == 1: return other_party_member_positions[0]
 
-            # print("\n=== Recherche par centres intelligents ===")
+            # logger.information("\n=== Recherche par centres intelligents ===")
             opt_pos, opt_count, opt_distance = custom_behavior_helpers_tests.find_optimal_position_weighted(player_position, other_party_member_positions, seek_range)
-            # print(f"Position optimale: {opt_pos}")
-            # print(f"Allié couverts: {opt_count}")
+            # logger.information(f"Position optimale: {opt_pos}")
+            # logger.information(f"Allié couverts: {opt_count}")
 
             if opt_pos is not None:
                 if OVERLAY_DEBUG: Overlay().DrawPolyFilled3D(opt_pos[0], opt_pos[1], player_z, seek_range, Utils.RGBToColor(255, 255, 0 , 50), numsegments=32)

@@ -140,7 +140,7 @@ class MerchantRefillIfNeededUtility(CustomSkillUtilityBase):
         target_agent_id = self._get_target(merchant_type)
         if target_agent_id is None: return
 
-        print(f"Visiting {merchant_type.name}...")
+        self.logger.information(f"Visiting {merchant_type.name}...")
         target_position : tuple[float, float] = Agent.GetXY(target_agent_id)
         if Utils.Distance(target_position, Player.GetXY()) > 150:
             path3d = yield from AutoPathing().get_path_to(target_position[0], target_position[1], smooth_by_los=True, margin=100.0, step_dist=300.0)
@@ -152,10 +152,10 @@ class MerchantRefillIfNeededUtility(CustomSkillUtilityBase):
                     tolerance=150,
                     log=constants.DEBUG,
                     timeout=10_000,
-                    progress_callback=lambda progress: print(f"FollowPath merchant_refill_if_needed_utility: progress: {progress}") if constants.DEBUG else None,
+                    progress_callback=lambda progress: self.logger.information(f"FollowPath merchant_refill_if_needed_utility: progress: {progress}") if constants.DEBUG else None,
                     custom_pause_fn=lambda: False)
 
-        print(f"Merchant reached.")
+        self.logger.information(f"Merchant reached.")
         Player.Interact(target_agent_id, call_target=True)
         visit_duration_in_seconds = self.visit_duration_in_seconds_config[merchant_type]
         yield from custom_behavior_helpers.Helpers.wait_for(visit_duration_in_seconds * 1000)

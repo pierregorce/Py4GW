@@ -9,6 +9,7 @@ from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer, Timer
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_skillbar_management import CustomBehaviorSkillbarManagement
@@ -63,6 +64,8 @@ class CustomBehaviorBaseUtility():
         self.__injected_additional_utility_skills : list[CustomSkillUtilityBase] = list[CustomSkillUtilityBase]()
 
         self.event_bus:EventBus = event_bus
+
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
         self.__additional_autonomous_skills: list[CustomSkillUtilityBase] = [
             # COMBAT
@@ -319,7 +322,7 @@ class CustomBehaviorBaseUtility():
                 if skill_in_slot.custom_skill.skill_name == "Arcane_Echo": continue # arcane_echo slot is allowed to be replaced
                 if skill_in_slot.custom_skill.skill_name == "Arcane_Mimicry": continue # mimicry slot is allowed to be replaced
                 # and so on
-                if constants.DEBUG: print(f"Slot {skill_slot} has changed, the behavior must be refreshed.")
+                self.logger.information(f"Slot {skill_slot} has changed, the behavior must be refreshed.")
                 return False
                 
             return True
@@ -331,7 +334,7 @@ class CustomBehaviorBaseUtility():
                 if skill.custom_skill.skill_id != 0: #meaning it's an autonomous skill
                     skill_id = GLOBAL_CACHE.SkillBar.GetSkillIDBySlot(skill.custom_skill.skill_slot)
                     if skill_id != skill.custom_skill.skill_id:
-                        if constants.DEBUG: print(f"Slot {skill.custom_skill.skill_slot} doesn't match skill {skill.custom_skill.skill_id}, the behavior must be refreshed.")
+                        self.logger.information(f"Slot {skill.custom_skill.skill_slot} doesn't match skill {skill.custom_skill.skill_id}, the behavior must be refreshed.")
                         return False
 
             # two case
@@ -340,7 +343,7 @@ class CustomBehaviorBaseUtility():
                 # check if all ingame skills are in the behavior.
                 for skill_id in in_game_build_by_skill_id.keys():
                     if skill_id not in utility_build_full_by_skill_ids:
-                        if constants.DEBUG: print(f"{skill_id} from in-game build doesn't exist in the behavior, the behavior must be refreshed.")
+                        self.logger.information(f"{skill_id} from in-game build doesn't exist in the behavior, the behavior must be refreshed.")
                         return False
                     
             if not is_completed:
@@ -348,14 +351,14 @@ class CustomBehaviorBaseUtility():
                 for skill in utility_build_full:
                     if skill.custom_skill.skill_id == 0: continue
                     if skill.custom_skill.skill_id not in in_game_build_by_skill_id:
-                        if constants.DEBUG: print(f"{skill.custom_skill.skill_id} that is present in the behavior is not part of the in-game build, the behavior must be refreshed.")
+                        self.logger.information(f"{skill.custom_skill.skill_id} that is present in the behavior is not part of the in-game build, the behavior must be refreshed.")
                         return False
 
                 #  2/ check if we added a new ingame skill that should be part of the behavior.
                 for skill_id in in_game_build_by_skill_id.keys():
                     if skill_id not in utility_build_full_by_skill_ids:
                         if skill_id in [item.custom_skill.skill_id for item in self.custom_skills_in_behavior]:
-                            if constants.DEBUG: print(f"{skill_id} should be present in the behavior, the behavior must be refreshed.")
+                            self.logger.information(f"{skill_id} should be present in the behavior, the behavior must be refreshed.")
                             return False
                         
             return True
@@ -395,7 +398,7 @@ class CustomBehaviorBaseUtility():
         # or cached_data.data.player_is_casting
 
         if not self.is_custom_behavior_match_in_game_build():
-            if constants.DEBUG: print("Custom behavior doesn't match in game build, you are not allowed to perform behavior.act().")
+            self.logger.information("Custom behavior doesn't match in game build, you are not allowed to perform behavior.act().")
             return
 
         # it is interesting to compute score less often, as the execution :
@@ -406,10 +409,10 @@ class CustomBehaviorBaseUtility():
             self.compute_throttler.Reset()
             self.timer.Reset()
             self.__fetch_and_memoized_state()
-            # print(f"performance-audit-frame-durationA:{self.timer.GetElapsedTime()}")
+            # self.logger.information(f"performance-audit-frame-durationA:{self.timer.GetElapsedTime()}")
 
             self.__fetch_and_memoized_all_scores()
-            # print(f"performance-audit-frame-durationB:{self.timer.GetElapsedTime()}")
+            # self.logger.information(f"performance-audit-frame-durationB:{self.timer.GetElapsedTime()}")
 
         if self.execute_throttler.IsExpired():
             self.execute_throttler.Reset()
@@ -417,10 +420,10 @@ class CustomBehaviorBaseUtility():
             try:
                 next(self._generator_handle)
             except StopIteration:
-                print(f"CustomBehaviorBaseUtility.act is not expected to StopIteration.")
+                self.logger.information(f"CustomBehaviorBaseUtility.act is not expected to StopIteration.")
             except Exception as e:
-                print(f"CustomBehaviorBaseUtility.act is not expected to exit : {e}")
-            # print(f"performance-audit-frame-duration:{self.timer.GetElapsedTime()}")
+                self.logger.information(f"CustomBehaviorBaseUtility.act is not expected to exit : {e}")
+            # self.logger.information(f"performance-audit-frame-duration:{self.timer.GetElapsedTime()}")
 
 
     # STATES
@@ -468,7 +471,7 @@ class CustomBehaviorBaseUtility():
                     (result == BehaviorState.IN_AGGRO or result == BehaviorState.CLOSE_TO_AGGRO)):
                     metrics.clear()
                     if constants.DEBUG:
-                        print(f"UtilitySkillMetrics: Cleared metrics on combat entry (FAR_FROM_AGGRO -> {result.name})")
+                        self.logger.information(f"UtilitySkillMetrics: Cleared metrics on combat entry (FAR_FROM_AGGRO -> {result.name})")
             self.__previous_state = result
 
         self.__memoized_state = result
@@ -478,13 +481,13 @@ class CustomBehaviorBaseUtility():
     def __fetch_and_memoized_all_scores(self):
         timer = Timer()
         timer.Reset()
-        # print(f"performance-audit-frame-duration:{self.timer.GetElapsedTime()}")
+        # self.logger.information(f"performance-audit-frame-duration:{self.timer.GetElapsedTime()}")
 
-        # print('Evaluate all utilities')
+        # self.logger.information('Evaluate all utilities')
         # Evaluate all utilities
         utilities: list[CustomSkillUtilityBase] = self.get_skills_final_list()
         # for x in utilities:
-        #     print(f"skill {x.custom_skill.skill_name}")
+        #     self.logger.information(f"skill {x.custom_skill.skill_name}")
 
         utility_scores: list[tuple[CustomSkillUtilityBase, float | None]] = []
         current_state: BehaviorState = self.get_final_state()
@@ -582,8 +585,8 @@ class CustomBehaviorBaseUtility():
                 yield  # ← yield control back to the main execution flow
             except Exception as e:
                 import traceback
-                print(f"_handle() caught exception: {type(e).__name__}: {e}")
-                print(f"Traceback: {traceback.format_exc()}")
+                self.logger.information(f"_handle() caught exception: {type(e).__name__}: {e}")
+                self.logger.information(f"Traceback: {traceback.format_exc()}")
                 yield  # yield to prevent generator death, then continue the loop
 
     def __execute_until_the_end(self, utility: CustomSkillUtilityBase) -> Generator[Any | None, Any | None, BehaviorResult]:
@@ -594,11 +597,11 @@ class CustomBehaviorBaseUtility():
             return result
         except Exception as e:
             import traceback
-            print(f"Generator: {utility_generator}")
-            print(f"Name: {utility.custom_skill.skill_name}")
-            print(f"Exception type: {type(e).__name__}")
-            print(f"Exception message: {e}")
-            print(f"Traceback: {traceback.format_exc()}")
+            self.logger.information(f"Generator: {utility_generator}")
+            self.logger.information(f"Name: {utility.custom_skill.skill_name}")
+            self.logger.information(f"Exception type: {type(e).__name__}")
+            self.logger.information(f"Exception message: {e}")
+            self.logger.information(f"Traceback: {traceback.format_exc()}")
             raise Exception(f"WTF1 utility.execute(state) FAILURE: {e}")
 
     def __execute_until_condition(self, new_highest_score: CustomSkillUtilityBase) -> Generator[Any | None, Any | None, BehaviorResult]:
@@ -628,14 +631,14 @@ class CustomBehaviorBaseUtility():
                     return e.value if hasattr(e, 'value') and e.value is not None else BehaviorResult.ACTION_PERFORMED
         except:
             
-            print(f"Generator: {self.utility_generator}")
+            self.logger.information(f"Generator: {self.utility_generator}")
             current_highest:tuple[CustomSkillUtilityBase, float | None] | None = self.get_highest_score()
             if current_highest is None: # score is None
-                print("none!")
+                self.logger.information("none!")
             else:
-                print(f"Name1: {current_highest[0].custom_skill.skill_name}")
+                self.logger.information(f"Name1: {current_highest[0].custom_skill.skill_name}")
                 
-            print(f"Name2: {new_highest_score.custom_skill.skill_name}")
+            self.logger.information(f"Name2: {new_highest_score.custom_skill.skill_name}")
             raise Exception(f"WTF2 utility.execute(state) FAILURE.")
         finally:
             # Ensure the underlying generator is closed to trigger its finally blocks (e.g., lock release)

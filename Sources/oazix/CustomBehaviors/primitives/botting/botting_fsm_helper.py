@@ -9,17 +9,20 @@ from Sources.oazix.CustomBehaviors.primitives.botting.botting_helpers import Bot
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
+
+logger = SimpleLogger.get_logger(__name__)
 
 class BottingFsmHelpers:
 
     @staticmethod
     def __custom_behaviors_botting_daemon(fsm: FSM):
         from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
-        print("CustomBehaviors_FSM_Daemon added")
+        logger.information("CustomBehaviors_FSM_Daemon added")
         injected = False
         while True:
-            # print("CustomBehaviorsDaemon running")
+            # logger.information("CustomBehaviorsDaemon running")
             try:
                 instance = CustomBehaviorLoader().custom_combat_behavior
                 if instance is not None:
@@ -28,7 +31,7 @@ class BottingFsmHelpers:
 
                     # Pause or resume FSM depending on CB utilities running
                     if instance.is_executing_utility_skills():
-                        # print("CustomBehaviorsDaemon pausing FSM")
+                        # logger.information("CustomBehaviorsDaemon pausing FSM")
                         fsm.pause()
                         # we press ESC to cancel any movement
                         # ActionQueueManager().AddAction("ACTION", Keystroke.PressAndReleaseCombo, [Key.Escape.value])
@@ -45,7 +48,7 @@ class BottingFsmHelpers:
 
     @staticmethod
     def _set_botting_behavior_as_pacifist(bot: Botting):
-        print("SetBottingBehaviorAsPacifist")
+        logger.information("SetBottingBehaviorAsPacifist")
 
         instance = CustomBehaviorLoader().custom_combat_behavior
         if instance is None: raise Exception("CustomBehavior widget is required.")
@@ -61,7 +64,7 @@ class BottingFsmHelpers:
 
     @staticmethod
     def _set_botting_behavior_as_aggressive(bot: Botting):
-        print("SetBottingBehaviorAsAggressive")
+        logger.information("SetBottingBehaviorAsAggressive")
         instance = CustomBehaviorLoader().custom_combat_behavior
         if instance is None: raise Exception("CustomBehavior widget is required.")
 
@@ -120,7 +123,7 @@ class BottingFsmHelpers:
 
         # Try to add immediately if FSM is already running
         if fsm.current_state is not None and not fsm.HasManagedCoroutine("CustomBehaviorsBottingDaemon"):
-            print("CustomBehaviorsBottingDaemon AddManagedCoroutine (initial)")
+            logger.information("CustomBehaviorsBottingDaemon AddManagedCoroutine (initial)")
             fsm.AddManagedCoroutine("CustomBehaviorsBottingDaemon", daemon_factory)
 
         event_bus = instance.event_bus

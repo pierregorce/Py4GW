@@ -1,5 +1,7 @@
 from typing import Callable, Generator, Any
 
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+
 
 class PartyCommandHandlerManager:
     """
@@ -11,6 +13,7 @@ class PartyCommandHandlerManager:
     def __init__(self):
         self._next_action: Generator | None = None
         self._action_finished: bool = True
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
     
     def schedule_action(self, action_gen: Callable[[], Generator]) -> bool:
         """
@@ -50,7 +53,7 @@ class PartyCommandHandlerManager:
                 self._next_action = None
                 self._action_finished = True
             except Exception as e:
-                print(f"Action failed: {e}")
+                self.logger.information(f"Action failed: {e}")
                 self._next_action = None
                 self._action_finished = True
     

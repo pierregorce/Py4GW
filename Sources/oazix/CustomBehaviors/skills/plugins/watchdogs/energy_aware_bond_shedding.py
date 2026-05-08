@@ -58,7 +58,7 @@ class EnergyAwareBondShedding(UtilitySkillWatchdog):
 
         now = time.time()
         if now - self._last_drop_time < self._DROP_COOLDOWN:
-            if constants.DEBUG: print(f"COOLDOWN skill={self.parent_skill_name} energy={energy} floor={self.energy_floor}")
+            self.logger.information(f"COOLDOWN skill={self.parent_skill_name} energy={energy} floor={self.energy_floor}")
             yield
             return
 
@@ -66,7 +66,7 @@ class EnergyAwareBondShedding(UtilitySkillWatchdog):
         # Drop furthest-from-player first (backline before frontline). Never self.
         player_x, player_y = Agent.GetXY(player_id)
         buffs = Effects.GetBuffs(player_id)
-        if constants.DEBUG: print(f"SCANNING skill={self.parent_skill_name} skill_id={self._parent_skill_id} energy={energy} buffs={len(buffs)}")
+        self.logger.information(f"SCANNING skill={self.parent_skill_name} skill_id={self._parent_skill_id} energy={energy} buffs={len(buffs)}")
 
         candidates: list[tuple[float, int]] = []  # (distance, buff_id)
         for buff in buffs:
@@ -75,7 +75,7 @@ class EnergyAwareBondShedding(UtilitySkillWatchdog):
             target_agent_id = buff.target_agent_id
             
             if target_agent_id == 0 or target_agent_id == player_id:
-                if constants.DEBUG: print(f"SKIP_SELF skill={self.parent_skill_name} tid={target_agent_id}")
+                self.logger.information(f"SKIP_SELF skill={self.parent_skill_name} tid={target_agent_id}")
                 continue  # never drop self or non-targeted
 
             tx, ty = Agent.GetXY(target_agent_id)
@@ -85,10 +85,10 @@ class EnergyAwareBondShedding(UtilitySkillWatchdog):
         if candidates:
             # Drop the furthest target (highest distance²)
             candidates.sort(key=lambda c: c[0], reverse=True)
-            if constants.DEBUG: print(f"DROPPING skill={self.parent_skill_name} buff_id={candidates[0][1]} candidates={len(candidates)}")
+            self.logger.information(f"DROPPING skill={self.parent_skill_name} buff_id={candidates[0][1]} candidates={len(candidates)}")
             Effects.DropBuff(candidates[0][1])
             self._last_drop_time = now
         else:
-            if constants.DEBUG: print(f"NO_CANDIDATES skill={self.parent_skill_name} (only self-bonds remain)")
+            self.logger.information(f"NO_CANDIDATES skill={self.parent_skill_name} (only self-bonds remain)")
 
         yield

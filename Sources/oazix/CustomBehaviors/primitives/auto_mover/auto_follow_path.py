@@ -7,6 +7,7 @@ from Sources.oazix.CustomBehaviors.primitives.auto_mover.follow_path_executor im
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_builder import PathBuilder
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_renderer import PathRenderer
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.waypoint_builder import WaypointBuilder
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
 
 class AutoFollowPath:
@@ -20,6 +21,7 @@ class AutoFollowPath:
 
     def __init__(self):
         if not self._initialized:
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
             self._initialized = True
             self.__waypoint_builder = WaypointBuilder()
             self.__path_builder = PathBuilder()
@@ -74,7 +76,7 @@ class AutoFollowPath:
         return self.__path_builder.get_final_path()
 
     def start_movement(self, start_at_waypoint_index:int):
-        print(f"start_movement{start_at_waypoint_index}")
+        self.logger.information(f"start_movement{start_at_waypoint_index}")
         waypoints:list[tuple[float, float]] = self.__waypoint_builder.get_waypoints()
         waypoints_trucated = waypoints[start_at_waypoint_index:]
         self.__follow_path_executor.start(waypoints_trucated)

@@ -6,8 +6,12 @@ from Py4GWCoreLib.enums_src.Multiboxing_enums import SharedCommandType
 from Py4GWCoreLib.routines_src.Yield import Yield
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+
+logger = SimpleLogger.get_logger(__name__)
 
 class PartyCommandConstants:
+    
 
     @staticmethod    
     def summon_all_to_current_map() -> Generator[Any, None, None]:
@@ -20,7 +24,7 @@ class PartyCommandConstants:
             for account in accounts:
                 if account.AccountEmail == account_email:
                     continue
-                if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+                logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
                 GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.TravelToMap, (self_account.AgentData.Map.MapID, self_account.AgentData.Map.Region, district_number, language))
         yield
 
@@ -31,7 +35,7 @@ class PartyCommandConstants:
         if self_account is not None:
             accounts = GLOBAL_CACHE.ShMem.GetAllAccountData()
             for account in accounts:
-                if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+                logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
                 GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.TravelToGuildHall, (0,0,0,0))
         yield
 
@@ -44,7 +48,7 @@ class PartyCommandConstants:
             for account in accounts:
                 if account.AccountEmail == account_email:
                     continue
-                if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+                logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
                 if (self_account.AgentData.Map.MapID == account.AgentData.Map.MapID and
                     self_account.AgentData.Map.Region == account.AgentData.Map.Region and
                     self_account.AgentData.Map.District == account.AgentData.Map.District and
@@ -61,7 +65,7 @@ class PartyCommandConstants:
         for account in accounts:
             if account.AccountEmail == account_email:
                 continue
-            if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+            logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
             GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.LeaveParty, ())
             yield from custom_behavior_helpers.Helpers.wait_for(30)
         yield
@@ -71,7 +75,7 @@ class PartyCommandConstants:
         account_email = Player.GetAccountEmail()
         accounts = GLOBAL_CACHE.ShMem.GetAllAccountData()
         for account in accounts:
-            if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+            logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
             GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.Resign, ())
             yield from custom_behavior_helpers.Helpers.wait_for(30)
         yield
@@ -85,7 +89,7 @@ class PartyCommandConstants:
         for account in accounts:
             if account.AccountEmail == account_email:
                 continue
-            if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+            logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
             GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.InteractWithTarget, (target,0,0,0))
             # randomize wait
             yield from custom_behavior_helpers.Helpers.wait_for(random.randint(100, 800))
@@ -96,7 +100,7 @@ class PartyCommandConstants:
         account_email = Player.GetAccountEmail()
         accounts = GLOBAL_CACHE.ShMem.GetAllAccountData()
         for account in accounts:
-            if constants.DEBUG: print(f"SendMessage {account_email} to {account.AccountEmail}")
+            logger.information(f"SendMessage {account_email} to {account.AccountEmail}")
             GLOBAL_CACHE.ShMem.SendMessage(account_email, account.AccountEmail, SharedCommandType.SetWindowTitle, ExtraData=(account.AgentData.CharacterName, "", "", ""))
             yield from custom_behavior_helpers.Helpers.wait_for(100)
         yield
@@ -107,7 +111,7 @@ class PartyCommandConstants:
         yield from custom_behavior_helpers.Helpers.wait_for(1000)
 
         account_email = Player.GetAccountEmail()
-        if constants.DEBUG: print(f"SendMessage {account_email} to {target_account_email} - SetWindowActive")
+        logger.information(f"SendMessage {account_email} to {target_account_email} - SetWindowActive")
         GLOBAL_CACHE.ShMem.SendMessage(account_email, target_account_email, SharedCommandType.SetWindowActive, (0, 0, 0, 0))
         yield
 
@@ -115,7 +119,7 @@ class PartyCommandConstants:
     def invite_player(target_account_email: str, character_name: str) -> Generator[Any, None, None]:
         """Invite a specific player to the party using chat command and messaging."""
         account_email = Player.GetAccountEmail()
-        if constants.DEBUG: print(f"Inviting {character_name} ({target_account_email}) to party")
+        logger.information(f"Inviting {character_name} ({target_account_email}) to party")
         GLOBAL_CACHE.Party.Players.InvitePlayer(character_name)
         GLOBAL_CACHE.ShMem.SendMessage(account_email, target_account_email, SharedCommandType.InviteToParty, (0, 0, 0, 0))
         yield from custom_behavior_helpers.Helpers.wait_for(300)

@@ -64,7 +64,7 @@ class ReversalOfDeathUtility(CustomSkillUtilityBase):
         my_id = int(Player.GetAgentID())
 
         # --- DEBUG: remove after investigation ---
-        print(f"[RoD DEBUG] spirit_form_count={spirit_form_count}, "
+        self.logger.information(f"[RoD DEBUG] spirit_form_count={spirit_form_count}, "
               f"spirit_form_ids={spirit_form_ids}, "
               f"restrict_to_spirit_form={restrict_to_spirit_form}, my_id={my_id}")
 
@@ -85,7 +85,7 @@ class ReversalOfDeathUtility(CustomSkillUtilityBase):
         )
 
         # --- DEBUG: remove after investigation ---
-        print(f"[RoD DEBUG] allies count={len(allies)}, "
+        self.logger.information(f"[RoD DEBUG] allies count={len(allies)}, "
               f"ally_ids={[int(a.agent_id) for a in allies]}")
 
         if not allies:
@@ -94,7 +94,7 @@ class ReversalOfDeathUtility(CustomSkillUtilityBase):
         morale_map = get_morale_by_agent_id()
 
         # --- DEBUG: remove after investigation ---
-        print(f"[RoD DEBUG] morale_map={morale_map}")
+        self.logger.information(f"[RoD DEBUG] morale_map={morale_map}")
 
         if not morale_map:
             return None
@@ -105,7 +105,7 @@ class ReversalOfDeathUtility(CustomSkillUtilityBase):
             morale  = int(morale_map.get(int(ally.agent_id), 100))
             penalty = max(0, 100 - morale)
             # --- DEBUG: remove after investigation ---
-            print(f"[RoD DEBUG]   ally={int(ally.agent_id)}, "
+            self.logger.information(f"[RoD DEBUG]   ally={int(ally.agent_id)}, "
                   f"morale={morale}, penalty={penalty}, "
                   f"in_morale_map={int(ally.agent_id) in morale_map}")
             if penalty <= 0:
@@ -115,7 +115,7 @@ class ReversalOfDeathUtility(CustomSkillUtilityBase):
                 best_penalty = penalty
 
         # --- DEBUG: remove after investigation ---
-        print(f"[RoD DEBUG] best_target={'None' if best_target is None else int(best_target.agent_id)}, "
+        self.logger.information(f"[RoD DEBUG] best_target={'None' if best_target is None else int(best_target.agent_id)}, "
               f"best_penalty={best_penalty}")
 
         return best_target

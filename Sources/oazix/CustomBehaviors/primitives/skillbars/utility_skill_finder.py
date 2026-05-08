@@ -6,6 +6,7 @@ import pkgutil
 import inspect
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 from Sources.oazix.CustomBehaviors.primitives import constants
@@ -27,6 +28,7 @@ class UtilitySkillFinder:
             # Cached result - stored at module level to persist across calls
             self._initialized = True
             self._cached_result: dict[int, CustomSkillUtilityBase] | None = None
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
     def refresh_cache(self):
         self._cached_result = None
@@ -56,7 +58,7 @@ class UtilitySkillFinder:
         # Return cached result if available
         if self._cached_result is not None: return self._cached_result
 
-        if constants.DEBUG: print("UtilitySkillFinder: Starting discovery (one-time scan)...")
+        self.logger.information("UtilitySkillFinder: Starting discovery (one-time scan)...")
 
         utilities_by_skill_id: dict[int, CustomSkillUtilityBase] = {}
 
@@ -74,7 +76,7 @@ class UtilitySkillFinder:
                     if utility.custom_skill.skill_id not in utilities_by_skill_id:
                         utilities_by_skill_id[utility.custom_skill.skill_id] = utility
             except Exception as e:
-                if debug or constants.DEBUG: print(f"Failed to load utilities from {package_name}: {e}")
+                if debug or constants.DEBUG: self.logger.information(f"Failed to load utilities from {package_name}: {e}")
 
         # Gather skills from GenericUtilitySkillsList (pre-configured generic utilities)
         try:
@@ -84,16 +86,16 @@ class UtilitySkillFinder:
                 if utility.custom_skill.skill_id not in utilities_by_skill_id:
                     utilities_by_skill_id[utility.custom_skill.skill_id] = utility
         except Exception as e:
-            if debug or constants.DEBUG: print(f"Failed to load utilities from GenericUtilitySkillsList: {e}")
+            if debug or constants.DEBUG: self.logger.information(f"Failed to load utilities from GenericUtilitySkillsList: {e}")
 
         if debug or constants.DEBUG:
             override_count = len(custom_overrides) if custom_overrides else 0
-            print(f"UtilitySkillFinder: Discovered {len(utilities_by_skill_id)} utility skills")
+            self.logger.information(f"UtilitySkillFinder: Discovered {len(utilities_by_skill_id)} utility skills")
             if override_count > 0:
-                print(f"  ({override_count} custom overrides)")
+                self.logger.information(f"  ({override_count} custom overrides)")
             for util in utilities_by_skill_id.values():
                 override_marker = " [CUSTOM]" if custom_overrides and util.custom_skill.skill_id in custom_overrides else ""
-                print(f"  - {util.custom_skill.skill_name}{override_marker}")
+                self.logger.information(f"  - {util.custom_skill.skill_name}{override_marker}")
 
         # Cache the result
         self._cached_result = utilities_by_skill_id
@@ -144,15 +146,15 @@ class UtilitySkillFinder:
                                     utilities.append(utility_instance)
                             except Exception as e:
                                 if constants.DEBUG:
-                                    print(f"Failed to instantiate {name}: {e}")
+                                    self.logger.information(f"Failed to instantiate {name}: {e}")
 
                 except ImportError as e:
                     if constants.DEBUG:
-                        print(f"Failed to import module {module_name}: {e}")
+                        self.logger.information(f"Failed to import module {module_name}: {e}")
 
         except ImportError as e:
             if constants.DEBUG:
-                print(f"Failed to import package {package_name}: {e}")
+                self.logger.information(f"Failed to import package {package_name}: {e}")
 
         return utilities
 
@@ -189,9 +191,9 @@ class UtilitySkillFinder:
             if 'skill' in str(e):
                 return None
             if constants.DEBUG:
-                print(f"Could not instantiate {utility_class.__name__}: {e}")
+                self.logger.information(f"Could not instantiate {utility_class.__name__}: {e}")
             return None
         except Exception as e:
             if constants.DEBUG:
-                print(f"Could not instantiate {utility_class.__name__} with default params: {e}")
+                self.logger.information(f"Could not instantiate {utility_class.__name__} with default params: {e}")
             return None

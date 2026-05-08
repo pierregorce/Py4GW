@@ -74,9 +74,9 @@ class FollowPartyLeaderUtility(CustomSkillUtilityBase):
             self.old_angle = party_leader_rotation_angle
 
         distance_from_leader = Utils.Distance((party_leader_position[0], party_leader_position[1]), Player.GetXY())
-        # print(f"is_party_leader_in_aggro {custom_behavior_helpers.Targets.is_party_leader_in_aggro()}")
-        # print(f"distance_from_leader {distance_from_leader}")
-        # print(f"max_distance_to_party_leader {max_distance_to_party_leader}")
+        # self.logger.information(f"is_party_leader_in_aggro {custom_behavior_helpers.Targets.is_party_leader_in_aggro()}")
+        # self.logger.information(f"distance_from_leader {distance_from_leader}")
+        # self.logger.information(f"max_distance_to_party_leader {max_distance_to_party_leader}")
         is_close_enough = distance_from_leader <= max_distance_to_party_leader
         is_party_leader_angle_changed = False
         if not is_party_leader_angle_changed and is_close_enough:

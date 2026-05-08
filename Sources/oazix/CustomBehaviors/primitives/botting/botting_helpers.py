@@ -9,7 +9,9 @@ from Py4GWCoreLib.py4gwcorelib_src.FSM import FSM
 from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
+logger = SimpleLogger.get_logger(__name__)
 
 class BottingHelpers:
     
@@ -48,7 +50,7 @@ class BottingHelpers:
             item_array = AgentArray.Filter.ByDistance(item_array, Player.GetXY(), Range.Spirit.value)
             for item_id in item_array:
                 name = Agent.GetNameByID(item_id)
-                # print(f"item {name}")
+                # logger.information(f"item {name}")
 
                 # Clean both strings to remove non-printable characters (like NULL bytes) and whitespace
                 name_cleaned = ''.join(char for char in name if char.isprintable()).strip()
@@ -56,13 +58,13 @@ class BottingHelpers:
                 
                 # Check if the cleaned strings match
                 if name_cleaned == item_name_cleaned:
-                    print("item found")
+                    logger.information("item found")
                     # item found
                     return item_id
             return None
 
         while not timeout.IsExpired():
-            print(f"looking for {item_name}")
+            logger.information(f"looking for {item_name}")
             item_id:int | None = search_item_id_by_name(item_name)
 
             if item_id is None:
@@ -73,7 +75,7 @@ class BottingHelpers:
             pos = Agent.GetXY(item_id)
             follow_success = yield from Routines.Yield.Movement.FollowPath([pos], timeout=6_000)
             if not follow_success:
-                print("Failed to follow path to loot item, next attempt.")
+                logger.information("Failed to follow path to loot item, next attempt.")
                 yield from custom_behavior_helpers.Helpers.wait_for(1000)
                 continue
             
@@ -90,7 +92,7 @@ class BottingHelpers:
                 # Yield control to prevent freezing and allow game state updates
                 yield from custom_behavior_helpers.Helpers.wait_for(50)
 
-        print(f"Nothing to loot after ({timeout_ms}ms), exiting.")
+        logger.information(f"Nothing to loot after ({timeout_ms}ms), exiting.")
         return False
 
     @staticmethod
@@ -106,16 +108,16 @@ class BottingHelpers:
             accounts = GLOBAL_CACHE.ShMem.GetAllAccountData()
             sender_email = Player.GetAccountEmail()
             for account in accounts:
-                print("Resigning account: " + account.AccountEmail)
+                logger.information("Resigning account: " + account.AccountEmail)
                 GLOBAL_CACHE.ShMem.SendMessage(sender_email, account.AccountEmail, SharedCommandType.Resign, (0,0,0,0))
                 yield from Routines.Yield.wait(50)
             yield from Routines.Yield.wait(4_000)
 
             loop_counter += 1
             if loop_counter > 4:
-                print(f"Resign attempts is too high ({loop_counter}), exiting.")
+                logger.information(f"Resign attempts is too high ({loop_counter}), exiting.")
                 return False
 
         yield
-        print(f"Resign duration too long (>{timeout_ms}ms), exiting.")
+        logger.information(f"Resign duration too long (>{timeout_ms}ms), exiting.")
         return False

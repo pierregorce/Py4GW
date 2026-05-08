@@ -42,14 +42,14 @@ class ExampleLongRunningReleasedUtility(CustomSkillUtilityBase):
         
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
-        # print("score is evaluated each game loop. regardless what we are doing in _execute.")
+        # self.logger.information("score is evaluated each game loop. regardless what we are doing in _execute.")
         return self.score_definition.get_score()
 
     @override
     def _execute(self, state: BehaviorState) -> Generator[Any, None, BehaviorResult]:
-        print("STOP_EXECUTION_ONCE_SCORE_NOT_HIGHEST start")
+        self.logger.information("STOP_EXECUTION_ONCE_SCORE_NOT_HIGHEST start")
         yield from self.wait_for_count(20)
-        print("STOP_EXECUTION_ONCE_SCORE_NOT_HIGHEST end")
+        self.logger.information("STOP_EXECUTION_ONCE_SCORE_NOT_HIGHEST end")
 
         # we keep executing the yield operation each game-loop
         # as long as score is high enough.
@@ -61,7 +61,7 @@ class ExampleLongRunningReleasedUtility(CustomSkillUtilityBase):
     @staticmethod
     def wait_for_count(number) -> Generator[Any, Any, bool]:
         for i in range(number):
-            print(f"counted {chr(ord('a') + i - 1)}")
+            self.logger.information(f"counted {chr(ord('a') + i - 1)}")
             yield 'wait'  # Pause and allow resumption while waiting
         return True
 

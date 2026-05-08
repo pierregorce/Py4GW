@@ -16,7 +16,6 @@ from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base i
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_execution_strategy import UtilitySkillExecutionStrategy
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
-
 class LootUtility(CustomSkillUtilityBase):
 
     def __init__(
@@ -85,7 +84,8 @@ class LootUtility(CustomSkillUtilityBase):
             return None
 
         loot_array = self._get_cached_loot_array()
-        # print(f"Loot array: {loot_array}")
+
+        # self.logger.information(f"Loot array: {loot_array}")
         if len(loot_array) == 0:
             self._last_eval_score = None
             return None
@@ -125,7 +125,7 @@ class LootUtility(CustomSkillUtilityBase):
             pos = Agent.GetXY(item_id)
             follow_success = yield from Routines.Yield.Movement.FollowPath([pos], timeout=6_000)
             if not follow_success:
-                print("Failed to follow path to loot item, halting.")
+                self.logger.information("Failed to follow path to loot item, halting.")
                 real_item_id = Agent.GetItemAgentItemID(item_id)
                 LootConfig().AddItemIDToBlacklist(real_item_id)
                 self.loot_cooldown_timer.Restart()

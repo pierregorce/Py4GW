@@ -54,7 +54,7 @@ class EbonBattleStandardOfWisdom(CustomSkillUtilityBase):
             return None # it doesn't worth moving, we are too far
 
         if gravity_center.agent_covered_count >= 2: 
-            if constants.DEBUG: print("EbonBattleStandardOfWisdomUtility: moving to a better place (gravity center).")
+            self.logger.information("EbonBattleStandardOfWisdomUtility: moving to a better place (gravity center).")
             return self.score_definition.get_score(gravity_center.agent_covered_count)
         return None
 
@@ -75,7 +75,7 @@ class EbonBattleStandardOfWisdom(CustomSkillUtilityBase):
                 tolerance=tolerance, 
                 log=True, 
                 timeout=4000, 
-                progress_callback=lambda progress: print(f"EbonBattleStandardOfWisdomUtility: progress: {progress}") if constants.DEBUG else None)
+                progress_callback=lambda progress: self.logger.information(f"EbonBattleStandardOfWisdomUtility: progress: {progress}") if constants.DEBUG else None)
         
         result = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result

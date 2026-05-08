@@ -31,7 +31,7 @@ class ShouldTargetPets(UtilitySkillTargetingModifier):
     def is_pet_under_effect(self, agent_id: int) -> bool:
         is_pet_under_effect = custom_behavior_helpers.Resources.is_ally_under_specific_effect(agent_id, self.parent_skill.skill_id)
         raise Exception("pet effects is not working for some reasons.")
-        print(f"pet {agent_id} under effect: {is_pet_under_effect}")
+        self.logger.information(f"pet {agent_id} under effect: {is_pet_under_effect}")
         return is_pet_under_effect
 
     @override

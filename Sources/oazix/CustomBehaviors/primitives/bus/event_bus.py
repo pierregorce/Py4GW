@@ -6,6 +6,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives import constants
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
 
 class EventBus:
@@ -15,6 +16,7 @@ class EventBus:
     Uses EventType enum for type safety.
     """
     def __init__(self):
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
         self._subscribers: Dict[EventType, List[Callable[[EventMessage], Generator[Any, Any, Any]]]] = defaultdict(list)
         self._subscriber_names: Dict[EventType, List[str]] = defaultdict(list)
         self._lock = threading.RLock()
@@ -38,7 +40,7 @@ class EventBus:
             ValueError: If subscriber_name is already registered for this event_type
         """
         if not isinstance(event_type, EventType) or not callback:
-            print(f"Invalid subscription parameters: event_type={event_type}, callback={callback}")
+            self.logger.information(f"Invalid subscription parameters: event_type={event_type}, callback={callback}")
             return False
         
         with self._lock:
@@ -50,7 +52,7 @@ class EventBus:
             self._subscribers[event_type].append(callback)
             self._subscriber_names[event_type].append(subscriber_name)
             if self._debug_mode:
-                print(f"Subscribed '{subscriber_name}' to event type '{event_type.name}'")
+                self.logger.information(f"Subscribed '{subscriber_name}' to event type '{event_type.name}'")
             return True
     
     def publish(self, event_type: EventType, current_state: BehaviorState, data: Any = None, publisher_name: str = "Unknown") -> Generator[Any, Any, bool]:
@@ -66,7 +68,7 @@ class EventBus:
             True if publishing was successful, False otherwise
         """
         if not isinstance(event_type, EventType):
-            print(f"Invalid event type from publisher '{publisher_name}': {event_type}")
+            self.logger.information(f"Invalid event type from publisher '{publisher_name}': {event_type}")
             return False
         
         message = EventMessage(type=event_type, current_state=current_state, data=data)
@@ -82,7 +84,7 @@ class EventBus:
             subscriber_names = self._subscriber_names[event_type].copy()
         
         if self._debug_mode:
-            print(f"Publishing event '{event_type.name}' from '{publisher_name}' with {len(subscribers)} subscribers")
+            self.logger.information(f"Publishing event '{event_type.name}' from '{publisher_name}' with {len(subscribers)} subscribers")
         
         # Notify subscribers (outside of lock to prevent deadlocks)
         success_count = 0
@@ -105,7 +107,7 @@ class EventBus:
                 subscriber_name = subscriber_names[i] if i < len(subscriber_names) else "Unknown"
                 cb_name = getattr(callback, "__qualname__", repr(callback))
                 cb_mod = getattr(callback, "__module__", "<unknown>")
-                print(
+                self.logger.information(
                     f"Error in subscriber '{subscriber_name}' for event '{event_type.name}': "
                     f"{type(e).__name__}: {e} | callback={cb_mod}.{cb_name}"
                 )
@@ -113,7 +115,7 @@ class EventBus:
                 raise
         
         if self._debug_mode and subscribers:
-            print(f"Event '{event_type.name}' delivered to {success_count}/{len(subscribers)} subscribers")
+            self.logger.information(f"Event '{event_type.name}' delivered to {success_count}/{len(subscribers)} subscribers")
         
         return True
     
@@ -155,10 +157,10 @@ class EventBus:
                     self._subscribers[event_type].pop(idx)
                     removed_count += 1
                     if self._debug_mode:
-                        print(f"Unsubscribed '{subscriber_name}' from event type '{event_type.name}'")
+                        self.logger.information(f"Unsubscribed '{subscriber_name}' from event type '{event_type.name}'")
 
         if self._debug_mode and removed_count > 0:
-            print(f"Total unsubscriptions for '{subscriber_name}': {removed_count}")
+            self.logger.information(f"Total unsubscriptions for '{subscriber_name}': {removed_count}")
 
         return removed_count
 
@@ -174,16 +176,16 @@ class EventBus:
                 self._subscribers.clear()
                 self._subscriber_names.clear()
                 if self._debug_mode:
-                    print(f"Cleared all event subscribers")
+                    self.logger.information(f"Cleared all event subscribers")
             else:
                 if not isinstance(event_type, EventType):
-                    print(f"Invalid event type: {event_type}")
+                    self.logger.information(f"Invalid event type: {event_type}")
                     return
                 if event_type in self._subscribers:
                     del self._subscribers[event_type]
                     del self._subscriber_names[event_type]
                     if self._debug_mode:
-                        print(f"Cleared subscribers for event type '{event_type.name}'")
+                        self.logger.information(f"Cleared subscribers for event type '{event_type.name}'")
     
     def get_message_history(self, event_type: Optional[EventType] = None, limit: Optional[int] = None) -> List[EventMessage]:
         """
@@ -201,7 +203,7 @@ class EventBus:
                 history = self._message_history.copy()
             else:
                 if not isinstance(event_type, EventType):
-                    print(f"Invalid event type: {event_type}")
+                    self.logger.information(f"Invalid event type: {event_type}")
                     return []
                 history = [msg for msg in self._message_history if msg.type == event_type]
             
@@ -214,13 +216,13 @@ class EventBus:
         """Enable or disable debug logging."""
         self._debug_mode = enabled
         if constants.DEBUG:
-            print(f"Debug mode {'enabled' if enabled else 'disabled'}")
+            self.logger.information(f"Debug mode {'enabled' if enabled else 'disabled'}")
     
     def set_max_history_size(self, size: int):
         """Set the maximum number of messages to keep in history."""
         if size < 0:
             if constants.DEBUG:
-                print(f"Invalid history size: {size}")
+                self.logger.information(f"Invalid history size: {size}")
             return
         
         with self._lock:
@@ -230,4 +232,4 @@ class EventBus:
                 self._message_history.pop(0)
         
         if constants.DEBUG:
-            print(f"Max history size set to {size}")
+            self.logger.information(f"Max history size set to {size}")

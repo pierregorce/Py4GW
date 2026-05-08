@@ -103,7 +103,7 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
             lock_acquired = yield from CustomBehaviorParty().get_shared_lock_manager().wait_aquire_lock(lock_key, timeout_seconds=30, lock_type=ShareLockType.ACTIONS)
             if not lock_acquired:
                 if constants.DEBUG:
-                    print(f"Fail acquiring lock {lock_key}.")
+                    self.logger.information(f"Fail acquiring lock {lock_key}.")
                 yield
                 return BehaviorResult.ACTION_SKIPPED
 
@@ -122,14 +122,14 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
         npc_dialog_visible = yield from request_blessing_npc_helper.wait_npc_dialog_visible(timeout_ms=3_500)
         if not npc_dialog_visible:
             if constants.DEBUG:
-                print("npc_dialog_visible FALSE")
+                self.logger.information("npc_dialog_visible FALSE")
             Keystroke.PressAndRelease(Key.Escape.value)
             return False
 
         result = yield from request_blessing_npc_helper.run_dialog_sequences(timeout_ms=3_500)
         if not result:
             if constants.DEBUG:
-                print("run_dialog_sequences FALSE.")
+                self.logger.information("run_dialog_sequences FALSE.")
             Keystroke.PressAndRelease(Key.Escape.value)
             return False
 
@@ -148,7 +148,7 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
                 tolerance=150,
                 log=constants.DEBUG,
                 timeout=10_000,
-                progress_callback=lambda progress: print(f"FollowPath take_near_blessing: progress: {progress}") if constants.DEBUG else None,
+                progress_callback=lambda progress: self.logger.information(f"FollowPath take_near_blessing: progress: {progress}") if constants.DEBUG else None,
                 custom_pause_fn=lambda: False)
 
     @override

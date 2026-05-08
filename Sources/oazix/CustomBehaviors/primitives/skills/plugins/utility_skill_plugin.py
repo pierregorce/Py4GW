@@ -2,6 +2,7 @@ from abc import abstractmethod
 from typing import Callable
 
 from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 class UtilitySkillPlugin:
@@ -18,6 +19,7 @@ class UtilitySkillPlugin:
     def __init__(self, parent_skill: CustomSkill, plugin_name: str):
         self.parent_skill_name: str = parent_skill.skill_name
         self.plugin_name: str = plugin_name
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
     @property
     @abstractmethod
@@ -40,16 +42,16 @@ class UtilitySkillPlugin:
         if not self.has_persistence(): return
         if self.parent_skill_name is None: raise Exception("parent_skill_name is None")
         PersistenceLocator().skills.write_for_account(str(self.parent_skill_name), self.plugin_name, self.data)
-        print(f"UtilitySkillCapability {self.__class__.__name__} saved for account.")
+        self.logger.information(f"UtilitySkillCapability {self.__class__.__name__} saved for account.")
 
     def persist_configuration_as_global(self):
         if not self.has_persistence(): return
         if self.parent_skill_name is None: raise Exception("parent_skill_name is None")
         PersistenceLocator().skills.write_global(str(self.parent_skill_name), self.plugin_name, self.data)
-        print(f"UtilitySkillCapability {self.__class__.__name__} saved as global.")
+        self.logger.information(f"UtilitySkillCapability {self.__class__.__name__} saved as global.")
 
     def delete_persisted_configuration(self):
         if not self.has_persistence(): return
         if self.parent_skill_name is None: raise Exception("parent_skill_name is None")
         PersistenceLocator().skills.delete(str(self.parent_skill_name), self.plugin_name)
-        print(f"UtilitySkillCapability {self.__class__.__name__} deleted.")
+        self.logger.information(f"UtilitySkillCapability {self.__class__.__name__} deleted.")

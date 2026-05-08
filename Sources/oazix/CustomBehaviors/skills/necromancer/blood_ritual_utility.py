@@ -89,7 +89,7 @@ class BloodRitualUtility(CustomSkillUtilityBase):
         PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
         PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
         PersistenceLocator().skills.write_for_account(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent", f"{self.required_target_mana_lower_than_percent:.2f}")
-        print("configuration saved for account")
+        self.logger.information("configuration saved for account")
 
     @override
     def persist_configuration_as_global(self):
@@ -97,7 +97,7 @@ class BloodRitualUtility(CustomSkillUtilityBase):
         PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent", f"{self.sacrifice_life_limit_percent:.2f}")
         PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute", str(self.sacrifice_life_limit_absolute))
         PersistenceLocator().skills.write_global(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent", f"{self.required_target_mana_lower_than_percent:.2f}")
-        print("configuration saved as global")
+        self.logger.information("configuration saved as global")
 
     @override
     def delete_persisted_configuration(self):
@@ -105,4 +105,4 @@ class BloodRitualUtility(CustomSkillUtilityBase):
         PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_percent")
         PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "sacrifice_life_limit_absolute")
         PersistenceLocator().skills.delete(str(self.custom_skill.skill_name), "required_target_mana_lower_than_percent")
-        print("configuration deleted")
+        self.logger.information("configuration deleted")

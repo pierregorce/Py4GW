@@ -51,7 +51,7 @@ class TogetherAsOneUtility(CustomSkillUtilityBase):
             gravity_center: custom_behavior_helpers.GravityCenter | None = custom_behavior_helpers.Targets.find_optimal_gravity_center(Range.Area, agent_ids=agent_ids)
             if gravity_center is not None:
                 if gravity_center.distance_from_player < Range.Area.value: # else it doesn't worth moving, we are too far
-                    if constants.DEBUG: print("TogetherAsOneUtility: moving to a better place (gravity center).")
+                    self.logger.information("TogetherAsOneUtility: moving to a better place (gravity center).")
                     exit_condition: Callable[[], bool] = lambda: False
                     tolerance: float = 100
                     path_points: list[tuple[float, float]] = [gravity_center.coordinates]
@@ -61,7 +61,7 @@ class TogetherAsOneUtility(CustomSkillUtilityBase):
                         tolerance=tolerance, 
                         log=True, 
                         timeout=4000, 
-                        progress_callback=lambda progress: print(f"TogetherAsOneUtility: progress: {progress}") if constants.DEBUG else None)
+                        progress_callback=lambda progress: self.logger.information(f"TogetherAsOneUtility: progress: {progress}") if constants.DEBUG else None)
         
         result = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result

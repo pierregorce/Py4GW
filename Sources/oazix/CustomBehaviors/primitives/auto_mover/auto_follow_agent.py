@@ -6,6 +6,7 @@ from Py4GWCoreLib.py4gwcorelib_src.Utils import Utils
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.botting.botting_manager import BottingManager
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
 
 
@@ -20,6 +21,7 @@ class AutoFollowAgent:
 
     def __init__(self):
         if not self._initialized:
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
             self._initialized = True
             self.generator: Generator[Any, None, Any] | None = None
             self.is_active: bool = False
@@ -34,7 +36,7 @@ class AutoFollowAgent:
     def start(self, agent_id: int, follow_distance: float = 300.0):
         """Start following the specified agent_id."""
         if not Agent.IsValid(agent_id):
-            print(f"AutoFollowAgentId: Invalid agent_id {agent_id}")
+            self.logger.information(f"AutoFollowAgentId: Invalid agent_id {agent_id}")
             return
 
         self.target_agent_id = agent_id
@@ -44,7 +46,7 @@ class AutoFollowAgent:
         self.generator = self.__create_generator()
 
         if constants.DEBUG:
-            print(f"AutoFollowAgentId: Started following agent {agent_id} with distance {follow_distance}")
+            self.logger.information(f"AutoFollowAgentId: Started following agent {agent_id} with distance {follow_distance}")
 
     def __create_generator(self) -> Generator[None, None, None]:
         """Generator that continuously follows the target agent."""
@@ -52,7 +54,7 @@ class AutoFollowAgent:
         # Setup combat behavior utilities
         instance: CustomBehaviorBaseUtility | None = CustomBehaviorLoader().custom_combat_behavior
         if instance is None:
-            print("AutoFollowAgentId: No combat behavior instance available")
+            self.logger.information("AutoFollowAgentId: No combat behavior instance available")
             return
 
         # Inject utility skills for movement using configurable list
@@ -60,20 +62,20 @@ class AutoFollowAgent:
         config.inject_enabled_skills(config.get_enabled_automover_skills(), instance)
 
         if constants.DEBUG:
-            print(f"AutoFollowAgentId: Injected utility skills")
+            self.logger.information(f"AutoFollowAgentId: Injected utility skills")
 
         # Main follow loop
         while True:
             # Check if agent is still valid
             if not Agent.IsValid(self.target_agent_id):
                 if constants.DEBUG:
-                    print(f"AutoFollowAgentId: Agent {self.target_agent_id} is no longer valid, stopping")
+                    self.logger.information(f"AutoFollowAgentId: Agent {self.target_agent_id} is no longer valid, stopping")
                 break
 
             # Check if player is dead
             if Agent.IsDead(Player.GetAgentID()):
                 if constants.DEBUG:
-                    print("AutoFollowAgentId: Player is dead, stopping")
+                    self.logger.information("AutoFollowAgentId: Player is dead, stopping")
                 break
 
             # Get positions
@@ -90,7 +92,7 @@ class AutoFollowAgent:
                 self.movement_progress = max(0, min(100, (1 - (distance - self.follow_distance) / max_distance) * 100))
 
             if constants.DEBUG:
-                print(f"AutoFollowAgentId: Distance to agent: {distance:.1f}, Progress: {self.movement_progress:.1f}%")
+                self.logger.information(f"AutoFollowAgentId: Distance to agent: {distance:.1f}, Progress: {self.movement_progress:.1f}%")
 
             # If within follow distance, just wait
             if distance <= self.follow_distance:
@@ -101,7 +103,7 @@ class AutoFollowAgent:
             path = [player_pos, agent_pos]
 
             if constants.DEBUG:
-                print(f"AutoFollowAgentId: Moving from {player_pos} to {agent_pos}")
+                self.logger.information(f"AutoFollowAgentId: Moving from {player_pos} to {agent_pos}")
 
             # Create pause function for combat utilities
             custom_pause_fn = lambda: instance.is_executing_utility_skills() == True
@@ -124,7 +126,7 @@ class AutoFollowAgent:
             yield from Routines.Yield.wait(self.update_interval_ms)
 
         if constants.DEBUG:
-            print("AutoFollowAgentId: Follow loop ended")
+            self.logger.information("AutoFollowAgentId: Follow loop ended")
 
     def stop(self):
         """Stop following and cleanup."""
@@ -138,19 +140,19 @@ class AutoFollowAgent:
             instance.clear_additionnal_utility_skills()
 
         if constants.DEBUG:
-            print("AutoFollowAgentId: Stopped following")
+            self.logger.information("AutoFollowAgentId: Stopped following")
 
     def pause(self):
         """Pause following."""
         self.is_active = False
         if constants.DEBUG:
-            print("AutoFollowAgentId: Paused")
+            self.logger.information("AutoFollowAgentId: Paused")
 
     def resume(self):
         """Resume following."""
         self.is_active = True
         if constants.DEBUG:
-            print("AutoFollowAgentId: Resumed")
+            self.logger.information("AutoFollowAgentId: Resumed")
 
     def is_paused(self) -> bool:
         """Check if following is paused."""
@@ -176,13 +178,13 @@ class AutoFollowAgent:
         try:
             next(self.generator)
             if constants.DEBUG:
-                print(f"AutoFollowAgentId: Follow step completed")
+                self.logger.information(f"AutoFollowAgentId: Follow step completed")
         except StopIteration:
             if constants.DEBUG:
-                print("AutoFollowAgentId: Following completed")
+                self.logger.information("AutoFollowAgentId: Following completed")
             self.stop()
         except Exception as e:
-            print(f"AutoFollowAgentId: Following error: {e}")
+            self.logger.information(f"AutoFollowAgentId: Following error: {e}")
             self.stop()
 
     # Agent selection methods for UI

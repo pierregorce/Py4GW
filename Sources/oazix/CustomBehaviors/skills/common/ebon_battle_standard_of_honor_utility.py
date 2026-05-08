@@ -66,7 +66,7 @@ class EbonBattleStandardOfHonorUtility(CustomSkillUtilityBase):
             if self.previous_state != BehaviorState.IN_AGGRO and current_state == BehaviorState.IN_AGGRO:
                 # Combat just started - reset the timer
                 self.combat_start_timer.Reset()
-                print("EbonBattleStandardOfHonorUtility: Combat started, waiting 5 seconds before casting")
+                self.logger.information("EbonBattleStandardOfHonorUtility: Combat started, waiting 5 seconds before casting")
             self.previous_state = current_state
 
         # If we're in combat and the timer hasn't expired yet, don't cast
@@ -77,7 +77,7 @@ class EbonBattleStandardOfHonorUtility(CustomSkillUtilityBase):
         gravity_center: custom_behavior_helpers.GravityCenter | None = custom_behavior_helpers.Targets.find_optimal_gravity_center(Range.Area, agent_ids=agent_ids)
         if gravity_center is None: return None
         if gravity_center.distance_from_player > Range.Area.value: # else it doesn't worth moving, we are too far
-            # if self.DEBUG: print("EbonBattleStandardOfHonorUtility: moving to a better place (gravity center).")
+            # if self.DEBUG: self.logger.information("EbonBattleStandardOfHonorUtility: moving to a better place (gravity center).")
             return None # it doesn't worth moving, we are too far
 
         if gravity_center.agent_covered_count >= 1: return self.score_definition.get_score(gravity_center.agent_covered_count)
@@ -99,7 +99,7 @@ class EbonBattleStandardOfHonorUtility(CustomSkillUtilityBase):
                 custom_exit_condition=exit_condition, 
                 tolerance=tolerance, log=True, 
                 timeout=4000, 
-                progress_callback=lambda progress: print(f"EbonBattleStandardOfHonorUtility: progress: {progress}"))
+                progress_callback=lambda progress: self.logger.information(f"EbonBattleStandardOfHonorUtility: progress: {progress}"))
             
         result = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result 

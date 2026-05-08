@@ -11,6 +11,7 @@ from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_hel
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.casting.casting_observer import CastingObserver
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.health_level_observer import HealthLevelObserver
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.disabilities_observer import PartyDisabilityObserver
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_handler_manager import PartyCommandHandlerManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_flagging_manager import PartyFlaggingManager
@@ -38,6 +39,7 @@ class CustomBehaviorParty:
     def __init__(self):
         if not self._initialized:
             self._initialized = True
+            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
             self._generator_handle = self._handle()
             
             self.party_command_handler_manager = PartyCommandHandlerManager()
@@ -47,7 +49,7 @@ class CustomBehaviorParty:
             self.party_flagging_manager = PartyFlaggingManager()
 
             # Rename GW windows to match custom behavior party names on load
-            print("CustomBehaviorParty: Renaming GW windows")
+            self.logger.information("CustomBehaviorParty: Renaming GW windows")
             CustomBehaviorParty().schedule_action(PartyCommandConstants.rename_gw_windows)
 
             self.throttler = ThrottledTimer(50)
@@ -97,9 +99,9 @@ class CustomBehaviorParty:
         try:
             next(self._generator_handle)
         except StopIteration:
-            print(f"CustomBehaviorParty.act is not expected to StopIteration.")
+            self.logger.information(f"CustomBehaviorParty.act is not expected to StopIteration.")
         except Exception as e:
-            print(f"CustomBehaviorParty.act is not expected to exit : {e}")
+            self.logger.information(f"CustomBehaviorParty.act is not expected to exit : {e}")
 
     def schedule_action(self, action_gen: Callable[[], Generator]) -> bool:
         """Schedule a generator action. Returns True if accepted, False if busy."""

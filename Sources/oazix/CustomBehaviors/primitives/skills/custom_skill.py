@@ -2,6 +2,7 @@ from HeroAI.custom_skill import CustomSkillClass
 from Py4GWCoreLib import GLOBAL_CACHE
 from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives import constants
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_nature import CustomSkillNature
 
 class CustomSkill:
@@ -14,13 +15,14 @@ class CustomSkill:
         nature_value:int = CustomSkill.custom_skill_class.get_skill(self.skill_id).Nature
         self.skill_nature:CustomSkillNature = CustomSkillNature(nature_value)
         self.skill_slot:int = GLOBAL_CACHE.SkillBar.GetSlotBySkillID(self.skill_id) if self.skill_id != 0 else 0
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
         if constants.DEBUG:
             if self.skill_id == 0:
-                print(f"Warning loading {skill_name} gave no skill id")
+                self.logger.information(f"Warning loading {skill_name} gave no skill id")
 
             if self.skill_slot == 0:
-                print(f"Warning loading {self.skill_id} {skill_name} gave no skill slot")
+                self.logger.information(f"Warning loading {self.skill_id} {skill_name} gave no skill slot")
 
     def get_texture(self) -> str:
 

@@ -95,21 +95,21 @@ class MoveToDistantChestIfPathExistsUtility(CustomSkillUtilityBase):
         chest_agent_id = Routines.Agents.GetNearestChest(3000)
         player_position = Agent.GetXYZ(Player.GetAgentID())
         chest_position = Agent.GetXY(chest_agent_id)
-        print(f"chest_agent_id {chest_agent_id}")
+        self.logger.information(f"chest_agent_id {chest_agent_id}")
 
         zplane = Agent.GetZPlane(Player.GetAgentID())
         path3d = yield from AutoPathing().get_path((player_position[0], player_position[1], zplane), (chest_position[0], chest_position[1], zplane),smooth_by_los=True, margin=100.0, step_dist=300.0)
         path_flatten:list[tuple[float, float]] = [(px, py) for (px, py, pz) in path3d]
 
-        print(f"path found {path3d}")
+        self.logger.information(f"path found {path3d}")
 
         if(self._get_path_distance(path_flatten) > 2500):
-            print(f"path too long... we don't want to move so far.")
+            self.logger.information(f"path too long... we don't want to move so far.")
             # todo we must give that chest another chance. but with a throttle
             self.throttle_timer.Reset()
             return BehaviorResult.ACTION_SKIPPED
 
-        print("MoveToCloseChestIfPathExistsUtility")
+        self.logger.information("MoveToCloseChestIfPathExistsUtility")
         exit_condition: Callable[[], bool] = lambda: False
 
         # exit condition must be done differently, we need to know, if something else is scoring higher.
@@ -120,13 +120,13 @@ class MoveToDistantChestIfPathExistsUtility(CustomSkillUtilityBase):
             tolerance=100, 
             log=True, 
             timeout=5_000, 
-            progress_callback=lambda progress: print(f"MoveToCloseChestIfPathExistsUtility: progress: {progress}") if constants.DEBUG else None)
+            progress_callback=lambda progress: self.logger.information(f"MoveToCloseChestIfPathExistsUtility: progress: {progress}") if constants.DEBUG else None)
 
         if result == False:
             self.throttle_timer.Reset()
             return BehaviorResult.ACTION_SKIPPED
 
-        print(f"chest reached:{chest_agent_id}")
+        self.logger.information(f"chest reached:{chest_agent_id}")
         self.throttle_timer.Reset()
         return BehaviorResult.ACTION_PERFORMED
 

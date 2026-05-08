@@ -58,7 +58,7 @@ class IcyVeinsUtility(CustomSkillUtilityBase):
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:
         target = self._get_best_target()
         if target is None:
-            if constants.DEBUG: print("No candidates")
+            self.logger.information("No candidates")
             return None
 
         mult = 0.5

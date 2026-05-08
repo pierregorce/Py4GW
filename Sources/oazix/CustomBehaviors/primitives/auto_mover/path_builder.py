@@ -2,6 +2,7 @@ from typing import Any, Generator
 
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_helper import PathHelper
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
 
 class PathBuilder:
@@ -10,14 +11,15 @@ class PathBuilder:
         self.__waypoint_list: list[tuple[float, float]] = []
         self.__generator_handle = None
         self.__is_generating = False
+        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
 
     def generate_autopathing(self) -> Generator[None, None, None]:
         try:
             path = yield from PathHelper.build_valid_path(self.__waypoint_list)
             self.__final_path_2d = path
-            if constants.DEBUG: print(f"generate_autopathing completed with {len(path)} points")
+            self.logger.information(f"generate_autopathing completed with {len(path)} points")
         except Exception as e:
-            if constants.DEBUG: print(f"generate_autopathing error: {e}")
+            self.logger.information(f"generate_autopathing error: {e}")
             self.__final_path_2d = []
         return
 
@@ -33,7 +35,7 @@ class PathBuilder:
         if not self.__is_generating and len(self.__waypoint_list) >= 2:
             self.__generator_handle = self.generate_autopathing()
             self.__is_generating = True
-            if constants.DEBUG: print("Started path generation")
+            self.logger.information("Started path generation")
 
     def process_generation(self):
         """Process the path generation generator. Call this in the main loop."""
@@ -41,11 +43,11 @@ class PathBuilder:
             try:
                 next(self.__generator_handle)
             except StopIteration:
-                if constants.DEBUG: print("Path generation completed")
+                self.logger.information("Path generation completed")
                 self.__is_generating = False
                 self.__generator_handle = None
             except Exception as e:
-                if constants.DEBUG: print(f"Path generation error: {e}")
+                self.logger.information(f"Path generation error: {e}")
                 self.__is_generating = False
                 self.__generator_handle = None
                 self.__final_path_2d = []

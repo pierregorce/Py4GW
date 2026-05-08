@@ -5,10 +5,12 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.ImGui_src.IconsFontAwesome5 import IconsFontAwesome5
 from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 from Sources.oazix.CustomBehaviors.primitives.parties.party_following_manager import PartyFollowingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import MAX_FLAG_POSITIONS
 from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
 
+logger = SimpleLogger.get_logger(__name__)
 
 class FollowingPanel:
     _forces_initialized: bool = False
@@ -304,7 +306,7 @@ class FollowingPanel:
             persistence.write_force_settings(email, allies_repulsion, leader_attraction, enemies_repulsion)
             saved_count += 1
 
-        print(f"Persisted forces configuration for {saved_count} account(s)")
+        logger.information(f"Persisted forces configuration for {saved_count} account(s)")
 
     @staticmethod
     def _reset_all_forces(following_manager: PartyFollowingManager) -> None:
@@ -316,7 +318,7 @@ class FollowingPanel:
         persistence = PersistenceLocator().following
         persistence.clear_all_force_settings()
 
-        print("Reset all forces to defaults and cleared persistence")
+        logger.information("Reset all forces to defaults and cleared persistence")
 
     @staticmethod
     def _load_forces_from_persistence(following_manager: PartyFollowingManager) -> None:
@@ -334,4 +336,4 @@ class FollowingPanel:
             loaded_count += 1
 
         if loaded_count > 0:
-            if constants.DEBUG: print(f"Loaded forces configuration for {loaded_count} account(s) from persistence")
+            logger.information(f"Loaded forces configuration for {loaded_count} account(s) from persistence")
