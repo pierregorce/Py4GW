@@ -13,7 +13,7 @@ from Py4GWCoreLib import AgentArray, Player
 from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer
 from Py4GWCoreLib.enums import Allegiance, Range
 from Py4GWCoreLib.Agent import Agent
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.verify_blessing_helper import VerifyBlessingHelper
 
@@ -91,10 +91,9 @@ def _generic_dialog_sequence(npc_result: tuple[RequestBlessingNpcHelper, int], t
     sequence_choices = [1]
     for sequence_choice in sequence_choices:
         while not throttle_timer.IsExpired():
-            click_result = UIManager.ClickDialogButton(choice=sequence_choice, debug=constants.DEBUG)
+            click_result = UIManager.ClickDialogButton(choice=sequence_choice, debug=True)
             if not click_result:
-                if constants.DEBUG:
-                    print(f"impossible to click_dialog_button {sequence_choice}.")
+                print(f"impossible to click_dialog_button {sequence_choice}.")
                 return False
             yield from custom_behavior_helpers.Helpers.wait_for(500)
     return True
@@ -102,14 +101,12 @@ def _generic_dialog_sequence(npc_result: tuple[RequestBlessingNpcHelper, int], t
 
 def _norn_sequence(npc_result: tuple[RequestBlessingNpcHelper, int], timeout_ms: int) -> Generator[Any, None, bool]:
     """Norn blessing sequence - may require fighting."""
-    if constants.DEBUG:
-        print(f"start _norn_sequence")
+    print(f"start _norn_sequence")
 
     # Stage 1: wait for challenge dialog
-    click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+    click_result = UIManager.ClickDialogButton(choice=1, debug=True)
     if not click_result:
-        if constants.DEBUG:
-            print(f"impossible to click_dialog_button 1.")
+        print(f"impossible to click_dialog_button 1.")
         return False
 
     # Stage 2: either already blessed or wait for hostility
@@ -120,15 +117,13 @@ def _norn_sequence(npc_result: tuple[RequestBlessingNpcHelper, int], timeout_ms:
     # Stage 3: wait until friendly again
     wait_result = yield from _wait_until_friendly_again(npc_result, timeout_ms)
     if not wait_result:
-        if constants.DEBUG:
-            print(f"impossible to wait_until_friendly_again 1.")
+        print(f"impossible to wait_until_friendly_again 1.")
         return False
 
     # Stage 4: final interact & blessing
-    click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+    click_result = UIManager.ClickDialogButton(choice=1, debug=True)
     if not click_result:
-        if constants.DEBUG:
-            print(f"impossible to click_dialog_button 1.")
+        print(f"impossible to click_dialog_button 1.")
         return False
 
     return True
@@ -147,66 +142,54 @@ def _wait_until_friendly_again(npc_result: tuple[RequestBlessingNpcHelper, int],
 def _kurzick_luxon_sequence(npc_result: tuple[RequestBlessingNpcHelper, int], timeout_ms: int) -> Generator[Any, None, bool]:
     """Kurzick/Luxon blessing sequence with donation handling."""
     # Stage 1: initial request → click 1
-    click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+    click_result = UIManager.ClickDialogButton(choice=1, debug=True)
     if not click_result:
-        if constants.DEBUG:
-            print(f"impossible to click_dialog_button 1.")
+        print(f"impossible to click_dialog_button 1.")
         return False
     yield from custom_behavior_helpers.Helpers.wait_for(500)
 
     # Stage 2: donation menu appears → decide bribe vs no-bribe
-    count = UIManager.GetDialogButtonCount(constants.DEBUG)
-    if constants.DEBUG:
-        print(f"get_dialog_button_count = {count}")
+    count = UIManager.GetDialogButtonCount(True)
+    print(f"get_dialog_button_count = {count}")
 
     if count == 3:
         # bribe path
-        if constants.DEBUG:
-            print(f"{npc_result[0].display_name}: click 2 (high donation)")
-        click_result = UIManager.ClickDialogButton(choice=2, debug=constants.DEBUG)
+        print(f"{npc_result[0].display_name}: click 2 (high donation)")
+        click_result = UIManager.ClickDialogButton(choice=2, debug=True)
         if not click_result:
-            if constants.DEBUG:
-                print(f"impossible to click_dialog_button 2.")
+            print(f"impossible to click_dialog_button 2.")
             return False
         yield from custom_behavior_helpers.Helpers.wait_for(500)
     else:
         # no-bribe path: just close
-        if constants.DEBUG:
-            print(f"{npc_result[0].display_name}: click 1 (no bribe)")
-        click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+        print(f"{npc_result[0].display_name}: click 1 (no bribe)")
+        click_result = UIManager.ClickDialogButton(choice=1, debug=True)
         if not click_result:
-            if constants.DEBUG:
-                print(f"impossible to click_dialog_button 1.")
+            print(f"impossible to click_dialog_button 1.")
             return False
         return True
 
     # Stage 3: confirm large donation → click "1"
-    if constants.DEBUG:
-        print(f"{npc_result[0].display_name}: click 1 (confirm large donation)")
-    click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+    print(f"{npc_result[0].display_name}: click 1 (confirm large donation)")
+    click_result = UIManager.ClickDialogButton(choice=1, debug=True)
     if not click_result:
-        if constants.DEBUG:
-            print(f"impossible to click_dialog_button 1.")
+        print(f"impossible to click_dialog_button 1.")
         return False
     yield from custom_behavior_helpers.Helpers.wait_for(500)
 
     # Stage 4: final close → click "1" or immediate verify
-    if constants.DEBUG:
-        print(f"{npc_result[0].display_name}: click 1 (final close)")
-    click_result = UIManager.ClickDialogButton(choice=1, debug=constants.DEBUG)
+    print(f"{npc_result[0].display_name}: click 1 (final close)")
+    click_result = UIManager.ClickDialogButton(choice=1, debug=True)
     if not click_result:
-        if constants.DEBUG:
-            print(f"impossible to click_dialog_button 1.")
+        print(f"impossible to click_dialog_button 1.")
         return False
     yield from custom_behavior_helpers.Helpers.wait_for(500)
 
     if VerifyBlessingHelper.has_any_blessing(Player.GetAgentID()):
-        if constants.DEBUG:
-            print("has_any_blessing=True")
+        print("has_any_blessing=True")
         return True
     else:
-        if constants.DEBUG:
-            print("has_any_blessing=False")
+        print("has_any_blessing=False")
         return False
 
 
@@ -226,15 +209,13 @@ def run_dialog_sequences(timeout_ms: int) -> Generator[Any, None, bool]:
     npc_result: tuple[RequestBlessingNpcHelper, int] | None = find_first_blessing_npc(Range.Earshot.value)
     if npc_result is None:
         return False
-    if constants.DEBUG:
-        print(f"npc_result:{npc_result}")
+    print(f"npc_result:{npc_result}")
     npc: RequestBlessingNpcHelper = npc_result[0]
 
     sequence_execution = DIALOG_SEQUENCES.get(npc, None)
     if sequence_execution is None:
         sequence_execution = _generic_dialog_sequence
-    if constants.DEBUG:
-        print(f"sequence_execution:{sequence_execution}")
+    print(f"sequence_execution:{sequence_execution}")
 
     generator = sequence_execution(npc_result, timeout_ms)
     result = yield from generator

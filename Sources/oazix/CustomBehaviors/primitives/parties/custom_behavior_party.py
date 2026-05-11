@@ -9,9 +9,9 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.casting.casting_observer import CastingObserver
-from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.health_level_observer import HealthLevelObserver
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.disabilities_observer import PartyDisabilityObserver
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.event_observer.event_observer import EventObserver
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_handler_manager import PartyCommandHandlerManager
 from Sources.oazix.CustomBehaviors.primitives.parties.party_flagging_manager import PartyFlaggingManager
@@ -39,7 +39,7 @@ class CustomBehaviorParty:
     def __init__(self):
         if not self._initialized:
             self._initialized = True
-            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+            self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
             self._generator_handle = self._handle()
             
             self.party_command_handler_manager = PartyCommandHandlerManager()
@@ -47,6 +47,8 @@ class CustomBehaviorParty:
             self.party_following_manager = PartyFollowingManager()
             self.party_shared_lock_manager = CustomBehaviorWidgetMemoryManager().GetSharedLockManager()
             self.party_flagging_manager = PartyFlaggingManager()
+
+            self.event_observer = EventObserver.setup_registrations()
 
             # Rename GW windows to match custom behavior party names on load
             self.logger.information("CustomBehaviorParty: Renaming GW windows")
@@ -63,8 +65,7 @@ class CustomBehaviorParty:
 
             # Observers
             PartyDisabilityObserver().act()
-            HealthLevelObserver().act()
-            CastingObserver().act()
+            CastingObserver().act() 
 
             # # ------------------------------ Custom party target ------------------------------
             if custom_behavior_helpers.CustomBehaviorHelperParty.is_party_leader():

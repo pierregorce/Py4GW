@@ -3,7 +3,8 @@ from collections import deque
 from datetime import datetime
 from Py4GWCoreLib import IconsFontAwesome5, ImGui, PyImGui, Player
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import SharedLockHistory, SharedLockManager
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
@@ -28,10 +29,10 @@ def render():
 
                 PyImGui.table_next_row()
                 PyImGui.table_next_column()
-                texture_file = PathLocator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\lock_released.png"
+                texture_file = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\lock_released.png"
                 
                 if result.released_at is None:
-                    texture_file = PathLocator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\lock_taken.png"
+                    texture_file = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\lock_taken.png"
 
                 ImGui.DrawTexture(texture_file, 30, 30)
                 PyImGui.table_next_column()

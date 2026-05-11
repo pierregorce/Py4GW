@@ -13,17 +13,17 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_ta
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.disabilities_allies_scoring import DisabilitiesAlliesScoring
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
 from Sources.oazix.CustomBehaviors.primitives.helpers.sortable_agent_data import SortableAgentData
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 from Py4GWCoreLib import GLOBAL_CACHE, Agent, Player, Overlay, SkillBar, ActionQueueManager, Routines, Range, Utils, SPIRIT_BUFF_MAP, SpiritModelID, AgentArray
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_party import CustomBehaviorHelperParty
 from Sources.oazix.CustomBehaviors.primitives.helpers.eval_profiler import EvalProfiler
 
-logger = SimpleLogger.get_logger(__name__)
+logger = ExternalDependencyFactory().external_logger_factory.get_logger(__name__)
 
 @dataclass
 class SpiritAgentData:
@@ -470,7 +470,7 @@ class Targets:
         find position that will cover max allies within range
         '''
         with EvalProfiler().measure("gravity_center"):
-            OVERLAY_DEBUG = constants.DEBUG
+            OVERLAY_DEBUG = True
             player_x, player_y, player_z = Agent.GetXYZ(Player.GetAgentID()) #cached_data.data.player_xyz # needs to be live
             if OVERLAY_DEBUG: Overlay().BeginDraw()
 

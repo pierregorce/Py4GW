@@ -5,10 +5,11 @@ import os
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.EnemyBlacklist import draw_blacklist_ui
 from Py4GWCoreLib.ImGui_src.IconsFontAwesome5 import IconsFontAwesome5
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.botting.botting_manager import BottingManager
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 # Global state for bot selection and control
 _selected_bot_index = 0
@@ -29,7 +30,7 @@ def _scan_bot_scripts():
     if _bot_scripts_cache is not None and (current_time - _last_scan_time) < 5:
         return _bot_scripts_cache
 
-    bots_folder = PathLocator.get_custom_behaviors_root_directory() + "\\bots"
+    bots_folder = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + "\\bots"
     bot_scripts = []
 
     try:

@@ -2,12 +2,13 @@ import os
 
 from Py4GWCoreLib import IconsFontAwesome5, ImGui, PyImGui
 from Py4GWCoreLib.Py4GWcorelib import Color, Utils
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology_color import UtilitySkillTypologyColor
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
@@ -20,7 +21,7 @@ def get_skill_texture_with_fallback(texture_path: str) -> str:
     """Returns the texture path if it exists, otherwise returns the fallback texture."""
     if texture_path and os.path.exists(texture_path):
         return texture_path
-    return PathLocator.get_texture_fallback()
+    return ExternalDependencyFactory().path_locator.get_texture_fallback()
 
 @staticmethod
 def render():
@@ -34,13 +35,12 @@ def render():
             CustomBehaviorLoader().refresh_custom_behavior_candidate()
         return
 
-    if constants.DEBUG:
-        # PyImGui.same_line(0, 10)
-        PyImGui.text(f"HasLoaded : {CustomBehaviorLoader()._has_loaded}")
-        # PyImGui.same_line(0, 10)
-        if CustomBehaviorLoader().custom_combat_behavior is not None:
-            PyImGui.text(f"IsExecutingUtilitySkills:{CustomBehaviorLoader().custom_combat_behavior.is_executing_utility_skills()}")
-        pass
+    # PyImGui.same_line(0, 10)
+    PyImGui.text(f"HasLoaded : {CustomBehaviorLoader()._has_loaded}")
+    # PyImGui.same_line(0, 10)
+    if CustomBehaviorLoader().custom_combat_behavior is not None:
+        PyImGui.text(f"IsExecutingUtilitySkills:{CustomBehaviorLoader().custom_combat_behavior.is_executing_utility_skills()}")
+    pass
 
     if CustomBehaviorLoader().custom_combat_behavior is not None:
         PyImGui.text(f"Selected template : {CustomBehaviorLoader().custom_combat_behavior.__class__.__name__}")
@@ -128,7 +128,7 @@ def render():
                                 PyImGui.pop_style_var(1)
                                 PyImGui.pop_style_color(1)
                                 PyImGui.same_line(10, 0)
-                                ImGui.DrawTexture(PathLocator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\x.png", 20, 20)
+                                ImGui.DrawTexture(ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\x.png", 20, 20)
 
                             PyImGui.table_next_column()
                             skill : CustomSkillUtilityBase = score[0]

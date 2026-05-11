@@ -2,7 +2,6 @@ from typing import cast
 from Py4GWCoreLib import AgentArray, Agent, Player, Range, Utils
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.tarteging_enemy_allegiance import TargetingEnemyAllegiance
-from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 
 
@@ -156,6 +155,9 @@ class TargetingEnemyCore:
         agents: list[TargetingEnemyData] = list(self.__get_enemies_by_distance(source_pos, within_range))
 
         # if following mode activated :
+        # Import here to avoid circular import
+        from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
+
         is_following_enabled = CustomBehaviorParty().get_party_is_following_enabled()
         is_flag_defined = CustomBehaviorParty().party_flagging_manager.is_flag_defined(Player.GetAccountEmail())
 

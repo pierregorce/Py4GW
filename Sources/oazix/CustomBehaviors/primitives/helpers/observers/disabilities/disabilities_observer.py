@@ -2,10 +2,10 @@
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.GlobalCache.shared_memory_src.AccountStruct import AccountStruct
 from Py4GWCoreLib.GlobalCache.shared_memory_src.BuffStruct import BuffUnitStruct
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.agent_disability_live_data import AgentDisabilityLiveData
 from Sources.oazix.CustomBehaviors.primitives.helpers.observers.disabilities.agent_disability_static_data import AgentDisabilityStaticData
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 class PartyDisabilityObserver():
     """
@@ -21,7 +21,7 @@ class PartyDisabilityObserver():
 
     def __init__(self):
         if not self._initialized:
-            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+            self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
             self._skillbar_static_data_by_skillbar_name: dict[str, AgentDisabilityStaticData] = {}
             self._skillbar_live_data_by_agent_id: dict[int, AgentDisabilityLiveData] = {}
 

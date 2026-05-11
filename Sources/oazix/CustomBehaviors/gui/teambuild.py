@@ -9,6 +9,7 @@ from Py4GWCoreLib.ImGui import ImGui
 from Py4GWCoreLib.enums import Attribute
 
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.party_teambuild_manager import SkillbarData
 
@@ -50,7 +51,8 @@ def get_skill_name(skill_id):
 def get_skill_texture_path(skill_id):
     """Get skill icon texture path"""
     try:
-        return GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(skill_id)
+        texture_file = ExternalDependencyFactory().path_locator.get_project_root_directory() + "\\" + GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(skill_id)
+        return texture_file
     except:
         return ""
 
@@ -314,6 +316,10 @@ def render():
         # Secondary profession
         if secondary_texture:
             ImGui.DrawTexture(secondary_texture, 28, 28)
+
+        PyImGui.new_line()
+        PyImGui.new_line()
+
 
         for skill_row_idx in range(0, 8):
 

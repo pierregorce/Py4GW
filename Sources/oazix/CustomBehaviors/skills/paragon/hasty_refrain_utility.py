@@ -7,7 +7,7 @@ from Py4GWCoreLib.Agent import Agent
 from Py4GWCoreLib.enums import Profession, Range
 from Py4GWCoreLib import Player
 from Py4GWCoreLib.ImGui_src.IconsFontAwesome5 import IconsFontAwesome5
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.persistence.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers

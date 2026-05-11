@@ -5,8 +5,8 @@ import threading
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
-from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 
 class EventBus:
@@ -16,7 +16,7 @@ class EventBus:
     Uses EventType enum for type safety.
     """
     def __init__(self):
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
         self._subscribers: Dict[EventType, List[Callable[[EventMessage], Generator[Any, Any, Any]]]] = defaultdict(list)
         self._subscriber_names: Dict[EventType, List[str]] = defaultdict(list)
         self._lock = threading.RLock()
@@ -215,14 +215,12 @@ class EventBus:
     def set_debug_mode(self, enabled: bool):
         """Enable or disable debug logging."""
         self._debug_mode = enabled
-        if constants.DEBUG:
-            self.logger.information(f"Debug mode {'enabled' if enabled else 'disabled'}")
+        self.logger.information(f"Debug mode {'enabled' if enabled else 'disabled'}")
     
     def set_max_history_size(self, size: int):
         """Set the maximum number of messages to keep in history."""
         if size < 0:
-            if constants.DEBUG:
-                self.logger.information(f"Invalid history size: {size}")
+            self.logger.information(f"Invalid history size: {size}")
             return
         
         with self._lock:
@@ -231,5 +229,4 @@ class EventBus:
             while len(self._message_history) > self._max_history_size:
                 self._message_history.pop(0)
         
-        if constants.DEBUG:
-            self.logger.information(f"Max history size set to {size}")
+        self.logger.information(f"Max history size set to {size}")

@@ -1,8 +1,8 @@
 from typing import Any, Generator
 
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_helper import PathHelper
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 
 class PathBuilder:
@@ -11,7 +11,7 @@ class PathBuilder:
         self.__waypoint_list: list[tuple[float, float]] = []
         self.__generator_handle = None
         self.__is_generating = False
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
     def generate_autopathing(self) -> Generator[None, None, None]:
         try:

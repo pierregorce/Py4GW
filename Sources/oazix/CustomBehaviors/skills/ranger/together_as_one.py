@@ -11,7 +11,7 @@ from Sources.oazix.CustomBehaviors.primitives.scores.score_per_agent_quantity_de
 from Sources.oazix.CustomBehaviors.primitives.scores.score_static_definition import ScoreStaticDefinition
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 
 
 class TogetherAsOneUtility(CustomSkillUtilityBase):
@@ -61,7 +61,7 @@ class TogetherAsOneUtility(CustomSkillUtilityBase):
                         tolerance=tolerance, 
                         log=True, 
                         timeout=4000, 
-                        progress_callback=lambda progress: self.logger.information(f"TogetherAsOneUtility: progress: {progress}") if constants.DEBUG else None)
+                        progress_callback=lambda progress: self.logger.information(f"TogetherAsOneUtility: progress: {progress}") if True else None)
         
         result = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result

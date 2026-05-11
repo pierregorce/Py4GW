@@ -4,11 +4,11 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.Player import Player
 from Py4GWCoreLib.enums_src.Multiboxing_enums import SharedCommandType
 from Py4GWCoreLib.routines_src.Yield import Yield
-from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
 
-logger = SimpleLogger.get_logger(__name__)
+from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
+
+logger = ExternalDependencyFactory().external_logger_factory.get_logger(__name__)
 
 class PartyCommandConstants:
     

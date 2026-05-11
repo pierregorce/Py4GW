@@ -9,7 +9,7 @@ from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer, Timer
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_skillbar_management import CustomBehaviorSkillbarManagement
@@ -32,7 +32,7 @@ from Sources.oazix.CustomBehaviors.skills.following.follow_flag_utility import F
 from Sources.oazix.CustomBehaviors.skills.following.follow_party_leader_utility import FollowPartyLeaderUtility
 from Sources.oazix.CustomBehaviors.skills.following.spread_during_combat_utility import SpreadDuringCombatUtility
 from Sources.oazix.CustomBehaviors.primitives.scores.comon_score import CommonScore
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.helpers.eval_profiler import EvalProfiler
 from Sources.oazix.CustomBehaviors.primitives.helpers.utility_skill_metrics import UtilitySkillMetrics
 from Sources.oazix.CustomBehaviors.skills.generic.stub_utility import StubUtility
@@ -65,7 +65,7 @@ class CustomBehaviorBaseUtility():
 
         self.event_bus:EventBus = event_bus
 
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
         self.__additional_autonomous_skills: list[CustomSkillUtilityBase] = [
             # COMBAT
@@ -470,8 +470,7 @@ class CustomBehaviorBaseUtility():
                 if (self.__previous_state == BehaviorState.FAR_FROM_AGGRO and
                     (result == BehaviorState.IN_AGGRO or result == BehaviorState.CLOSE_TO_AGGRO)):
                     metrics.clear()
-                    if constants.DEBUG:
-                        self.logger.information(f"UtilitySkillMetrics: Cleared metrics on combat entry (FAR_FROM_AGGRO -> {result.name})")
+                    self.logger.information(f"UtilitySkillMetrics: Cleared metrics on combat entry (FAR_FROM_AGGRO -> {result.name})")
             self.__previous_state = result
 
         self.__memoized_state = result

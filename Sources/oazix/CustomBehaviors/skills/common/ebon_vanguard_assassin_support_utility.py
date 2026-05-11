@@ -4,7 +4,7 @@ from typing import List, Any, Generator, Callable, cast, override
 import PyImGui
 
 from Py4GWCoreLib import GLOBAL_CACHE, Agent, Range, Player
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.persistence.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers

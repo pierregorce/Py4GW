@@ -3,10 +3,11 @@ from collections import deque
 from datetime import datetime
 from Py4GWCoreLib import IconsFontAwesome5, ImGui, PyImGui
 
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
 @staticmethod
@@ -47,7 +48,7 @@ def render_event_history():
             for result in reversed(results):
                 PyImGui.table_next_row()
                 PyImGui.table_next_column()
-                texture_file = PathLocator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\event.png"
+                texture_file = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\event.png"
                 ImGui.DrawTexture(texture_file, 30, 30)
                 PyImGui.table_next_column()
                 time_emitted_at = datetime.fromtimestamp(result.timestamp or 0)

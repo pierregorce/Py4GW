@@ -3,11 +3,12 @@ import os
 
 from Py4GWCoreLib import PyImGui, GLOBAL_CACHE
 from Py4GWCoreLib.ImGui import ImGui
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.helpers.utility_skill_metrics import (
     UtilitySkillMetrics,
     UtilitySkillMetricsSample,
 )
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 
 _WINDOW_PRESETS = [10, 30, 60, 120, 300, 600]
@@ -48,10 +49,10 @@ def _compute_skill_metrics(history: deque[UtilitySkillMetricsSample]):
 def _get_skill_texture(skill_id: int) -> str:
     """Get skill texture path with fallback."""
     if skill_id > 0:
-        texture_path = PathLocator.get_project_root_directory() + "\\" + GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(skill_id)
+        texture_path = ExternalDependencyFactory().path_locator.get_project_root_directory() + "\\" + GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(skill_id)
         if os.path.exists(texture_path):
             return texture_path
-    return PathLocator.get_texture_fallback()
+    return ExternalDependencyFactory().path_locator.get_texture_fallback()
 
 def render():
     TABLE_FLAGS = int(PyImGui.TableFlags.Borders | PyImGui.TableFlags.RowBg | PyImGui.TableFlags.SizingStretchProp)

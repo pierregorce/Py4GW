@@ -9,7 +9,7 @@ from Py4GWCoreLib import Routines, Range, Agent, Player
 from Py4GWCoreLib.Pathing import AutoPathing
 from Py4GWCoreLib.Py4GWcorelib import Keystroke, Utils
 from Py4GWCoreLib.enums import Key
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
@@ -102,8 +102,7 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
         try:
             lock_acquired = yield from CustomBehaviorParty().get_shared_lock_manager().wait_aquire_lock(lock_key, timeout_seconds=30, lock_type=ShareLockType.ACTIONS)
             if not lock_acquired:
-                if constants.DEBUG:
-                    self.logger.information(f"Fail acquiring lock {lock_key}.")
+                self.logger.information(f"Fail acquiring lock {lock_key}.")
                 yield
                 return BehaviorResult.ACTION_SKIPPED
 
@@ -121,15 +120,13 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
     def run_dialog_sequence(self, agent_id: int) -> Generator[None, None, bool]:
         npc_dialog_visible = yield from request_blessing_npc_helper.wait_npc_dialog_visible(timeout_ms=3_500)
         if not npc_dialog_visible:
-            if constants.DEBUG:
-                self.logger.information("npc_dialog_visible FALSE")
+            self.logger.information("npc_dialog_visible FALSE")
             Keystroke.PressAndRelease(Key.Escape.value)
             return False
 
         result = yield from request_blessing_npc_helper.run_dialog_sequences(timeout_ms=3_500)
         if not result:
-            if constants.DEBUG:
-                self.logger.information("run_dialog_sequences FALSE.")
+            self.logger.information("run_dialog_sequences FALSE.")
             Keystroke.PressAndRelease(Key.Escape.value)
             return False
 
@@ -146,9 +143,9 @@ class TakeNearBlessingUtility(CustomSkillUtilityBase):
                 path_points=path2d,
                 custom_exit_condition=lambda: Agent.IsDead(Player.GetAgentID()),
                 tolerance=150,
-                log=constants.DEBUG,
+                log=True,
                 timeout=10_000,
-                progress_callback=lambda progress: self.logger.information(f"FollowPath take_near_blessing: progress: {progress}") if constants.DEBUG else None,
+                progress_callback=lambda progress: self.logger.information(f"FollowPath take_near_blessing: progress: {progress}") if True else None,
                 custom_pause_fn=lambda: False)
 
     @override

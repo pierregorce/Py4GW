@@ -7,7 +7,7 @@ from Py4GWCoreLib.Map import Map
 from Py4GWCoreLib.Agent import Agent
 from Py4GWCoreLib.Player import Player
 from Py4GWCoreLib.enums_src.GameData_enums import ProfessionShort, ProfessionShort_Names
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_panel import FlagPanel
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_custom_grid_placement import FlagCustomGridPlacement
 from Sources.oazix.CustomBehaviors.gui.flag_panel.flag_backward_grid_placement import FlagBackwardGridPlacement
@@ -17,6 +17,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers, custom_behavior_helpers_party
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.parties.party_command_contants import PartyCommandConstants
 from Sources.oazix.CustomBehaviors.primitives.parties.party_flagging_manager import PartyFlaggingManager
@@ -24,7 +25,7 @@ from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology_colo
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
 # Create expandable sections for different UI panels
-project_root = PathLocator.get_custom_behaviors_root_directory()
+project_root = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory()
 icon_size = 35
 
 def draw_party_target_vertical_line() -> None:

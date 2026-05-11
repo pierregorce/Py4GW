@@ -9,9 +9,9 @@ from Py4GWCoreLib.py4gwcorelib_src.FSM import FSM
 from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
-logger = SimpleLogger.get_logger(__name__)
+logger = ExternalDependencyFactory().external_logger_factory.get_logger(__name__)
 
 class BottingHelpers:
     

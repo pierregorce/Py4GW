@@ -9,10 +9,10 @@ from Sources.oazix.CustomBehaviors.primitives.botting.botting_helpers import Bot
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 
-logger = SimpleLogger.get_logger(__name__)
+logger = ExternalDependencyFactory().external_logger_factory.get_logger(__name__)
 
 class BottingFsmHelpers:
 

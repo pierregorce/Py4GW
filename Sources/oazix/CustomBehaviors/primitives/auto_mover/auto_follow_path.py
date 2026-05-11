@@ -7,7 +7,7 @@ from Sources.oazix.CustomBehaviors.primitives.auto_mover.follow_path_executor im
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_builder import PathBuilder
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_renderer import PathRenderer
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.waypoint_builder import WaypointBuilder
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 
 class AutoFollowPath:
@@ -21,7 +21,7 @@ class AutoFollowPath:
 
     def __init__(self):
         if not self._initialized:
-            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+            self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
             self._initialized = True
             self.__waypoint_builder = WaypointBuilder()
             self.__path_builder = PathBuilder()

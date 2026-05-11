@@ -2,11 +2,11 @@ from typing import Any, Callable, Generator, List, Tuple
 
 from Py4GWCoreLib import Routines, Agent, Player
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.auto_mover.path_helper import PathHelper
 from Sources.oazix.CustomBehaviors.primitives.botting.botting_manager import BottingManager
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
 
 class FollowPathExecutor:
@@ -16,7 +16,7 @@ class FollowPathExecutor:
         self.movement_progress: float = 0
         self.is_active: bool = False
         self.current_path: list[tuple[float, float]] = []
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
     def start(self, waypoints: list[tuple[float, float]]):
         if not waypoints:
@@ -37,8 +37,7 @@ class FollowPathExecutor:
             self.logger.information(f"generate_autopathing error: {e}")
             self.current_path = []
         
-        if constants.DEBUG:
-            self.logger.information(f"FollowPathExecutor: Starting movement with {len(waypoints)} waypoints, is_active={self.is_active}")
+        self.logger.information(f"FollowPathExecutor: Starting movement with {len(waypoints)} waypoints, is_active={self.is_active}")
         
          # Setup combat behavior utilities
         instance: CustomBehaviorBaseUtility | None = CustomBehaviorLoader().custom_combat_behavior
@@ -59,7 +58,7 @@ class FollowPathExecutor:
             path_points=self.current_path,
             custom_exit_condition=lambda: Agent.IsDead(Player.GetAgentID()),
             tolerance=150,
-            log=constants.DEBUG,
+            log=True,
             timeout=-1,
             progress_callback=self.on_progress,
             custom_pause_fn=custom_pause_fn

@@ -7,9 +7,10 @@ from Py4GWCoreLib import GLOBAL_CACHE, ImGui, Agent, Player
 from Py4GWCoreLib.Routines import Routines
 from Py4GWCoreLib.enums import Profession, Range
 from Py4GWCoreLib.py4gwcorelib_src.Utils import Utils
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting_order import TargetingOrder
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.profession_configuration import ProfessionConfiguration
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_target import CustomBuffTarget
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
@@ -114,7 +115,7 @@ class BuffConfigurationPerProfession(CustomBuffTarget):
         PyImGui.bullet_text(f"Buff configuration : ")
         for profession in BuffConfigurationPerProfession.ALL_PROFESSIONS:
             buff_configuration_per_profession = self.get_by_profession(profession)
-            texture_path =  PathLocator.get_project_root_directory() + f"\\Textures\\Profession_Icons\\[{profession.value}] - {profession.name}.png"
+            texture_path =  ExternalDependencyFactory().path_locator.get_project_root_directory() + f"\\Textures\\Profession_Icons\\[{profession.value}] - {profession.name}.png"
             icon_size = 26
             if buff_configuration_per_profession.is_activated:
                 PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)  # 1px border

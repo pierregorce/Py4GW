@@ -1,7 +1,7 @@
 from typing import Any, Callable, Generator, override
 from Py4GWCoreLib import Routines, Player
 from Py4GWCoreLib.enums import Range
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
@@ -75,7 +75,7 @@ class EbonBattleStandardOfWisdom(CustomSkillUtilityBase):
                 tolerance=tolerance, 
                 log=True, 
                 timeout=4000, 
-                progress_callback=lambda progress: self.logger.information(f"EbonBattleStandardOfWisdomUtility: progress: {progress}") if constants.DEBUG else None)
+                progress_callback=lambda progress: self.logger.information(f"EbonBattleStandardOfWisdomUtility: progress: {progress}") if True else None)
         
         result = yield from custom_behavior_helpers.Actions.cast_skill(self.custom_skill)
         return result

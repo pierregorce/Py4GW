@@ -1,6 +1,6 @@
 from typing import Callable, Generator, Any
 
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 
 class PartyCommandHandlerManager:
@@ -13,7 +13,7 @@ class PartyCommandHandlerManager:
     def __init__(self):
         self._next_action: Generator | None = None
         self._action_finished: bool = True
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
     
     def schedule_action(self, action_gen: Callable[[], Generator]) -> bool:
         """

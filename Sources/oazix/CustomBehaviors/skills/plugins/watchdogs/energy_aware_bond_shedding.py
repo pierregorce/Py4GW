@@ -6,7 +6,7 @@ import PyImGui
 
 from Py4GWCoreLib import Agent, Player
 from Py4GWCoreLib.Effect import Effects
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 from Sources.oazix.CustomBehaviors.primitives.skills.plugins.utility_skill_watchdog import UtilitySkillWatchdog
 

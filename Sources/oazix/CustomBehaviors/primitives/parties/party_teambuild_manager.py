@@ -10,9 +10,9 @@ from Py4GWCoreLib.enums_src.Multiboxing_enums import SharedCommandType
 from Py4GWCoreLib.py4gwcorelib_src.Timer import ThrottledTimer
 from Py4GWCoreLib.routines_src.Yield import Yield
 from Py4GWCoreLib import Utils, Player
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.pawned2.Pawned2TeamBuild import Pawned2TeamBuild
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
@@ -59,7 +59,7 @@ class PartyTeamBuildManager:
         if self._initialized:
             return
 
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
         self._initialized = True
         self._memory_manager = CustomBehaviorWidgetMemoryManager()
         self.skillbar_datas : dict[str, SkillbarData] = {}

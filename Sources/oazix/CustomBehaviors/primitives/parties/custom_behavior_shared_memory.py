@@ -10,7 +10,7 @@ from typing import Generator
 
 from Py4GWCoreLib.enums_src.GameData_enums import Range
 from Sources.oazix.CustomBehaviors.primitives.following_behavior_priority import FollowingBehaviorPriority
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.shared_lock_manager import (
     SharedLockEntry,
     SharedLockEntryStruct,
@@ -160,7 +160,7 @@ class CustomBehaviorWidgetMemoryManager:
     def __init__(self, name=SHMEM_SHARED_MEMORY_FILE_NAME):
         
         if not self._initialized:
-            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+            self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
             self.shm_name = name
             self.size = sizeof(CustomBehaviorWidgetStruct)
 

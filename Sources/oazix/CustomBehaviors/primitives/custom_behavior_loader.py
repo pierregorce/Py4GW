@@ -3,12 +3,13 @@ import importlib
 import pkgutil
 from typing import List
 
-from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
+
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.stub_event_bus import StubEventBus
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skillbars.custom_behavior_base_utility import CustomBehaviorBaseUtility
 from Sources.oazix.CustomBehaviors.primitives.skillbars.utility_skill_finder import UtilitySkillFinder
 from Sources.oazix.CustomBehaviors.skillbars.generic_fallback import GenericFallback_UtilitySkillBar
@@ -38,10 +39,11 @@ class CustomBehaviorLoader:
             self._has_loaded = False
             self.__behaviors_found:list[MatchResult] = []
             self._initialized = True
+            
             # Botting daemon state - stores FSM and factory for re-registration after FSM restart
             self._botting_daemon_fsm = None
             self._botting_daemon_factory = None
-            self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+            self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
     # internal
 
@@ -84,10 +86,9 @@ class CustomBehaviorLoader:
         subclasses = []
         modules = __load_all_modules_in_folder(package_name)
 
-        if constants.DEBUG:
-            self.logger.information(f"\nSearching for subclasses of {base_class.__name__}")
-            for module in modules:
-                self.logger.information(f"Module: {module.__name__}")
+        self.logger.information(f"\nSearching for subclasses of {base_class.__name__}")
+        for module in modules:
+            self.logger.information(f"Module: {module.__name__}")
 
         for module in modules:
             # Inspect module contents for subclasses
@@ -104,7 +105,7 @@ class CustomBehaviorLoader:
 
     def __find_and_order_custom_behaviors(self) -> List[MatchResult]:
         # Use PathLocator to get the skillbars package name
-        skillbars_package = PathLocator.get_skillbars_package_name()
+        skillbars_package = ExternalDependencyFactory().path_locator.get_skillbars_package_name()
 
         subclasses: list[type] = self.__find_subclasses_in_folder(CustomBehaviorBaseUtility, skillbars_package)
         matches: List[MatchResult] = []

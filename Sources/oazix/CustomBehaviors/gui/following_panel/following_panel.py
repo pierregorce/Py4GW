@@ -3,14 +3,14 @@ import PyImGui
 from Py4GWCoreLib import Agent
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.ImGui_src.IconsFontAwesome5 import IconsFontAwesome5
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.custom_behavior_loader import CustomBehaviorLoader
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.party_following_manager import PartyFollowingManager
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import MAX_FLAG_POSITIONS
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.persistence.persistence_locator import PersistenceLocator
 
-logger = SimpleLogger.get_logger(__name__)
+logger = ExternalDependencyFactory().external_logger_factory.get_logger(__name__)
 
 class FollowingPanel:
     _forces_initialized: bool = False

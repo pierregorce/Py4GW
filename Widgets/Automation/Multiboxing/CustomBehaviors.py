@@ -6,7 +6,6 @@ import Py4GW
 from Py4GWCoreLib import ImGui, Map, PyImGui, Routines, Color
 from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer
 from Py4GWCoreLib.UIManager import UIManager
-from Sources.oazix.CustomBehaviors.primitives import constants
 from Sources.oazix.CustomBehaviors.primitives.fps_monitor import FPSMonitor
 from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_party import CustomBehaviorHelperParty
 from Sources.oazix.CustomBehaviors.primitives.widget_monitor import WidgetMonitor
@@ -38,7 +37,6 @@ MODULE_ICON = "Textures/Module_Icons/Custom Behaviors.png"
 def gui():
     # PyImGui.set_next_window_size(260, 650)
     # PyImGui.set_next_window_size(460, 800)
-    from Sources.oazix.CustomBehaviors.primitives import constants
     from Sources.oazix.CustomBehaviors.primitives.fps_monitor import FPSMonitor
     from Sources.oazix.CustomBehaviors.primitives.widget_monitor import WidgetMonitor
     from Sources.oazix.CustomBehaviors.gui.current_build import render as current_build_render
@@ -53,6 +51,9 @@ def gui():
     from Sources.oazix.CustomBehaviors.gui.botting import render as botting
     from Sources.oazix.CustomBehaviors.gui.skill_metrics import render as skill_metrics
     from Sources.oazix.CustomBehaviors.gui.debug_disabilities import render as debug_disabilities
+    from Sources.oazix.CustomBehaviors.gui.debug_targets import render as debug_targets
+    from Sources.oazix.CustomBehaviors.gui.debug_damage_received_observer import render as debug_damage_received_observer
+
 
     global party_forced_state_combo, monitor, widget_window_size, widget_window_pos
     
@@ -87,7 +88,6 @@ def gui():
 
                 PyImGui.text(f"{monitor.fps_stats()[1]}")
                 PyImGui.text(f"{monitor.frame_stats()[1]}")
-                constants.DEBUG = PyImGui.checkbox("with_debugging_logs#with_debugging_logs", constants.DEBUG)
 
                 PyImGui.begin_tab_bar("debug_tab_bar")
 
@@ -114,6 +114,14 @@ def gui():
 
                 if PyImGui.begin_tab_item("debug_disabilities"):
                     debug_disabilities()
+                    PyImGui.end_tab_item()
+
+                if PyImGui.begin_tab_item("debug_targets"):
+                    debug_targets()
+                    PyImGui.end_tab_item()
+
+                if PyImGui.begin_tab_item("debug_damage_received_observer"):
+                    debug_damage_received_observer()
                     PyImGui.end_tab_item()
 
                 PyImGui.end_tab_bar()
@@ -145,7 +153,7 @@ def main():
 
     if Routines.Checks.Map.MapValid() and previous_map_status == False:
         map_change_throttler.Reset()
-        if constants.DEBUG: print("map changed detected - we will throttle.")
+        # print("map changed detected - we will throttle.")
 
     previous_map_status = Routines.Checks.Map.MapValid()
     
@@ -153,7 +161,8 @@ def main():
         return
     
     if not map_change_throttler.IsExpired():
-        if constants.DEBUG: print("map changed - throttling.")
+        # print("map changed - throttling.")
+        pass
 
     if map_change_throttler.IsExpired():
         show_ui = False

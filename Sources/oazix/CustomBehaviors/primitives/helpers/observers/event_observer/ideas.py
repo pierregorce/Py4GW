@@ -121,3 +121,42 @@
 #         print(f"Dealt {damage_fraction}")
 #         print(f"Dealt {actual_damage:.0f} damage")
 
+
+
+
+
+
+
+
+
+
+_DAMAGE_CLASS: dict[int, type[DamageEvent]] = {
+    EVT_DAMAGE_DEALT: DamageDealtEvent,
+    EVT_DAMAGE_RECEIVED: DamageReceivedEvent,
+    EVT_CRITICAL_HIT: CriticalHitEvent,
+}
+
+_SKILL_SIMPLE_CLASS: dict[int, type[SkillEvent]] = {
+    EVT_SKILL_ACTIVATED: SkillActivatedEvent,
+    EVT_SKILL_COMPLETED: SkillCompletedEvent,
+    EVT_SKILL_INTERRUPTED: SkillInterruptedEvent,
+    EVT_SKILL_CANCELLED: SkillCancelledEvent,
+    EVT_SKILL_RECHARGED: SkillRechargedEvent,
+}
+
+
+
+EVT_DAMAGE_DEALT 
+    only for dps meter
+
+EVT_DAMAGE_RECEIVED
+    good for seed of life / shield of absorption
+
+EVT_SKILL_COMPLETED/EVT_SKILL_INTERRUPTED/EVT_SKILL_CANCELLED
+    good for the aftercast, 
+    or should we use AftercastLockEvent ??
+
+EVT_SKILL_ACTIVATED 
+    good for interrupt
+
+    

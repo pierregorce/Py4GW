@@ -1,8 +1,9 @@
 from HeroAI.custom_skill import CustomSkillClass
 from Py4GWCoreLib import GLOBAL_CACHE
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.path_locator import PathLocator
-from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.path.path_locator import PathLocator
+
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_nature import CustomSkillNature
 
 class CustomSkill:
@@ -15,22 +16,21 @@ class CustomSkill:
         nature_value:int = CustomSkill.custom_skill_class.get_skill(self.skill_id).Nature
         self.skill_nature:CustomSkillNature = CustomSkillNature(nature_value)
         self.skill_slot:int = GLOBAL_CACHE.SkillBar.GetSlotBySkillID(self.skill_id) if self.skill_id != 0 else 0
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
-        if constants.DEBUG:
-            if self.skill_id == 0:
-                self.logger.information(f"Warning loading {skill_name} gave no skill id")
+        if self.skill_id == 0:
+            self.logger.information(f"Warning loading {skill_name} gave no skill id")
 
-            if self.skill_slot == 0:
-                self.logger.information(f"Warning loading {self.skill_id} {skill_name} gave no skill slot")
+        if self.skill_slot == 0:
+            self.logger.information(f"Warning loading {self.skill_id} {skill_name} gave no skill slot")
 
     def get_texture(self) -> str:
 
         texture_file = ''
         if self.skill_id is not None and self.skill_id > 0:
-            texture_file = PathLocator.get_project_root_directory() + "\\" + GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(self.skill_id)
+            texture_file = ExternalDependencyFactory().path_locator.get_project_root_directory() + "\\" + GLOBAL_CACHE.Skill.ExtraData.GetTexturePath(self.skill_id)
         else:
-            texture_file = PathLocator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\{self.skill_name}.png"
+            texture_file = ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\{self.skill_name}.png"
 
         return texture_file
 

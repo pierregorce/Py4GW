@@ -3,7 +3,7 @@ from typing import Any, Callable, Generator, override
 from Py4GWCoreLib import GLOBAL_CACHE, Routines, Agent, Utils, Player
 from Py4GWCoreLib.Pathing import AutoPathing
 from Py4GWCoreLib.Py4GWcorelib import ThrottledTimer
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
@@ -120,7 +120,7 @@ class MoveToDistantChestIfPathExistsUtility(CustomSkillUtilityBase):
             tolerance=100, 
             log=True, 
             timeout=5_000, 
-            progress_callback=lambda progress: self.logger.information(f"MoveToCloseChestIfPathExistsUtility: progress: {progress}") if constants.DEBUG else None)
+            progress_callback=lambda progress: self.logger.information(f"MoveToCloseChestIfPathExistsUtility: progress: {progress}") if True else None)
 
         if result == False:
             self.throttle_timer.Reset()

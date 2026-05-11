@@ -7,12 +7,12 @@ from typing import Any, List, Tuple
 from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 from Py4GWCoreLib.Map import Map
 from Py4GWCoreLib.Pathing import AutoPathing
-from Sources.oazix.CustomBehaviors.primitives import constants
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 class WaypointBuilder:
     def __init__(self):
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
         self.list_of_points: list[tuple[float, float]] = []
         self._last_processed_click: tuple[float, float] | None = None
         self._last_point_add_time: float = 0.0
@@ -138,8 +138,7 @@ class WaypointBuilder:
         coord = self.parse_coordinate_from_text(clipboard)
         if coord is not None:
             self.list_of_points.append(coord)
-            if constants.DEBUG:
-                self.logger.information(f"Injected waypoint: {coord}")
+            self.logger.information(f"Injected waypoint: {coord}")
             return coord
         else:
             self.logger.information('Failed to parse clipboard. Use "x, y" or "(x, y)".')

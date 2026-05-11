@@ -11,14 +11,14 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import Beh
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party import CustomBehaviorParty
 from Sources.oazix.CustomBehaviors.primitives.skills.bonds.custom_buff_multiple_target import CustomBuffMultipleTarget
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_nature import CustomSkillNature
 from Sources.oazix.CustomBehaviors.primitives.scores.score_definition import ScoreDefinition
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.skills.plugins.utility_skill_option import UtilitySkillOption
 from Sources.oazix.CustomBehaviors.primitives.skills.plugins.utility_skill_watchdog import UtilitySkillWatchdog
 from Sources.oazix.CustomBehaviors.primitives.skills.plugins.utility_skill_plugin import UtilitySkillPlugin
@@ -51,7 +51,7 @@ class CustomSkillUtilityBase:
 
         self._utility_skill_plugins: list[UtilitySkillPlugin] = []
 
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
     # Plugin management ------------------
 
@@ -136,9 +136,8 @@ class CustomSkillUtilityBase:
             self.logger.information(f'PreCheck Reject - Energy Requirement for Utility {self.custom_skill.skill_name}')
             return False
         if not Routines.Checks.Skills.IsSkillSlotReady(self.custom_skill.skill_slot):
-            if constants.DEBUG:
-                self.logger.information(f"custom_skill.skill_slot: {self.custom_skill.skill_slot}")
-                self.logger.information(f'PreCheck Reject - IsSkillSlotReady {self.custom_skill.skill_name}')
+            self.logger.information(f"custom_skill.skill_slot: {self.custom_skill.skill_slot}")
+            self.logger.information(f'PreCheck Reject - IsSkillSlotReady {self.custom_skill.skill_name}')
             return False
         if not custom_behavior_helpers.Resources.has_enough_resources(self.custom_skill):
             self.logger.information(f'PreCheck Reject - Resources Requirement for Ability {self.custom_skill.skill_name}')
@@ -164,9 +163,8 @@ class CustomSkillUtilityBase:
             self.custom_skill.skill_slot = GLOBAL_CACHE.SkillBar.GetSlotBySkillID(self.custom_skill.skill_id) if self.custom_skill.skill_id != 0 else 0
         
         if not self.are_common_pre_checks_valid(current_state):
-            if constants.DEBUG:
-                if self.utility_skill_typology == UtilitySkillTypology.COMBAT and current_state == BehaviorState.IN_AGGRO and current_state in self.allowed_states:
-                    self.logger.information(f'PreCheck Reject {self.custom_skill.skill_name}')
+            if self.utility_skill_typology == UtilitySkillTypology.COMBAT and current_state == BehaviorState.IN_AGGRO and current_state in self.allowed_states:
+                self.logger.information(f'PreCheck Reject {self.custom_skill.skill_name}')
             return None
 
         if not self.are_preconditions_satisfied():
@@ -202,13 +200,11 @@ class CustomSkillUtilityBase:
             score = self._evaluate(current_state, previously_attempted_skills)
 
             if score is None:
-                if constants.DEBUG:
-                    if self.utility_skill_typology == UtilitySkillTypology.COMBAT and current_state == BehaviorState.IN_AGGRO and current_state in self.allowed_states: self.logger.information(f'Evaluate Reject {self.custom_skill.skill_name}')
+                if self.utility_skill_typology == UtilitySkillTypology.COMBAT and current_state == BehaviorState.IN_AGGRO and current_state in self.allowed_states: self.logger.information(f'Evaluate Reject {self.custom_skill.skill_name}')
                 return None
             if 0 > score > 100: raise Exception(f"{self.custom_skill.skill_name} : score must be between 0 and 100, calculated {score}.")
 
-            if constants.DEBUG:
-                if self.utility_skill_typology == UtilitySkillTypology.COMBAT: self.logger.information(f'Score {score} for {self.custom_skill.skill_name}')
+            if self.utility_skill_typology == UtilitySkillTypology.COMBAT: self.logger.information(f'Score {score} for {self.custom_skill.skill_name}')
 
             return score
         except Exception as e:

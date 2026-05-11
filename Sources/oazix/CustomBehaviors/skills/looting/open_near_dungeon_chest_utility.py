@@ -7,7 +7,7 @@ from Py4GWCoreLib import GLOBAL_CACHE, AgentArray, Agent, Party, Routines, Range
 from Py4GWCoreLib.Py4GWcorelib import ActionQueueManager, LootConfig, ThrottledTimer, Utils
 from Py4GWCoreLib.UIManager import UIManager
 from Py4GWCoreLib.enums_src.Model_enums import ModelID
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType

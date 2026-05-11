@@ -2,7 +2,7 @@ from typing import Any, Generator, override
 
 from Py4GWCoreLib.enums import Range
 from Py4GWCoreLib import Player
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.persistence.persistence_locator import PersistenceLocator
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers

@@ -8,7 +8,7 @@ import PyImGui
 from Py4GWCoreLib import GLOBAL_CACHE, AgentArray, ItemArray, Routines, Range, Map, Agent, Player
 from Py4GWCoreLib.Pathing import AutoPathing
 from Py4GWCoreLib.Py4GWcorelib import Utils
-from Sources.oazix.CustomBehaviors.primitives import constants
+
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
 from Sources.oazix.CustomBehaviors.primitives.bus.event_message import EventMessage
 from Sources.oazix.CustomBehaviors.primitives.bus.event_type import EventType
@@ -150,9 +150,9 @@ class MerchantRefillIfNeededUtility(CustomSkillUtilityBase):
                     path_points= path2d,
                     custom_exit_condition=lambda: Agent.IsDead(Player.GetAgentID()),
                     tolerance=150,
-                    log=constants.DEBUG,
+                    log=True,
                     timeout=10_000,
-                    progress_callback=lambda progress: self.logger.information(f"FollowPath merchant_refill_if_needed_utility: progress: {progress}") if constants.DEBUG else None,
+                    progress_callback=lambda progress: self.logger.information(f"FollowPath merchant_refill_if_needed_utility: progress: {progress}") if True else None,
                     custom_pause_fn=lambda: False)
 
         self.logger.information(f"Merchant reached.")

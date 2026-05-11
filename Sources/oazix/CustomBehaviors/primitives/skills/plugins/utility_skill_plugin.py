@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from typing import Callable
 
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.persistence_locator import PersistenceLocator
-from Sources.oazix.CustomBehaviors.primitives.infrastructure.simple_logger import SimpleLogger
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.contracts.persistence.persistence_locator import PersistenceLocator
+from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill import CustomSkill
 
 class UtilitySkillPlugin:
@@ -19,7 +19,7 @@ class UtilitySkillPlugin:
     def __init__(self, parent_skill: CustomSkill, plugin_name: str):
         self.parent_skill_name: str = parent_skill.skill_name
         self.plugin_name: str = plugin_name
-        self.logger = SimpleLogger.get_logger(self.__class__.__name__)
+        self.logger = ExternalDependencyFactory().external_logger_factory.get_logger(self.__class__.__name__)
 
     @property
     @abstractmethod
