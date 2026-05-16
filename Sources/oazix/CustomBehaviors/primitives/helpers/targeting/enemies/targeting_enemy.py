@@ -3,7 +3,6 @@ from typing import Callable
 from Py4GWCoreLib import Agent
 from Py4GWCoreLib.AgentArray import AgentArray
 from Py4GWCoreLib.Player import Player
-from Sources.oazix.CustomBehaviors.primitives.helpers.custom_behavior_helpers_party import CustomBehaviorHelperParty
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_overriding.enemy_blacklist_override import EnemyBlacklistOverride
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_overriding.party_leader_called_target_override import PartyLeaderCalledTargetOverride
 from Sources.oazix.CustomBehaviors.primitives.helpers.target_scoring.enemies_within_range_scoring import AgentsWithinRangeScoring
@@ -13,7 +12,6 @@ from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targetin
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy_data import TargetingEnemyData
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.tarteging_enemy_allegiance import TargetingEnemyAllegiance
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.targeting_core import TargetingCore
-from Sources.oazix.CustomBehaviors.primitives.parties.memory_cache_manager import MemoryCacheManager
 
 
 class TargetingEnemy:

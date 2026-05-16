@@ -43,7 +43,7 @@ class OverloadUtility(CustomSkillUtilityBase):
 
     def _get_casting_enemies(self) -> list[TargetingEnemyData]:
         targets = TargetingEnemy\
-            .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skills_cast_time_longer_than=0.250))\
+            .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skill_activation_min_duration_in_ms=250))\
             .get_enemies(
                 within_range=Range.Spellcast.value,
                 allegiance_to_include=TargetingEnemyAllegiance.Enemy,

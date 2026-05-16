@@ -37,7 +37,7 @@ class PowerSpikeUtility(CustomSkillUtilityBase):
     
     def detect_casting_enemies(self) -> list[TargetingEnemyData]:
         targets = TargetingEnemy\
-                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skills_cast_time_longer_than=1.00))\
+                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skill_activation_min_duration_in_ms=1000))\
                 .get_enemies(
             within_range=Range.Spellcast.value,
             allegiance_to_include=TargetingEnemyAllegiance.Enemy,

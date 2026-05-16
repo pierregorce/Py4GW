@@ -28,7 +28,6 @@ class EventObserver:
     def __init(self):
         """Private initialization method (called only once)"""
         if not EventObserver._initialized:
-            ExternalDependencyFactory().external_logger_factory.get_logger("qzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz").error("EventObserver initialized")
             # initialization code here
             ExternalDependencyFactory().external_event_bus.subscribe_on_damage_received_event(self.__on_damage_received_event)
             ExternalDependencyFactory().external_event_bus.subscribe_on_skill_interrupted_event(self.__on_skill_interrupted_event)

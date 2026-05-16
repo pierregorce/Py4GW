@@ -47,7 +47,7 @@ class ShieldOfAbsorptionUtility(CustomSkillUtilityBase):
             condition_predicate=lambda ally_data: 
                 Agent.GetHealth(ally_data.agent_id) < 0.9 
                 and self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id)
-                and DamageReceivedObserver().damage_received_time_serie.get_number_of_damage_packets(ally_data.agent_id, damage_packets_window_ms) > 3,
+                and DamageReceivedObserver().damage_received_time_serie.get_number_of_damage_packets(ally_data.agent_id, damage_packets_window_ms) > 4,
             sort_asc_predicate=lambda ally_data: (
                 DamageReceivedObserver().damage_received_time_serie.get_number_of_damage_packets(ally_data.agent_id, damage_packets_window_ms),
                 ally_data.hp, 

@@ -5,6 +5,7 @@ from Py4GWCoreLib.GlobalCache import GLOBAL_CACHE
 
 from Py4GWCoreLib.enums_src.GameData_enums import Range
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.targeting_enemy import TargetingEnemy
+from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.enemies.tarteging_enemy_allegiance import TargetingEnemyAllegiance
 from Sources.oazix.CustomBehaviors.primitives.infrastructure.external_dependency_factory import ExternalDependencyFactory
 
 @dataclass
@@ -72,13 +73,23 @@ class CastingObserver:
             self._history_window_ms: float = 30000.0
 
             # Maximum casts to track per agent
-            self._max_casts_per_agent: int = 5
+            self._max_casts_per_agent: int = 10
 
             # Track interrupted agents (event sets flag, polling completes cast)
             # Event fires first, but snapshot is source of truth for when cast actually ends
             self._interrupted_agents: set[int] = set()
 
             self._initialized = True
+
+    def _is_agent_casting(self, agent_id: int) -> bool:
+        """
+        Reliable check if agent is casting.
+
+        Agent.IsCasting() can flicker, so we require BOTH:
+        - Agent.IsCasting() returns True but sometimes returns false when casting (bug...)
+        - Agent.GetCastingSkillID() returns a valid skill (> 0)
+        """
+        return Agent.IsCasting(agent_id) or Agent.GetCastingSkillID(agent_id) > 0
 
     def act(self):
         """
@@ -90,10 +101,12 @@ class CastingObserver:
         - Detect casts that were interrupted
         - Clean up stale history
         """
-        # Get all enemies in range
+
+        # Get all enemies in range - use _is_agent_casting for reliable filtering
         enemies = TargetingEnemy.create().get_enemies(
             within_range=Range.Spirit.value,
-            condition_predicate=lambda enemy_data: Agent.IsCasting(enemy_data.agent_id),
+            allegiance_to_include=TargetingEnemyAllegiance.Enemy,
+            condition_predicate=lambda enemy_data: self._is_agent_casting(enemy_data.agent_id),
             is_alive=True
         )
 
@@ -103,9 +116,13 @@ class CastingObserver:
         # Check each enemy for casting state
         for enemy in enemies:
             agent_id = enemy.agent_id
+            skill_id = Agent.GetCastingSkillID(agent_id)
+
+            # Should always have valid skill_id since we filtered with _is_agent_casting
+            if skill_id == 0:
+                continue
 
             currently_casting_agents.add(agent_id)
-            skill_id = Agent.GetCastingSkillID(agent_id)
 
             # Check if this is a new cast or continuation
             existing_cast = self._current_casts.get(agent_id)
@@ -120,10 +137,9 @@ class CastingObserver:
             # else: same cast continuing, no action needed
 
         # Check for completed casts (agents no longer casting)
-        # Snapshot is source of truth - event only sets interrupt flag
         agents_to_remove = []
         for agent_id in self._current_casts.keys():
-            
+
             if not Agent.IsValid(agent_id):
                 agents_to_remove.append(agent_id)
                 continue
@@ -132,7 +148,7 @@ class CastingObserver:
                 # Check if interrupt event fired for this agent
                 was_interrupted = agent_id in self._interrupted_agents
 
-                # Complete the cast (snapshot confirms it ended)
+                # Complete the cast
                 self._complete_cast(agent_id, current_time_ms, was_interrupted=was_interrupted)
                 agents_to_remove.append(agent_id)
 
@@ -242,6 +258,10 @@ class CastingObserver:
         return activation_time_ms
 
     # ── Query methods ──────────────────────────────────────────────────────
+
+    def get_cast_data(self, agent_id: int) -> EnemyCastingState | None:
+        """Get casting data for a specific agent."""
+        return self._current_casts.get(agent_id)
 
     def get_all_current_casts(self) -> list[EnemyCastingState]:
         """Get all currently tracked casts."""

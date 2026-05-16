@@ -28,7 +28,7 @@ class DamageReceivedObserver:
         is_self_damage = damage_received_event.target_id == damage_received_event.source_id
 
         # todo what about environnement dmg ?
-        # check if party member.
+        # we could reduce to only store damage received by party members.
 
         if is_self_damage:
             self.self_damage_received_time_serie.add_damage_packet(damage_received_event.target_id, damage_received_event.damage_taken, damage_received_event.timestamp)

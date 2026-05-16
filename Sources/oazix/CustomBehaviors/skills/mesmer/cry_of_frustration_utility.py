@@ -36,7 +36,7 @@ class CryOfFrustrationUtility(CustomSkillUtilityBase):
 
     def detect_casting_enemies(self) -> list[TargetingEnemyData]:
         targets = TargetingEnemy\
-                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skills_cast_time_longer_than=0.330))\
+                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skill_activation_min_duration_in_ms=330))\
                 .get_enemies(
                     within_range=Range.Spellcast.value,
                     condition_predicate=lambda enemy_data: 

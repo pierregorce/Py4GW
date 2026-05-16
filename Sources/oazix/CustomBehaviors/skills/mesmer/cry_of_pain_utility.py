@@ -44,7 +44,7 @@ class CryOfPainUtility(CustomSkillUtilityBase):
             sort = lambda enemy_data: (-enemy_data.interrupt_potential_score, 0 if enemy_data.is_caster else 1)
 
         targets = TargetingEnemy\
-                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skills_cast_time_longer_than=0.450))\
+                .create_with_custom_interrupt_potential_scoring(InterruptPotentialScoring(skill_activation_min_duration_in_ms=450))\
                 .get_enemies(
                     within_range=Range.Spellcast.value,
                     condition_predicate=lambda enemy_data: 

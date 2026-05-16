@@ -44,7 +44,9 @@ class MeleeAoeEnemiesScoring:
             'super_close': Range.Touch.value,
             'close': Range.Adjacent.value,
             'far': Range.Spellcast.value * 1.2,
-    }
+    }  
+
+    # TODO : rework distance, 4 alone targets should be ordered by distance, there i get 20 for all.
 
     # Score matrix: [enemy_count][distance_category][is_moving]
     SCORE_MATRIX = {
