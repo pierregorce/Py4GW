@@ -40,7 +40,7 @@ class MakeYourTimeUtility(CustomSkillUtilityBase):
             condition_predicate=lambda ally_data: ally_data.agent_id != Player.GetAgentID()
         )
 
-        return min(len(allies), 6)
+        return max(len(allies) * 2, 8)
 
     @override
     def _evaluate(self, current_state: BehaviorState, previously_attempted_skills: list[CustomSkill]) -> float | None:

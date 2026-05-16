@@ -35,6 +35,6 @@ class DamageReceivedTimeSerie:
     
     def add_damage_packet(self, agent_id: int, damage_taken: int, timestamp: float):
         if agent_id not in self._damage_packets:
-            self._damage_packets[agent_id] = deque(maxlen=2000)
+            self._damage_packets[agent_id] = deque(maxlen=500)
         
         self._damage_packets[agent_id].append(DamagePacket(damage_taken, timestamp))

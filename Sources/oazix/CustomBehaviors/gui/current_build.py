@@ -10,6 +10,7 @@ from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_party impo
 from Sources.oazix.CustomBehaviors.primitives.skills.custom_skill_utility_base import CustomSkillUtilityBase
 
 from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology_color import UtilitySkillTypologyColor
+from Sources.oazix.CustomBehaviors.primitives.skills.utility_skill_typology import UtilitySkillTypology
 from Sources.oazix.CustomBehaviors.primitives.parties.custom_behavior_shared_memory import CustomBehaviorWidgetMemoryManager
 
 WITH_DETAIL = False
@@ -60,6 +61,7 @@ def render():
     if PyImGui.button(f"{IconsFontAwesome5.ICON_SYNC} Force refresh build"):
             CustomBehaviorLoader().refresh_custom_behavior_candidate()
 
+    PyImGui.text(f"Disabled state can be enforced by the party switches.")
     # if current_build is not None and type(current_build).mro()[1].__name__ != CustomBehaviorBaseUtility.__name__:
     #     PyImGui.separator()
     #     PyImGui.text(f"Generic skills : ")
@@ -94,140 +96,147 @@ def render():
         # Unified panel with tabs for skill detail and scoring
         if PyImGui.begin_child("skills_panel", size=(600, 600), border=True, flags=PyImGui.WindowFlags.NoFlag):
             if PyImGui.begin_tab_bar("skills_tabs"):
-                # Tab 1: Skill Detail (per typology)
-                if PyImGui.begin_tab_item("skill detail"):
-                    PyImGui.text("allow you to deep dive configuration of skills")
-                    scores_by_typology = sorted(scores, key=lambda s: (s[0].utility_skill_typology.value, s[0].custom_skill.skill_name))
-                    if PyImGui.begin_table("skills_detailed", 2, int(PyImGui.TableFlags.SizingStretchProp)):
-                        PyImGui.table_setup_column("A")
-                        PyImGui.table_setup_column("B")
-                        # PyImGui.table_headers_row()
-                        for score in scores_by_typology:
-                            def label_generic_utility(utility: CustomSkillUtilityBase) -> str:
-                                if utility.__class__.__name__ == "StubUtility":
-                                    return f" Stub"
-                                return ""
-                            score_text = f"{score[1]:06.4f}" if score[1] is not None else "Ø"
-                            texture_file = get_skill_texture_with_fallback(score[0].custom_skill.get_texture())
+                # Get all unique typologies from scores
+                unique_typologies = sorted(set(s[0].utility_skill_typology for s in scores), key=lambda t: t.value)
 
-                            PyImGui.table_next_row()
-                            PyImGui.table_next_column()
-                            color = UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology)
-                            if score[0].is_enabled and CustomBehaviorParty().get_typology_is_enabled(score[0].utility_skill_typology) and instance.get_final_is_enabled():
-                                PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)
-                                PyImGui.push_style_color(PyImGui.ImGuiCol.Border, color)
-                                if ImGui.ImageButton(f"{score[0].custom_skill.skill_name}", texture_file, 35, 35):
-                                    score[0].is_enabled = False
-                                PyImGui.pop_style_var(1)
-                                PyImGui.pop_style_color(1)
-                            else:
-                                PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)
-                                PyImGui.push_style_color(PyImGui.ImGuiCol.Border, Utils.ColorToTuple(Utils.RGBToColor(255, 0, 0, 255)))
-                                if ImGui.ImageButton(f"{score[0].custom_skill.skill_name}", texture_file, 35,35):
-                                    score[0].is_enabled = True
-                                PyImGui.pop_style_var(1)
-                                PyImGui.pop_style_color(1)
-                                PyImGui.same_line(10, 0)
-                                ImGui.DrawTexture(ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\x.png", 20, 20)
+                # Create one tab per typology
+                for typology in unique_typologies:
+                    typology_name = typology.name.capitalize()
+                    if PyImGui.begin_tab_item(typology_name):
+                        PyImGui.text(f"Skills for {typology_name} typology")
+                        # Filter scores by typology
+                        scores_for_typology = [s for s in scores if s[0].utility_skill_typology == typology]
+                        scores_sorted = sorted(scores_for_typology, key=lambda s: s[0].custom_skill.skill_name)
 
-                            PyImGui.table_next_column()
-                            skill : CustomSkillUtilityBase = score[0]
-                            unique_key = skill.custom_skill.skill_name
-                            PyImGui.text(f"{skill.custom_skill.skill_name}")
-                            PyImGui.same_line(0, 5)
-                            expanded = unique_key in EXPANDED_SKILL_IDS
-                            toggle_label = "[-]" if expanded else "[+]"
-                            if PyImGui.small_button(f"{toggle_label}##expand_{unique_key}"):
-                                if expanded:
-                                    EXPANDED_SKILL_IDS.remove(unique_key)
+                        if PyImGui.begin_table(f"skills_detailed_{typology_name}", 2, int(PyImGui.TableFlags.SizingStretchProp)):
+                            PyImGui.table_setup_column("A")
+                            PyImGui.table_setup_column("B")
+                            # PyImGui.table_headers_row()
+                            for score in scores_sorted:
+                                def label_generic_utility(utility: CustomSkillUtilityBase) -> str:
+                                    if utility.__class__.__name__ == "StubUtility":
+                                        return f" Stub"
+                                    return ""
+                                score_text = f"{score[1]:06.4f}" if score[1] is not None else "Ø"
+                                texture_file = get_skill_texture_with_fallback(score[0].custom_skill.get_texture())
+
+                                PyImGui.table_next_row()
+                                PyImGui.table_next_column()
+                                color = UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology)
+                                if score[0].is_enabled and CustomBehaviorParty().get_typology_is_enabled(score[0].utility_skill_typology) and instance.get_final_is_enabled():
+                                    PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)
+                                    PyImGui.push_style_color(PyImGui.ImGuiCol.Border, color)
+                                    if ImGui.ImageButton(f"{score[0].custom_skill.skill_name}", texture_file, 35, 35):
+                                        score[0].is_enabled = False
+                                    PyImGui.pop_style_var(1)
+                                    PyImGui.pop_style_color(1)
                                 else:
-                                    EXPANDED_SKILL_IDS.add(unique_key)
+                                    PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)
+                                    PyImGui.push_style_color(PyImGui.ImGuiCol.Border, Utils.ColorToTuple(Utils.RGBToColor(255, 0, 0, 255)))
+                                    if ImGui.ImageButton(f"{score[0].custom_skill.skill_name}", texture_file, 35,35):
+                                        score[0].is_enabled = True
+                                    PyImGui.pop_style_var(1)
+                                    PyImGui.pop_style_color(1)
+                                    PyImGui.same_line(10, 0)
+                                    ImGui.DrawTexture(ExternalDependencyFactory().path_locator.get_custom_behaviors_root_directory() + f"\\gui\\textures\\x.png", 20, 20)
 
-                            black_color = Color(0, 0, 0, 255)
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.Button, color)
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonHovered, color)
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonActive, color)
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.Text, black_color.to_tuple_normalized())
-                            # clicked = PyImGui.button(f"{skill.custom_skill.skill_name}")
-                            PyImGui.pop_style_color(4)
-                            PyImGui.same_line(0, 5)
-                            PyImGui.same_line(0, -1)
+                                PyImGui.table_next_column()
+                                skill : CustomSkillUtilityBase = score[0]
+                                unique_key = skill.custom_skill.skill_name
+                                PyImGui.text(f"{skill.custom_skill.skill_name}")
+                                PyImGui.same_line(0, 5)
+                                expanded = unique_key in EXPANDED_SKILL_IDS
+                                toggle_label = "[-]" if expanded else "[+]"
+                                if PyImGui.small_button(f"{toggle_label}##expand_{unique_key}"):
+                                    if expanded:
+                                        EXPANDED_SKILL_IDS.remove(unique_key)
+                                    else:
+                                        EXPANDED_SKILL_IDS.add(unique_key)
 
-                            black_color = Color(0, 0, 0, 255)
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.Button, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonHovered, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonActive, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
-                            PyImGui.push_style_color(PyImGui.ImGuiCol.Text, black_color.to_tuple_normalized())
-                            PyImGui.button(f"score{label_generic_utility(skill)} : {score_text}")
-
-                            PyImGui.pop_style_color(4)
-
-                            if unique_key in EXPANDED_SKILL_IDS:
-                                if skill.has_persistence():
-                                    PyImGui.bullet_text(f"Persistence :")
-                                    if PyImGui.button(f"Save for account {IconsFontAwesome5.ICON_SAVE}"):
-                                        skill.persist_configuration_for_account()
-                                    PyImGui.same_line(0, 5)
-                                    if PyImGui.button(f"Save global {IconsFontAwesome5.ICON_SAVE}"):
-                                        skill.persist_configuration_as_global()
-                                    PyImGui.same_line(0, 5)
-                                    if PyImGui.button(f"Delete {IconsFontAwesome5.ICON_TRASH}"):
-                                        skill.delete_persisted_configuration()
-
-                                PyImGui.bullet_text(f"{skill.__class__.__name__}")
-                                PyImGui.bullet_text("required ressource")
+                                black_color = Color(0, 0, 0, 255)
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.Button, color)
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonHovered, color)
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonActive, color)
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.Text, black_color.to_tuple_normalized())
+                                # clicked = PyImGui.button(f"{skill.custom_skill.skill_name}")
+                                PyImGui.pop_style_color(4)
+                                PyImGui.same_line(0, 5)
                                 PyImGui.same_line(0, -1)
-                                PyImGui.text_colored(f"{skill.mana_required_to_cast}",  Utils.RGBToNormal(27, 126, 246, 255))
-                                allowed_names = [x.name for x in (skill.allowed_states or [])]
-                                PyImGui.bullet_text(f"allowed in : {allowed_names}")
-                                PyImGui.bullet_text(f"are_common_pre_checks_valid : {skill.are_common_pre_checks_valid(instance.get_final_state())}")
-                                PyImGui.bullet_text(f"are_plugin_preconditions_satisfied : {skill.are_preconditions_satisfied()}")
-                                PyImGui.bullet_text(f"slot:{skill.custom_skill.skill_slot}")
-                                PyImGui.bullet_text(f"score_definition:{skill.score_definition.score_definition_debug_ui()}")
 
-                                # capabilities debug ui
-                                for plugin in skill.get_plugins():
-                                    plugin_type = plugin.__class__.__bases__[0].__name__
-                                    color_watchdog = Color(0, 100, 0)
-                                    color_precondition = Color(0, 139, 139)
-                                    color_targeting = Color(0, 0, 139)
-                                    color = color_watchdog if plugin_type == "UtilitySkillWatchdog" else color_precondition if plugin_type == "UtilitySkillPrecondition" else color_targeting
+                                black_color = Color(0, 0, 0, 255)
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.Button, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonHovered, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.ButtonActive, UtilitySkillTypologyColor.get_color_from_typology(score[0].utility_skill_typology))
+                                PyImGui.push_style_color(PyImGui.ImGuiCol.Text, black_color.to_tuple_normalized())
+                                PyImGui.button(f"score{label_generic_utility(skill)} : {score_text}##{id(skill)}")
 
-                                    hovered_color = Color(
-                                        max(0, color.r - 30),
-                                        max(0, color.g - 30),
-                                        max(0, color.b - 30),
-                                        color.a
-                                    )
-                                    active_color = Color(
-                                        max(0, color.r - 50),
-                                        max(0, color.g - 50),
-                                        max(0, color.b - 50),
-                                        color.a
-                                    )
+                                PyImGui.pop_style_color(4)
 
-                                    # Style the collapsing header with background colors
-                                    PyImGui.push_style_color(PyImGui.ImGuiCol.Header, color.to_tuple_normalized())
-                                    PyImGui.push_style_color(PyImGui.ImGuiCol.HeaderHovered, hovered_color.to_tuple_normalized())
-                                    PyImGui.push_style_color(PyImGui.ImGuiCol.HeaderActive, active_color.to_tuple_normalized())
+                                if unique_key in EXPANDED_SKILL_IDS:
+                                    if skill.has_persistence():
+                                        PyImGui.bullet_text(f"Persistence :")
+                                        if PyImGui.button(f"Save for account {IconsFontAwesome5.ICON_SAVE}"):
+                                            skill.persist_configuration_for_account()
+                                        PyImGui.same_line(0, 5)
+                                        if PyImGui.button(f"Save global {IconsFontAwesome5.ICON_SAVE}"):
+                                            skill.persist_configuration_as_global()
+                                        PyImGui.same_line(0, 5)
+                                        if PyImGui.button(f"Delete {IconsFontAwesome5.ICON_TRASH}"):
+                                            skill.delete_persisted_configuration()
 
-                                    # Collapsing header for plugin (TreeNodeFlags.DefaultOpen makes it open by default)
-                                    if PyImGui.collapsing_header(f"plugin {plugin_type} : {plugin.plugin_name}##{id(plugin)}", PyImGui.TreeNodeFlags.DefaultOpen):
-                                        plugin.render_debug_ui()
-                                    
-                                    PyImGui.pop_style_color(3)
+                                    PyImGui.bullet_text(f"{skill.__class__.__name__}")
+                                    PyImGui.bullet_text("required ressource")
+                                    PyImGui.same_line(0, -1)
+                                    PyImGui.text_colored(f"{skill.mana_required_to_cast}",  Utils.RGBToNormal(27, 126, 246, 255))
+                                    allowed_names = [x.name for x in (skill.allowed_states or [])]
+                                    PyImGui.bullet_text(f"allowed in : {allowed_names}")
+                                    PyImGui.bullet_text(f"are_common_pre_checks_valid : {skill.are_common_pre_checks_valid(instance.get_final_state())}")
+                                    PyImGui.bullet_text(f"are_plugin_preconditions_satisfied : {skill.are_preconditions_satisfied()}")
+                                    PyImGui.bullet_text(f"slot:{skill.custom_skill.skill_slot}")
+                                    PyImGui.bullet_text(f"score_definition:{skill.score_definition.score_definition_debug_ui()}")
 
-                                # customized_debug_ui
-                                skill.customized_debug_ui(instance.get_final_state())
+                                    # capabilities debug ui
+                                    for plugin in skill.get_plugins():
+                                        plugin_type = plugin.__class__.__bases__[0].__name__
+                                        color_watchdog = Color(0, 100, 0)
+                                        color_precondition = Color(0, 139, 139)
+                                        color_targeting = Color(0, 0, 139)
+                                        color = color_watchdog if plugin_type == "UtilitySkillWatchdog" else color_precondition if plugin_type == "UtilitySkillPrecondition" else color_targeting
+
+                                        hovered_color = Color(
+                                            max(0, color.r - 30),
+                                            max(0, color.g - 30),
+                                            max(0, color.b - 30),
+                                            color.a
+                                        )
+                                        active_color = Color(
+                                            max(0, color.r - 50),
+                                            max(0, color.g - 50),
+                                            max(0, color.b - 50),
+                                            color.a
+                                        )
+
+                                        # Style the collapsing header with background colors
+                                        PyImGui.push_style_color(PyImGui.ImGuiCol.Header, color.to_tuple_normalized())
+                                        PyImGui.push_style_color(PyImGui.ImGuiCol.HeaderHovered, hovered_color.to_tuple_normalized())
+                                        PyImGui.push_style_color(PyImGui.ImGuiCol.HeaderActive, active_color.to_tuple_normalized())
+
+                                        # Collapsing header for plugin (TreeNodeFlags.DefaultOpen makes it open by default)
+                                        if PyImGui.collapsing_header(f"plugin {plugin_type} : {plugin.plugin_name}##{id(plugin)}", PyImGui.TreeNodeFlags.DefaultOpen):
+                                            plugin.render_debug_ui()
+
+                                        PyImGui.pop_style_color(3)
+
+                                    # customized_debug_ui
+                                    skill.customized_debug_ui(instance.get_final_state())
 
 
-
-                            PyImGui.table_next_row()
-                        PyImGui.end_table()
-                    PyImGui.end_tab_item()
+                                PyImGui.table_next_row()
+                            PyImGui.end_table()
+                        PyImGui.end_tab_item()
 
                 # Tab 2: Scoring (ordered by computed score)
-                if PyImGui.begin_tab_item("scoring"):
+                if PyImGui.begin_tab_item("*SCORING*"):
                     PyImGui.text("order skills based on their calculated score")
                     sorted_scores = sorted(scores, key=lambda s: (s[1] is None, -s[1] if s[1] is not None else 0))
                     if PyImGui.begin_table("skills_compact", 3, PyImGui.TableFlags.RowBg | PyImGui.TableFlags.SizingStretchProp):

@@ -1,5 +1,7 @@
 from typing import Any, Generator, override
 
+import PyImGui
+
 from Py4GWCoreLib import GLOBAL_CACHE, Range, Player
 from Py4GWCoreLib.enums import ModelID
 from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorState
@@ -104,3 +106,10 @@ class ScrollOfResurrectionUtility(CustomSkillUtilityBase):
                 return BehaviorResult.ACTION_SKIPPED
         finally:
             CustomBehaviorParty().get_shared_lock_manager().release_locks(acquired_locks)
+
+    @override
+    def customized_debug_ui(self, current_state: BehaviorState) -> None:
+        PyImGui.bullet_text(f"min_dead_allies_required : {self.min_dead_allies_required}")
+        PyImGui.bullet_text(f"has_scroll_in_inventory : {self._has_scroll_in_inventory()}")
+        PyImGui.bullet_text(f"number_of_scroll_in_inventory : {GLOBAL_CACHE.Inventory.GetModelCount(self.scroll_of_resurrection_model_id)}")
+        PyImGui.bullet_text(f"dead_allies : {self._get_dead_allies()}")

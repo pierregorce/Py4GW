@@ -5,6 +5,7 @@ from Sources.oazix.CustomBehaviors.primitives.behavior_state import BehaviorStat
 from Sources.oazix.CustomBehaviors.primitives.bus.event_bus import EventBus
 from Sources.oazix.CustomBehaviors.primitives.helpers import custom_behavior_helpers
 from Sources.oazix.CustomBehaviors.primitives.helpers.behavior_result import BehaviorResult
+from Sources.oazix.CustomBehaviors.primitives.helpers.observers.damage_received.damage_received_observer import DamageReceivedObserver
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally import TargetingAlly
 from Sources.oazix.CustomBehaviors.primitives.helpers.targeting.allies.targeting_ally_data import TargetingAllyData
 from Sources.oazix.CustomBehaviors.primitives.scores.healing_score import HealingScore
@@ -39,10 +40,20 @@ class SeedOfLifeUtility(CustomSkillUtilityBase):
         self.add_plugin_targetting_modifier(lambda x: BuffConfigurator(event_bus, self.custom_skill, buff_configuration_per_profession= BuffConfigurationPerProfession.BUFF_CONFIGURATION_ALL))
 
     def _get_targets(self) -> list[TargetingAllyData]:
+
+        damage_packets_window_ms = 3000
+
         targets: list[TargetingAllyData] = TargetingAlly.create().get_allies(
             within_range=Range.Spellcast.value * 1.2,
-            condition_predicate=lambda ally_data: Agent.GetHealth(ally_data.agent_id) < 0.9 and self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
-            sort_asc_predicate=lambda ally_data: (ally_data.hp, ally_data.distance_from_player))
+            condition_predicate=lambda ally_data: 
+                Agent.GetHealth(ally_data.agent_id) < 0.9 
+                and self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id)
+                and DamageReceivedObserver().damage_received_time_serie.get_number_of_damage_packets(ally_data.agent_id, damage_packets_window_ms) > 3,
+            sort_asc_predicate=lambda ally_data: (
+                DamageReceivedObserver().damage_received_time_serie.get_number_of_damage_packets(ally_data.agent_id, damage_packets_window_ms),
+                ally_data.hp, 
+                ally_data.distance_from_player))
+
         return targets
 
     @override

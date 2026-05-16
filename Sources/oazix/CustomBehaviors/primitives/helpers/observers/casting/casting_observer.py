@@ -123,6 +123,11 @@ class CastingObserver:
         # Snapshot is source of truth - event only sets interrupt flag
         agents_to_remove = []
         for agent_id in self._current_casts.keys():
+            
+            if not Agent.IsValid(agent_id):
+                agents_to_remove.append(agent_id)
+                continue
+
             if agent_id not in currently_casting_agents:
                 # Check if interrupt event fired for this agent
                 was_interrupted = agent_id in self._interrupted_agents
