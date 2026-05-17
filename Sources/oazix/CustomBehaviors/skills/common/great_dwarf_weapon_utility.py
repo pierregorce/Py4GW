@@ -61,7 +61,7 @@ class GreatDwarfWeaponUtility(CustomSkillUtilityBase):
                     ally_data.agent_id != Player.GetAgentID() and
                     not Agent.IsWeaponSpelled(ally_data.agent_id) and
                     self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id),
-                sort_asc_predicate=lambda ally_data: (-ally_data.distance_from_player, 0 if ally_data.is_caster else 1))
+                sort_asc_predicate=lambda ally_data: (-ally_data.distance_from_player))
 
         return target[0].agent_id if target else None
 

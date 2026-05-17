@@ -361,7 +361,7 @@ class BuffConfigurationPerPlayerEmail(CustomBuffTarget):
             PyImGui.same_line(0, 5)
 
             # Up arrow button
-            if PyImGui.button(f"{IconsFontAwesome5.ICON_ARROW_UP}##up"):
+            if PyImGui.button(f"{IconsFontAwesome5.ICON_ARROW_UP}##up_{id(email)}"):
                 if index > 0:
                     with self.__lock:
                         self.__email_order[index], self.__email_order[index-1] = self.__email_order[index-1], self.__email_order[index]
@@ -370,7 +370,7 @@ class BuffConfigurationPerPlayerEmail(CustomBuffTarget):
             PyImGui.same_line(0, 5)
 
             # Down arrow button
-            if PyImGui.button(f"{IconsFontAwesome5.ICON_ARROW_DOWN}##down"):
+            if PyImGui.button(f"{IconsFontAwesome5.ICON_ARROW_DOWN}##down_{id(email)}"):
                 if index < len(sorted_emails) - 1:
                     with self.__lock:
                         self.__email_order[index], self.__email_order[index+1] = self.__email_order[index+1], self.__email_order[index]
@@ -388,14 +388,14 @@ class BuffConfigurationPerPlayerEmail(CustomBuffTarget):
                 # Draw an emphasized bordered small button when active (consistent height)
                 PyImGui.push_style_var(ImGui.ImGuiStyleVar.FrameBorderSize, 3)
                 PyImGui.push_style_color(PyImGui.ImGuiCol.Border, Utils.ColorToTuple(Utils.RGBToColor(3, 244, 60, 255)))
-                if PyImGui.small_button(f"{label}{stable_id}"):
+                if PyImGui.small_button(f"{label}{stable_id}##{id(email)}"):
                     with self.__lock:
                         entry.is_activated = False
                 ImGui.show_tooltip(f"Deactivate buff for {email}")
                 PyImGui.pop_style_var(1)
                 PyImGui.pop_style_color(1)
             else:
-                if PyImGui.small_button(f"{label}{stable_id}"):
+                if PyImGui.small_button(f"{label}{stable_id}##{id(email)}"):
                     with self.__lock:
                         entry.is_activated = True
                 ImGui.show_tooltip(f"Activate buff for {email}")

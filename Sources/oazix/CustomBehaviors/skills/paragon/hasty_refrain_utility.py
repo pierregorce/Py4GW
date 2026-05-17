@@ -53,7 +53,7 @@ class HastyRefrainUtility(CustomSkillUtilityBase):
                 condition_predicate=lambda ally_data:
                     self.get_plugin_targeting_modifiers_filtering_predicate_any()(ally_data.agent_id) and
                     not custom_behavior_helpers.Resources.is_ally_under_specific_effect(ally_data.agent_id, self.custom_skill.skill_id),
-                sort_asc_predicate=lambda ally_data: (ally_data.distance_from_player, 0 if ally_data.is_caster else 1))
+                sort_asc_predicate=lambda ally_data: (ally_data.distance_from_player))
 
         # sort by priority
         targets.sort(key=lambda target: self.get_plugin_targeting_modifiers_ordering_predicate()(target.agent_id))
